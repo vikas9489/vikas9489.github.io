@@ -3,145 +3,403 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bytevikas</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>bytevikas | Android Developer</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* --- CSS VARIABLES & RESET --- */
+    :root {
+      --bg-color: #050505;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --accent-primary: #3b82f6; /* Kotlin Blue */
+      --accent-secondary: #10b981; /* Android Green */
+      --glow: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
       scroll-behavior: smooth;
     }
 
     body {
-      background-color: #0d0d0d;
-      color: #ffffff;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
       line-height: 1.6;
-      padding: 40px 20px;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
     }
 
+    /* Ambient Background Glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    /* --- LAYOUT UTILS --- */
     .container {
-      max-width: 900px;
-      margin: auto;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 56px;
-      letter-spacing: 2px;
-    }
-
-    h1 span {
-      color: #4da3ff;
-    }
-
-    .subtitle {
-      margin-top: 16px;
-      font-size: 20px;
-      color: #bbbbbb;
-    }
-
-    .tagline {
-      margin-top: 8px;
-      font-size: 18px;
-      color: #888;
-    }
-
-    .buttons {
-      margin-top: 30px;
-    }
-
-    .buttons a {
-      text-decoration: none;
-      background: #4da3ff;
-      color: black;
-      padding: 12px 22px;
-      margin: 8px;
-      border-radius: 6px;
-      font-weight: 600;
-      display: inline-block;
-      transition: 0.3s;
-    }
-
-    .buttons a:hover {
-      opacity: 0.85;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
     section {
-      margin-top: 80px;
-      text-align: left;
+      margin: 100px 0;
     }
 
-    h2 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      color: #4da3ff;
+    /* --- TYPOGRAPHY --- */
+    h1, h2, h3 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: white;
     }
 
-    .project {
-      margin-bottom: 20px;
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    .project p {
-      color: #bbb;
-      font-size: 16px;
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    footer {
-      margin-top: 80px;
-      text-align: center;
+    /* --- HERO SECTION --- */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 50px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
       font-size: 14px;
-      color: #666;
+      font-weight: 600;
+      margin-bottom: 24px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 38px; }
-      .subtitle { font-size: 18px; }
+    .hero h1 {
+      font-size: clamp(48px, 8vw, 80px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(18px, 4vw, 22px);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    /* --- BUTTONS --- */
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: white;
+      color: black;
+      border: 1px solid white;
+    }
+
+    .btn-primary:hover {
+      background: #e2e2e2;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -10px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      border-color: white;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* --- SKILL CHIPS --- */
+    .tech-stack {
+      margin-top: 60px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+      transition: 0.3s;
+      cursor: default;
+    }
+
+    .chip:hover {
+      border-color: var(--accent-primary);
+      color: white;
+    }
+
+    /* --- PROJECTS GRID --- */
+    .section-header {
+      margin-bottom: 40px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .section-header h2 {
+      font-size: 32px;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Subtle gradient overlay on hover */
+    .project-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+      opacity: 0;
+      transition: 0.4s;
+      pointer-events: none;
+    }
+    
+    .project-card:hover::after {
+      opacity: 1;
+    }
+
+    .project-title {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: white;
+    }
+
+    .project-desc {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .project-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .tag-sm {
+      font-size: 12px;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      color: #ccc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 80px;
+    }
+
+    footer a {
+      color: var(--text-main);
+      text-decoration: none;
+      margin: 0 10px;
+      transition: 0.3s;
+    }
+
+    footer a:hover {
+      color: var(--accent-primary);
+    }
+
+    /* --- ANIMATION KEYFRAMES --- */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 48px; }
+      .btn { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 
 <body>
+
   <div class="container">
 
-    <!-- Hero -->
-    <h1>&lt;<span>bytevikas</span>/&gt;</h1>
-    <p class="subtitle">Android Developer • Kotlin • Jetpack Compose • 4+ Years</p>
-    <p class="tagline">I build performant, scalable Android apps with clean architecture and modern UI.</p>
+    <section class="hero">
+      <div class="hero-tag">Android Developer • 4+ Years Exp.</div>
+      <h1>
+        Building <span class="gradient-text">stunning</span><br> 
+        mobile experiences.
+      </h1>
+      <p class="subtitle">
+        I am <span class="code-font" style="color:white">&lt;bytevikas/&gt;</span>. 
+        I craft performant, scalable Android apps with Clean Architecture and Jetpack Compose.
+      </p>
 
-    <div class="buttons">
-      <a href="#projects">View Projects</a>
-      <a href="https://github.com/vikas9489" target="_blank">GitHub</a>
-      <a href="mailto:hi@bytevikas.com">Contact</a>
-    </div>
+      <div class="btn-group">
+        <a href="#projects" class="btn btn-primary">View Work</a>
+        <a href="https://github.com/vikas9489" target="_blank" class="btn btn-secondary">
+          <span class="code-font">git push --contact</span>
+        </a>
+      </div>
 
-    <!-- Projects -->
+      <div class="tech-stack">
+        <div class="chip">Kotlin</div>
+        <div class="chip">Jetpack Compose</div>
+        <div class="chip">Coroutines</div>
+        <div class="chip">HLS/DASH</div>
+        <div class="chip">Clean Arch</div>
+        <div class="chip">CI/CD</div>
+      </div>
+    </section>
+
     <section id="projects">
-      <h2>Projects</h2>
-
-      <div class="project">
-        <b>Live Streaming App</b>
-        <p>Implemented HLS/DASH streaming, aggressive caching, and startup performance optimizations.</p>
+      <div class="section-header">
+        <h2>Selected Projects</h2>
+        <span class="code-font" style="color: var(--text-muted); font-size: 14px;">// recent_work.kt</span>
       </div>
 
-      <div class="project">
-        <b>E-commerce Application</b>
-        <p>MVVM + Clean Architecture, Coroutines, Pagination, and scalable network layer.</p>
-      </div>
+      <div class="projects-grid">
+        
+        <div class="project-card">
+          <div>
+            <h3 class="project-title">Live Streaming App</h3>
+            <p class="project-desc">High-performance streaming engine implementing HLS/DASH protocols with aggressive caching strategies and startup time optimization.</p>
+          </div>
+          <div class="project-tags">
+            <span class="tag-sm">ExoPlayer</span>
+            <span class="tag-sm">Kotlin</span>
+            <span class="tag-sm">Cache Opt</span>
+          </div>
+        </div>
 
-      <div class="project">
-        <b>Jetpack Compose UI Components</b>
-        <p>Reusable components, animations, and custom UI systems built with Compose.</p>
+        <div class="project-card">
+          <div>
+            <h3 class="project-title">E-commerce App</h3>
+            <p class="project-desc">A scalable shopping platform built with MVVM + Clean Architecture. Features complex pagination, offline support, and a modular network layer.</p>
+          </div>
+          <div class="project-tags">
+            <span class="tag-sm">MVVM</span>
+            <span class="tag-sm">Room DB</span>
+            <span class="tag-sm">Flow</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div>
+            <h3 class="project-title">Compose UI Kit</h3>
+            <p class="project-desc">A comprehensive library of reusable custom UI components, complex animations, and a theming system distributed via JitPack.</p>
+          </div>
+          <div class="project-tags">
+            <span class="tag-sm">Jetpack Compose</span>
+            <span class="tag-sm">Canvas API</span>
+            <span class="tag-sm">Animations</span>
+          </div>
+        </div>
+
       </div>
     </section>
 
     <footer>
-      © 2026 bytevikas.com
+      <p>© 2026 bytevikas.com • Built with <span style="color:var(--accent-primary)">Kotlin</span> & Coffee</p>
+      <div style="margin-top: 10px;">
+        <a href="mailto:hi@bytevikas.com">Email Me</a>
+        <a href="https://github.com/vikas9489">GitHub</a>
+        <a href="#">LinkedIn</a>
+      </div>
     </footer>
 
   </div>
+
 </body>
 </html>
