@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How I Cut App Startup Time by 60% — bytevikas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{
+      display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+      margin-bottom:28px;
+    }
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--blue-light);
+      background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{
+      font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;
+      margin:48px 0 16px;letter-spacing:-0.3px;
+    }
+    .post-body h3{
+      font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;
+      margin:32px 0 12px;color:var(--muted-light);
+    }
+    .post-body p{
+      font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;
+    }
+    .post-body ul,.post-body ol{
+      padding-left:24px;margin-bottom:22px;
+    }
+    .post-body li{
+      font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;
+    }
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{
+      background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;
+    }
+    .callout{
+      background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);
+      border-left:3px solid var(--blue-light);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .divider{
+      border:none;border-top:1px solid var(--card-border);margin:60px 0;
+    }
+
+    .result-box{
+      background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);
+      border-radius:16px;padding:28px 32px;margin:32px 0;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;
+    }
+    .result-val{
+      font-family:'Outfit',sans-serif;font-size:36px;font-weight:900;
+      color:var(--green-light);
+    }
+    .result-lbl{font-size:13px;color:var(--muted-light);margin-top:4px;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--blue-light);}
+
+    @media(max-width:600px){
+      .result-box{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Performance</span>
+      <span class="post-date">May 12, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>How I Cut App Startup Time by 60% on a Production Android App</h1>
+
+    <div class="post-body">
+
+      <p>Last quarter, our app's cold start time was sitting at around <strong style="color:white">1,800ms</strong> on a mid-range device. Users were complaining. Play Console vitals had us in the "slow" bucket. Something had to change.</p>
+
+      <p>After three weeks of profiling, identifying bottlenecks, and shipping fixes, we brought it down to <strong style="color:white">720ms</strong> — a 60% reduction with no features removed and no architecture changes. Here's exactly what we did.</p>
+
+      <div class="result-box">
+        <div><div class="result-val">1800ms</div><div class="result-lbl">Before (cold start)</div></div>
+        <div><div class="result-val">720ms</div><div class="result-lbl">After (cold start)</div></div>
+        <div><div class="result-val">60%</div><div class="result-lbl">Reduction</div></div>
+      </div>
+
+      <h2>Step 1 — Profile Before You Guess</h2>
+
+      <p>The worst thing you can do is assume you know the bottleneck. I've seen engineers spend days optimizing a RecyclerView adapter when the real problem was a content provider blocking the main thread on startup.</p>
+
+      <p>I used two tools:</p>
+      <ul>
+        <li><strong style="color:white">Android Studio's App Startup profiler</strong> — gives you a breakdown of time spent in Application, content providers, and first Activity</li>
+        <li><strong style="color:white">Macrobenchmark</strong> — measures real cold start times with <code>StartupMode.COLD</code> and reports percentile timing</li>
+      </ul>
+
+      <pre><code>@RunWith(AndroidJUnit4::class)
+class StartupBenchmark {
+    @get:Rule
+    val benchmarkRule = MacrobenchmarkRule()
+
+    @Test
+    fun startup() = benchmarkRule.measureRepeated(
+        packageName = "com.bytevikas.app",
+        metrics = listOf(StartupTimingMetric()),
+        iterations = 10,
+        startupMode = StartupMode.COLD
+    ) {
+        pressHome()
+        startActivityAndWait()
+    }
+}</code></pre>
+
+      <p>Running this revealed two major culprits that together consumed 900ms of our startup budget.</p>
+
+      <h2>Bottleneck 1 — A Content Provider Nobody Knew About</h2>
+
+      <p>Firebase and several other SDKs register <code>ContentProvider</code> classes that auto-initialize on app start. Each one runs on the main thread before your <code>Application.onCreate()</code> even fires. We had six of them.</p>
+
+      <p>The fix is <code>App Startup</code> library — it collapses all these into a single content provider and lets you defer initialization:</p>
+
+      <pre><code>&lt;!-- AndroidManifest.xml --&gt;
+&lt;provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup"
+    android:exported="false"&gt;
+    &lt;meta-data
+        android:name="com.google.firebase.components.FirebaseComponentDiscoveryService"
+        android:value="androidx.startup" /&gt;
+&lt;/provider&gt;</code></pre>
+
+      <p>For Firebase specifically, we deferred it until after the first screen painted. This alone saved us <strong style="color:white">380ms</strong>.</p>
+
+      <h2>Bottleneck 2 — The DI Graph Was Too Eager</h2>
+
+      <p>We were using Hilt and had our entire dependency graph — including network clients, database instances, and repositories — initialized in <code>@Singleton</code> scope during app startup. None of this was needed on the splash screen.</p>
+
+      <p>The fix: move to lazy initialization. Hilt supports this natively via <code>Lazy&lt;T&gt;</code>:</p>
+
+      <pre><code>class HomeViewModel @Inject constructor(
+    // Before: eagerly creates everything at injection time
+    private val userRepository: UserRepository,
+
+    // After: actual object created only when first accessed
+    private val analyticsService: Lazy&lt;AnalyticsService&gt;,
+    private val syncManager: Lazy&lt;SyncManager&gt;
+) : ViewModel()</code></pre>
+
+      <div class="callout">
+        <p>Rule of thumb: anything that isn't needed on the first frame the user sees should be <code>Lazy&lt;T&gt;</code>. Sync managers, analytics, crash reporters, notification handlers — all deferred.</p>
+      </div>
+
+      <h2>Bottleneck 3 — No Baseline Profile</h2>
+
+      <p>AOT compilation on Android is profile-guided. Without a Baseline Profile, the JIT compiler has to interpret bytecode at runtime for every method it hasn't seen before. The first launch is always the slowest as a result.</p>
+
+      <p>Adding a Baseline Profile tells the system to AOT-compile the critical code paths during app install:</p>
+
+      <pre><code>@RunWith(AndroidJUnit4::class)
+@LargeTest
+class BaselineProfileGenerator {
+    @get:Rule
+    val rule = BaselineProfileRule()
+
+    @Test
+    fun generate() {
+        rule.collect(packageName = "com.bytevikas.app") {
+            pressHome()
+            startActivityAndWait()
+            // Walk through critical user flows
+            device.findObject(By.text("Home")).click()
+            device.waitForIdle()
+        }
+    }
+}</code></pre>
+
+      <p>Pair this with <code>ProfileInstaller</code> in your app so the profile is installed during first launch on Play Store installs. This gave us another <strong style="color:white">~140ms</strong> reduction on supported devices (Android 9+).</p>
+
+      <h2>Minor Wins That Added Up</h2>
+
+      <ul>
+        <li>Removed a <code>StrictMode</code> call that was accidentally left in non-debug builds</li>
+        <li>Replaced synchronous SharedPreferences reads on startup with DataStore (async)</li>
+        <li>Moved a network status check (with a 200ms timeout) to post-render</li>
+        <li>Cut splash screen drawable complexity — a complex animated vector was taking 80ms to inflate</li>
+      </ul>
+
+      <hr class="divider" />
+
+      <h2>What I'd Do Differently Next Time</h2>
+
+      <p>Add startup timing to CI from day one. We should have caught the content provider issue months earlier — it was added by a dependency update and nobody noticed because we had no automated startup regression tests. A Macrobenchmark run on every PR would have caught it immediately.</p>
+
+      <p>Also: profile on a real mid-range device, not the emulator or a flagship. Pixel 8 Pro numbers will lie to you. Test on a device in the P50 tier — that's where your actual users are.</p>
+
+    </div>
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

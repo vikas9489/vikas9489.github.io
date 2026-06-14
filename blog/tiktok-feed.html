@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a TikTok-Style Vertical Feed with ExoPlayer — bytevikas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--purple:#a78bfa;--purple-light:#c084fc;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(139,92,246,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--purple-light);
+      background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:48px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#c084fc;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.2);
+      border-left:3px solid var(--purple-light);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .warn-callout{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .warn-callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--purple-light);}
+  </style>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Video</span>
+      <span class="post-date">Mar 14, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Building a TikTok-Style Vertical Feed with ExoPlayer</h1>
+
+    <div class="post-body">
+
+      <p>When I was building Samachar — a real-time news app — the product team wanted a TikTok-style vertical video feed that autoplays news clips as users scroll. Simple enough as a product requirement. Non-trivial to build well.</p>
+
+      <p>The naive implementation would have been a RecyclerView where each item creates and releases its own <code>ExoPlayer</code> instance. It "works" until you scroll fast, then you get blank frames, memory spikes, and dropped frames on mid-range devices. Here's how I built it the right way.</p>
+
+      <h2>Architecture Decision: ViewPager2 vs RecyclerView</h2>
+
+      <p>First question: should you use <code>ViewPager2</code> or a plain <code>RecyclerView</code> with snap behavior?</p>
+
+      <p>I went with <strong style="color:white">ViewPager2</strong> for one reason: it enforces one-item-at-a-time scrolling at the framework level. You get the page-snapping behavior for free, it handles accessibility correctly, and the lifecycle callbacks (<code>onPageSelected</code>) make it trivial to know which video is active at any moment.</p>
+
+      <p>The downside: ViewPager2's default offscreen page limit is 0, meaning pages outside the viewport get destroyed. For video, this means we need to handle preloading ourselves — which we would have to do anyway.</p>
+
+      <h2>The Core Insight: One Player Pool, Many Surfaces</h2>
+
+      <p>The key architectural decision: <strong style="color:white">don't create one ExoPlayer per item</strong>. ExoPlayer instances are expensive — each one allocates codec resources, a decoder thread, and a buffer pool. Creating and destroying them on scroll is both slow and memory-intensive.</p>
+
+      <p>Instead, use a pool of 3 players — current, next, and previous — and swap them across items as the user scrolls:</p>
+
+      <pre><code>class VideoPlayerPool {
+    private val players = mutableListOf&lt;ExoPlayer&gt;()
+    private val playerMap = mutableMapOf&lt;Int, ExoPlayer&gt;()  // page -> player
+
+    fun getPlayer(context: Context, page: Int): ExoPlayer {
+        return playerMap.getOrPut(page) {
+            players.removeFirstOrNull() ?: buildPlayer(context)
+        }
+    }
+
+    fun releaseFor(page: Int) {
+        playerMap.remove(page)?.let { player ->
+            player.stop()
+            player.clearMediaItems()
+            players.add(player)  // return to pool
+        }
+    }
+
+    private fun buildPlayer(context: Context) = ExoPlayer.Builder(context)
+        .setLoadControl(
+            DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                    DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+                    DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
+                    500,   // playback start buffer: 500ms is enough to start
+                    DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                )
+                .build()
+        )
+        .build()
+
+    fun releaseAll() {
+        players.forEach { it.release() }
+        playerMap.values.forEach { it.release() }
+        players.clear()
+        playerMap.clear()
+    }
+}</code></pre>
+
+      <h2>Preloading: Start Buffering Before the User Gets There</h2>
+
+      <p>The smoothest feeds preload the next video before the user swipes to it. With ViewPager2, we can hook into the page change callback to preload adjacent items:</p>
+
+      <pre><code>viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+    override fun onPageSelected(position: Int) {
+        // Play current
+        val currentPlayer = playerPool.getPlayer(context, position)
+        currentPlayer.setMediaItem(MediaItem.fromUri(videoUrls[position]))
+        currentPlayer.prepare()
+        currentPlayer.play()
+
+        // Preload next
+        if (position + 1 < videoUrls.size) {
+            val nextPlayer = playerPool.getPlayer(context, position + 1)
+            nextPlayer.setMediaItem(MediaItem.fromUri(videoUrls[position + 1]))
+            nextPlayer.prepare()
+            // Don't play — just buffer
+        }
+
+        // Release previous (not the one before current — keep it for back-swipe)
+        if (position > 1) {
+            playerPool.releaseFor(position - 2)
+        }
+    }
+})</code></pre>
+
+      <div class="callout">
+        <p>Keep 3 players alive at any time: <code>position - 1</code>, <code>position</code>, and <code>position + 1</code>. Release <code>position - 2</code> and beyond. This gives instant playback in either scroll direction without keeping the entire list buffered.</p>
+      </div>
+
+      <h2>Attaching the Player to the ViewHolder</h2>
+
+      <p>Each ViewPager2 page holds a <code>PlayerView</code>. The player needs to be attached to whichever surface is currently visible:</p>
+
+      <pre><code>class VideoViewHolder(private val binding: ItemVideoBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(videoUrl: String, player: ExoPlayer) {
+        // Detach from any previous surface
+        player.clearVideoSurface()
+
+        // Attach to this holder's surface
+        player.setVideoSurfaceView(binding.playerView.videoSurfaceView)
+
+        // PlayerView's own player reference
+        binding.playerView.player = player
+    }
+
+    fun unbind() {
+        binding.playerView.player = null
+    }
+}</code></pre>
+
+      <div class="warn-callout">
+        <p>Always call <code>player.clearVideoSurface()</code> before attaching a player to a new <code>SurfaceView</code>. Skipping this causes a black frame flash as the old surface tears away.</p>
+      </div>
+
+      <h2>Memory Management: The OOM Trap</h2>
+
+      <p>Video buffers are large. Without discipline, a 20-item feed will OOM on anything below 3GB RAM. Three rules I follow:</p>
+
+      <ol>
+        <li><strong style="color:white">Cap the player pool at 3.</strong> Never let more than 3 ExoPlayer instances exist simultaneously.</li>
+        <li><strong style="color:white">Clear media items, don't release.</strong> Releasing a player destroys the codec. Clearing media items frees the buffer while keeping the codec warm for reuse.</li>
+        <li><strong style="color:white">Release everything in <code>onDestroyView()</code>.</strong> Call <code>playerPool.releaseAll()</code> when the fragment dies. If you leak even one player, the codec stays allocated and your next fragment will OOM on decoder creation.</li>
+      </ol>
+
+      <pre><code>override fun onDestroyView() {
+    super.onDestroyView()
+    viewPager.unregisterOnPageChangeCallback(pageChangeCallback)
+    playerPool.releaseAll()
+    _binding = null
+}</code></pre>
+
+      <h2>Smooth Transitions: The Gap Frame Problem</h2>
+
+      <p>When the user swipes quickly, there's a brief moment where the incoming page's player hasn't rendered its first frame yet, so the user sees a black flash. Fix it with a thumbnail:</p>
+
+      <pre><code>// In your PlayerView, set a static thumbnail that shows until the first frame renders
+binding.playerView.apply {
+    setShutterBackgroundColor(Color.TRANSPARENT)
+    // Coil or Glide loads thumbnail into this ImageView
+    Glide.with(context)
+        .load(thumbnailUrl)
+        .into(binding.thumbnailImage)
+}
+
+// Hide the thumbnail once ExoPlayer renders its first frame
+player.addListener(object : Player.Listener {
+    override fun onRenderedFirstFrame() {
+        binding.thumbnailImage.animate().alpha(0f).setDuration(150).start()
+    }
+})</code></pre>
+
+      <hr class="divider" />
+
+      <h2>What Samachar's Feed Looks Like</h2>
+
+      <p>With this approach, Samachar's vertical news feed achieves:</p>
+      <ul>
+        <li>First-frame playback in under 300ms on a stable connection</li>
+        <li>Zero OOM crashes across 10K+ daily sessions</li>
+        <li>Smooth 60fps scrolling on mid-range devices (Redmi Note 10 tier)</li>
+        <li>Instant back-swipe playback (because the previous player stays buffered)</li>
+      </ul>
+
+      <p>The pool approach is more complex than the naive one-player-per-item solution, but it's the only approach that holds up at scale. Once you understand the three-player pool model, it becomes intuitive — and you can apply the same pattern to any horizontally or vertically scrolling video feed.</p>
+
+    </div>
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

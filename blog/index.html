@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — bytevikas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050505; --card-bg: rgba(255,255,255,.03); --card-border: rgba(255,255,255,.08);
+      --text: #fff; --muted: #64748b; --muted-light: #94a3b8;
+      --blue: #3b82f6; --blue-light: #60a5fa; --green-light: #34d399;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.6; }
+
+    .glow { position:fixed; z-index:-1; pointer-events:none; filter:blur(90px); }
+    .glow-1 { top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 70%); }
+    .glow-2 { bottom:-10%;right:-10%;width:55%;height:55%;background:radial-gradient(circle,rgba(16,185,129,.05) 0%,transparent 70%); }
+
+    .navbar {
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner { max-width:900px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between; }
+    .nav-logo { font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none; }
+    .nav-back { color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s; }
+    .nav-back:hover { color:white; }
+
+    .container { max-width:900px; margin:0 auto; padding:0 24px; }
+
+    .page-header { padding:120px 0 64px; }
+    .eyebrow {
+      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+      text-transform:uppercase;letter-spacing:2.5px;color:var(--blue-light);margin-bottom:16px;
+    }
+    .page-header h1 {
+      font-family:'Outfit',sans-serif;font-size:clamp(40px,7vw,64px);font-weight:900;
+      letter-spacing:-2px;line-height:1.1;margin-bottom:16px;
+    }
+    .page-header p { color:var(--muted-light);font-size:17px;max-width:480px;line-height:1.7; }
+
+    .posts-list { padding-bottom:100px; }
+
+    .post-item {
+      display:grid;grid-template-columns:auto 1fr;gap:32px;
+      padding:36px 0;border-bottom:1px solid var(--card-border);
+      text-decoration:none;align-items:start;transition:all .2s;
+    }
+    .post-item:hover .post-title { color:var(--blue-light); }
+    .post-item:first-child { border-top:1px solid var(--card-border); }
+
+    .post-date {
+      font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);
+      padding-top:4px;min-width:90px;
+    }
+    .post-cat {
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;
+    }
+    .post-cat.perf  { color:var(--blue-light); }
+    .post-cat.arch  { color:var(--green-light); }
+    .post-cat.video { color:#c084fc; }
+
+    .post-title {
+      font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;
+      color:white;line-height:1.3;margin-bottom:10px;transition:color .2s;
+    }
+    .post-excerpt { font-size:14px;color:var(--muted-light);line-height:1.65;margin-bottom:12px; }
+    .post-read { font-size:12px;color:var(--muted); }
+
+    footer { border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px; }
+    footer a { color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s; }
+    footer a:hover { color:var(--blue-light); }
+
+    @media(max-width:600px){
+      .post-item{grid-template-columns:1fr;}
+      .post-date{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+  <div class="glow glow-2" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="../index.html" class="nav-back">← Back to portfolio</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="page-header">
+      <div class="eyebrow">Writing</div>
+      <h1>Blog</h1>
+      <p>Engineering articles on Android performance, architecture, video streaming, and growing as a developer.</p>
+    </header>
+
+    <section class="posts-list">
+
+      <a href="startup-time-optimization.html" class="post-item">
+        <span class="post-date">May 12, 2026</span>
+        <div>
+          <div class="post-cat perf">Performance</div>
+          <div class="post-title">How I Cut App Startup Time by 60% on a Production Android App</div>
+          <p class="post-excerpt">A deep-dive case study on profiling cold start, eliminating blocking content providers, lazy Hilt initialization, and shipping Baseline Profiles to production.</p>
+          <span class="post-read">8 min read</span>
+        </div>
+      </a>
+
+      <a href="clean-architecture.html" class="post-item">
+        <span class="post-date">Apr 28, 2026</span>
+        <div>
+          <div class="post-cat arch">Architecture</div>
+          <div class="post-title">Clean Architecture on Android: 5 Years of Lessons</div>
+          <p class="post-excerpt">Where Clean Architecture genuinely shines, where it adds unnecessary ceremony, and how I've evolved it across 10+ apps over 5 years of professional Android development.</p>
+          <span class="post-read">12 min read</span>
+        </div>
+      </a>
+
+      <a href="tiktok-feed.html" class="post-item">
+        <span class="post-date">Mar 14, 2026</span>
+        <div>
+          <div class="post-cat video">Video</div>
+          <div class="post-title">Building a TikTok-Style Vertical Feed with ExoPlayer</div>
+          <p class="post-excerpt">How I built Samachar's addictive vertical news feed — the preloading strategy, ViewPager2 pooling tricks, seamless auto-transitions, and avoiding memory leaks in a video list.</p>
+          <span class="post-read">10 min read</span>
+        </div>
+      </a>
+
+    </section>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p style="margin-bottom:12px">© 2026 bytevikas.com</p>
+      <div>
+        <a href="../index.html">Portfolio</a>
+        <a href="https://github.com/vikas9489" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/vikas9489" target="_blank">LinkedIn</a>
+        <a href="https://youtube.com/@bytevikas" target="_blank">YouTube</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
