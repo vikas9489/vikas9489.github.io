@@ -339,9 +339,10 @@
       font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
       text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px;
     }
-    .blog-cat.perf  { color:var(--blue-light); }
-    .blog-cat.arch  { color:var(--green-light); }
-    .blog-cat.video { color:#c084fc; }
+    .blog-cat.perf   { color:var(--blue-light); }
+    .blog-cat.arch   { color:var(--green-light); }
+    .blog-cat.video  { color:#c084fc; }
+    .blog-cat.memory { color:#fb923c; }
     .blog-card h3 {
       font-family:'Outfit',sans-serif; font-size:17px; font-weight:700;
       line-height:1.35; margin-bottom:12px; color:white;
@@ -668,12 +669,22 @@
             </div>
           </a>
 
-          <a href="blog/tiktok-feed.html" class="blog-card reveal delay-3">
+          <a href="blog/tiktok-feed.html" class="blog-card reveal delay-2">
             <div class="blog-cat video">Video</div>
             <h3>Building a TikTok-Style Vertical Feed with ExoPlayer</h3>
             <p>How I built Samachar's addictive vertical feed — preload strategy, ViewPager2 recycling, smooth transitions, and zero memory leaks.</p>
             <div class="blog-meta">
               <span>Mar 14, 2026 &nbsp;·&nbsp; 10 min</span>
+              <span class="read-more">Read →</span>
+            </div>
+          </a>
+
+          <a href="blog/memory-leaks.html" class="blog-card reveal delay-3">
+            <div class="blog-cat memory">Memory</div>
+            <h3>Memory Leaks in Android: How to Detect, Fix, and Never Let Them Slip Again</h3>
+            <p>8 real leak patterns with bad → fixed Kotlin examples, LeakCanary setup, Memory Profiler walkthrough, and a pre-ship checklist.</p>
+            <div class="blog-meta">
+              <span>Jun 15, 2026 &nbsp;·&nbsp; 14 min</span>
               <span class="read-more">Read →</span>
             </div>
           </a>

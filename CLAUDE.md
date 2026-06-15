@@ -102,6 +102,7 @@ vikas9489.github.io/
 | `startup-time-optimization.html` | 60% cold start reduction — Macrobenchmark, lazy Hilt, Baseline Profiles | Performance |
 | `clean-architecture.html` | 5 years of Clean Arch lessons, trade-offs, real patterns | Architecture |
 | `tiktok-feed.html` | ExoPlayer 3-player-pool for vertical video feed (Samachar) | Video |
+| `memory-leaks.html` | 8 leak patterns, LeakCanary, Memory Profiler, prevention checklist | Memory |
 
 **To add a new blog post:**
 1. Copy any existing `blog/*.html` file

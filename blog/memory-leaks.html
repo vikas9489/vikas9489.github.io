@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Leaks in Android: Detect, Fix, Prevent — bytevikas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--orange:#fb923c;--orange-dim:#f97316;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(251,146,60,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);
+      background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.25);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:36px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:var(--orange);
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.75;}
+
+    .label{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;
+    }
+    .label.bad{color:#f87171;}
+    .label.good{color:#4ade80;}
+
+    .callout{
+      background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.22);
+      border-left:3px solid var(--orange);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .danger-callout{
+      background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);
+      border-left:3px solid #f87171;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .danger-callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .tip-callout{
+      background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);
+      border-left:3px solid #4ade80;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .tip-callout p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .checklist{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:16px;padding:28px 32px;margin:32px 0;
+    }
+    .checklist h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px;margin-top:0;color:white;}
+    .checklist ul{padding-left:0;list-style:none;}
+    .checklist li{
+      font-size:15px;color:#c0cdd8;padding:8px 0;
+      border-bottom:1px solid var(--card-border);display:flex;align-items:flex-start;gap:12px;
+    }
+    .checklist li:last-child{border-bottom:none;}
+    .checklist li::before{content:'✓';color:#4ade80;font-weight:700;flex-shrink:0;margin-top:1px;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--orange);}
+  </style>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Memory</span>
+      <span class="post-date">Jun 15, 2026</span>
+      <span class="read-time">14 min read</span>
+    </div>
+
+    <h1>Memory Leaks in Android: How to Detect, Fix, and Never Let Them Slip Again</h1>
+
+    <div class="post-body">
+
+      <p>A memory leak in Android is deceptively simple: an object that is no longer needed stays in memory because something still holds a reference to it. The GC can't collect it. Over time, your heap fills up, your app gets slower, and eventually you get an <code>OutOfMemoryError</code> crash — usually on a mid-range device that a flagship never reproduces.</p>
+
+      <p>I've fixed dozens of leaks across production apps. Most of them came down to the same handful of patterns. This post covers all of them — what causes them, how to find them, and exactly how to fix each one.</p>
+
+      <div class="danger-callout">
+        <p>Memory leaks don't always crash your app. Sometimes they just make it progressively slower and memory-hungry. Users notice before Play Console does — they uninstall before the OOM ever fires.</p>
+      </div>
+
+      <h2>1. How to Detect Memory Leaks</h2>
+
+      <h3>LeakCanary — your first line of defense</h3>
+
+      <p>Add LeakCanary to your debug build only. It automatically watches for Activity, Fragment, ViewModel, and View leaks, and shows a notification with the full reference chain when it finds one.</p>
+
+      <pre><code>// build.gradle.kts
+dependencies {
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+}
+</code></pre>
+
+      <p>That's the entire setup. No code changes needed. When LeakCanary detects a leak, it shows you a chain like:</p>
+
+      <pre><code>┬───
+│ GC Root: Thread
+│
+├─ MyActivity instance
+│    Leaking: YES (Activity#mDestroyed is true)
+│    ↓ MyActivity.handler
+├─ Handler instance
+│    ↓ Handler.callback
+├─ MyActivity$1 instance  ← anonymous inner class
+│    Retaining 1.4 MB
+╰→ MyActivity instance
+     Leaking: YES</code></pre>
+
+      <p>Read it bottom-up: the retained object is at the bottom, and the reference keeping it alive is at the top. In this case, an anonymous inner class inside a Handler is holding a reference to the Activity after it's been destroyed.</p>
+
+      <h3>Android Studio Memory Profiler</h3>
+
+      <p>For leaks LeakCanary doesn't automatically detect (like Bitmap leaks or large data structures), use the Memory Profiler:</p>
+
+      <ol>
+        <li>Run your app with the Profiler attached (Run → Profile)</li>
+        <li>Navigate the screen you suspect is leaking, then navigate away</li>
+        <li>Click <strong style="color:white">Force GC</strong> in the profiler toolbar</li>
+        <li>If memory doesn't drop back down, capture a heap dump</li>
+        <li>In the heap dump, filter by your package name and look for instances of classes that should have been collected (e.g., destroyed Activities)</li>
+      </ol>
+
+      <div class="callout">
+        <p>Always force GC before reading the memory number. Without it, you're seeing allocated objects — not leaked ones. The profiler number after GC is your real baseline.</p>
+      </div>
+
+      <h2>2. The Most Common Leak Patterns</h2>
+
+      <h3>Pattern 1 — Static reference to Activity or Context</h3>
+
+      <p>A static field lives for the lifetime of the process. Assign an Activity to one and that Activity can never be garbage collected, no matter how many times the user rotates the screen or navigates away.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>object AppManager {
+    // Static hold on Activity = leak every time a new Activity is created
+    var currentActivity: Activity? = null
+}
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AppManager.currentActivity = this  // NEVER do this
+    }
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>object AppManager {
+    private var activityRef: WeakReference&lt;Activity&gt;? = null
+
+    fun setActivity(activity: Activity) {
+        activityRef = WeakReference(activity)
+    }
+
+    val currentActivity: Activity?
+        get() = activityRef?.get()
+}
+
+// And always clear in onDestroy
+override fun onDestroy() {
+    super.onDestroy()
+    if (AppManager.currentActivity === this) {
+        AppManager.setActivity(null as Activity)  // or set ref to null
+    }
+}</code></pre>
+
+      <p>Better yet — ask yourself why you need a static reference to an Activity at all. Most of the time, passing <code>applicationContext</code> solves the problem without any reference management.</p>
+
+      <h3>Pattern 2 — Non-static inner class + Handler</h3>
+
+      <p>In Kotlin, a lambda or anonymous object defined inside an Activity or Fragment implicitly holds a reference to its outer class. Post it to a Handler with a delay, and the Activity is kept alive until that message fires — even if the user has already left the screen.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class MainActivity : AppCompatActivity() {
+    private val handler = Handler(Looper.getMainLooper())
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // This lambda captures `this` (MainActivity)
+        handler.postDelayed({
+            updateUI()  // Activity may be destroyed by the time this runs
+        }, 5000)
+    }
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class MainActivity : AppCompatActivity() {
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateRunnable = Runnable { updateUI() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        handler.postDelayed(updateRunnable, 5000)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(updateRunnable)  // cancel pending messages
+    }
+}</code></pre>
+
+      <p>In modern Android, you can sidestep this entirely by using <code>lifecycleScope.launch</code> with a delay — the coroutine is automatically cancelled when the lifecycle ends.</p>
+
+      <pre><code>override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    lifecycleScope.launch {
+        delay(5000)
+        updateUI()  // only runs if the Activity is still alive
+    }
+}</code></pre>
+
+      <h3>Pattern 3 — Singleton holding Activity Context</h3>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class ImageLoader private constructor(private val context: Context) {
+    companion object {
+        private var instance: ImageLoader? = null
+        fun get(context: Context) = instance ?: ImageLoader(context).also { instance = it }
+    }
+}
+
+// Called from Activity — passes Activity context to a singleton that lives forever
+val loader = ImageLoader.get(this)</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class ImageLoader private constructor(private val context: Context) {
+    companion object {
+        private var instance: ImageLoader? = null
+        fun get(context: Context) =
+            instance ?: ImageLoader(context.applicationContext).also { instance = it }
+            //                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //                      applicationContext outlives any Activity
+    }
+}</code></pre>
+
+      <h3>Pattern 4 — Unregistered Listeners and Callbacks</h3>
+
+      <p>Any time you register a listener — BroadcastReceiver, LocationManager, SensorManager, EventBus, a custom observable — you must unregister it. If you don't, the system holds a reference to your listener, which holds a reference to your Activity.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class LocationActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER, 1000, 0f,
+            object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    updateMap(location)  // captures LocationActivity implicitly
+                }
+            }
+        )
+        // never unregistered
+    }
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class LocationActivity : AppCompatActivity() {
+    private val locationListener = LocationListener { location ->
+        updateMap(location)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER, 1000, 0f, locationListener
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        locationManager.removeUpdates(locationListener)
+    }
+}</code></pre>
+
+      <h3>Pattern 5 — ViewModel holding a View or Activity reference</h3>
+
+      <p>ViewModels survive configuration changes — that's their entire purpose. If a ViewModel holds a reference to a View, Context, or Activity, it's holding a stale reference to the destroyed instance after rotation.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class ProfileViewModel(
+    private val activity: MainActivity,  // Activity dies on rotation, ViewModel survives
+    private val textView: TextView       // View dies too
+) : ViewModel()</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class ProfileViewModel(
+    private val application: Application,  // applicationContext is safe
+    private val repository: ProfileRepository
+) : AndroidViewModel(application) {
+    // Expose state via StateFlow — let the Fragment/Activity observe and update its own Views
+    val profileState: StateFlow&lt;ProfileUiState&gt; = repository
+        .getProfile()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ProfileUiState.Loading)
+}</code></pre>
+
+      <h3>Pattern 6 — Coroutine Scope Leaks</h3>
+
+      <p>Using <code>GlobalScope</code> launches a coroutine tied to the process, not to any lifecycle. If the coroutine references a View or Activity, both are kept alive until the coroutine finishes — which for a network call could be several seconds after the user has navigated away.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class ProfileFragment : Fragment() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        GlobalScope.launch {  // not tied to Fragment lifecycle
+            val data = repository.fetchProfile()
+            withContext(Dispatchers.Main) {
+                binding.nameText.text = data.name  // binding may be null by now
+            }
+        }
+    }
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class ProfileFragment : Fragment() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewLifecycleOwner.lifecycleScope.launch {   // cancelled when view is destroyed
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profileState.collect { state ->
+                    binding.nameText.text = state.name
+                }
+            }
+        }
+    }
+}</code></pre>
+
+      <h3>Pattern 7 — ViewBinding Leak in Fragments</h3>
+
+      <p>A Fragment's view lifecycle is shorter than the Fragment's lifecycle itself. The view is destroyed in <code>onDestroyView</code>, but the Fragment object sticks around (e.g., on the back stack). If you hold a non-null binding reference, you're keeping the entire view hierarchy in memory.</p>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>class ProfileFragment : Fragment() {
+    private lateinit var binding: FragmentProfileBinding  // never nulled
+    // Fragment survives on back stack, binding holds the destroyed view hierarchy
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>class ProfileFragment : Fragment() {
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null  // release view hierarchy
+    }
+}</code></pre>
+
+      <div class="callout">
+        <p>This is the single most common leak in Fragment-based apps. The <code>_binding = null</code> in <code>onDestroyView()</code> is not optional — it's required whenever a Fragment can be on the back stack.</p>
+      </div>
+
+      <h3>Pattern 8 — Flow Collectors Without Lifecycle Awareness</h3>
+
+      <div class="label bad">Leaks</div>
+      <pre><code>override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    // collect{} without repeatOnLifecycle keeps collecting even when UI is in the background
+    lifecycleScope.launch {
+        viewModel.data.collect { render(it) }
+    }
+}</code></pre>
+
+      <div class="label good">Fixed</div>
+      <pre><code>override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.data.collect { render(it) }
+        }
+    }
+}</code></pre>
+
+      <p><code>repeatOnLifecycle(STARTED)</code> automatically cancels collection when the app goes to the background and restarts it when it comes back. Without it, your Flow runs and your lambda holds references even while the screen is invisible.</p>
+
+      <hr class="divider" />
+
+      <h2>3. The Prevention Checklist</h2>
+
+      <p>Run through this checklist on every Fragment and Activity before shipping:</p>
+
+      <div class="checklist">
+        <h3>Memory Leak Checklist</h3>
+        <ul>
+          <li>ViewBinding uses <code>_binding = null</code> in <code>onDestroyView()</code></li>
+          <li>All listeners registered in <code>onStart()</code> / <code>onResume()</code> are unregistered in <code>onStop()</code> / <code>onPause()</code></li>
+          <li>BroadcastReceivers registered in code (not manifest) are unregistered in <code>onDestroy()</code></li>
+          <li>No <code>GlobalScope.launch</code> — use <code>lifecycleScope</code> or <code>viewModelScope</code></li>
+          <li>Flow collection uses <code>repeatOnLifecycle(STARTED)</code></li>
+          <li>No Activity or View references stored in a ViewModel</li>
+          <li>Singletons use <code>applicationContext</code>, never Activity context</li>
+          <li>Handler <code>postDelayed</code> callbacks are removed in <code>onDestroy()</code></li>
+          <li>No static references to Activity, Fragment, View, or Cursor</li>
+          <li>LeakCanary is in <code>debugImplementation</code> and checked before each release</li>
+        </ul>
+      </div>
+
+      <h2>4. One Rule That Catches 80% of Leaks</h2>
+
+      <p>Before you ship any screen, ask: <strong style="color:white">does anything outlive this screen hold a reference to this screen?</strong></p>
+
+      <p>If something with a longer lifetime (a singleton, a global scope coroutine, a static field, a system service) holds a reference to something with a shorter lifetime (an Activity, a Fragment, a View), you have a leak. That's it. Most memory leaks in Android violate exactly this one rule.</p>
+
+      <p>LeakCanary will catch what you miss. But understanding the pattern means you stop writing leaks in the first place.</p>
+
+    </div>
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
