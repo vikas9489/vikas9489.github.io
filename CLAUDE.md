@@ -10,20 +10,27 @@ Deploy = `git push origin main`. GitHub Pages auto-deploys in ~1 minute.
 
 ---
 
-## Design System (never change these)
+## Design System
 
 ```css
---bg:           #050505
---card-bg:      rgba(255,255,255,0.03)
---card-border:  rgba(255,255,255,0.08)
---text:         #ffffff
---muted:        #64748b
---muted-light:  #94a3b8
---blue:         #3b82f6   /* Kotlin Blue */
---blue-light:   #60a5fa
---green:        #10b981   /* Android Green */
---green-light:  #34d399
+--bg:            #0a0805      /* warm black */
+--card-bg:       rgba(255,255,255,0.03)
+--card-border:   rgba(255,255,255,0.08)
+--text:          #ffffff
+--muted:         #64748b
+--muted-light:   #94a3b8
+--amber:         #f59e0b      /* primary brand accent */
+--amber-light:   #fbbf24
+--orange:        #fb923c      /* secondary accent */
+--orange-light:  #fdba74
+/* badge / blog-category only: */
+--blue:          #3b82f6
+--blue-light:    #60a5fa
+--green:         #10b981
+--green-light:   #34d399
 ```
+
+**Theme:** Warm dark — amber/orange as primary accent. Blue/green kept ONLY for blog category labels and project download badges.
 
 **Fonts** (loaded from Google Fonts):
 - `Outfit` — headings (800/900 weight)
@@ -31,8 +38,8 @@ Deploy = `git push origin main`. GitHub Pages auto-deploys in ~1 minute.
 - `JetBrains Mono` — code, tags, badges
 
 **Visual rules:**
-- Dark theme only, #050505 background
-- Two ambient glow divs (blue top-left, green bottom-right) fixed, blur 90px, z-index -1
+- Dark theme only, #0a0805 warm black background
+- Two ambient glow divs (amber top-left, orange bottom-right) fixed, blur 90px, z-index -1
 - Scroll reveal: `.reveal` class + IntersectionObserver adds `.in-view` (opacity 0→1, translateY 32→0)
 - Stagger delays via `.delay-1 / .delay-2 / .delay-3` (0.1s increments)
 - Cards: `border-radius: 20px`, hover = `translateY(-6px)` + subtle shadow
@@ -63,12 +70,12 @@ vikas9489.github.io/
 
 | # | Section id | Status | Notes |
 |---|-----------|--------|-------|
-| — | Navbar | Live | Sticky, blur, "Open to Work" green pill with pulse dot |
+| — | Navbar | Live | Sticky, blur, "Open to Work" amber pill with pulse dot |
 | 1 | Hero | Live | 90px heading, metrics bar, tech chips, CTA buttons |
 | 2 | `#expertise` | Live | 3 cards: Architecture, Performance, Video/Streaming |
 | 3 | `#projects` | Live | Nodat + Musist as featured wide cards; HailUp/Samachar/OnlyArabs in 3-col grid |
 | 4 | `#creator` | **Hidden** (`display:none`) | YouTube/Instagram/LinkedIn — unhide when ready |
-| 5 | `#blog` | Live | 3 preview cards → blog posts |
+| 5 | `#blog` | Live | 4 cards in 2×2 grid → blog posts |
 | 6 | `#hire` | Live | ₹30–50 LPA, Senior Android Engineer CTA |
 | — | Footer | Live | Email, GitHub, LinkedIn, YouTube, Blog links |
 
@@ -127,7 +134,7 @@ vikas9489.github.io/
 ---
 
 ## User Preferences
-- Keep the dark theme and CSS variables — never change them
+- Keep the warm dark theme and amber/orange CSS variables
 - No CSS frameworks, no JS frameworks, no build step — pure HTML files only
 - All links must be relative paths (site is opened directly as files locally)
 - Don't add comments explaining what code does — only add when "why" is non-obvious
