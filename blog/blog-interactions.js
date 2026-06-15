@@ -1,7 +1,7 @@
 import { initializeApp }         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
   getFirestore,
-  doc, getDoc, setDoc, updateDoc,
+  doc, setDoc, updateDoc,
   collection, addDoc, onSnapshot,
   query, orderBy, increment, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -10,15 +10,8 @@ import { firebaseConfig } from './firebase-config.js';
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-export async function initInteractions(postSlug) {
+export function initInteractions(postSlug) {
   const postRef = doc(db, 'posts', postSlug);
-
-  // Create post document if first visit ever
-  const snap = await getDoc(postRef);
-  if (!snap.exists()) {
-    await setDoc(postRef, { likeCount: 0 });
-  }
-
   setupLikes(postRef, postSlug);
   setupComments(postSlug);
 }
@@ -34,17 +27,17 @@ function setupLikes(postRef, postSlug) {
     btn.classList.add('liked');
   }
 
-  // Live counter
+  // Live counter — shows 0 when document doesn't exist yet
   onSnapshot(postRef, (snap) => {
     countEl.textContent = snap.exists() ? (snap.data().likeCount ?? 0) : 0;
   });
 
   btn.addEventListener('click', async () => {
     const alreadyLiked = localStorage.getItem(storageKey) === 'true';
-
     btn.disabled = true;
     try {
-      await updateDoc(postRef, { likeCount: increment(alreadyLiked ? -1 : 1) });
+      // setDoc with merge creates the doc on first like, updates on subsequent ones
+      await setDoc(postRef, { likeCount: increment(alreadyLiked ? -1 : 1) }, { merge: true });
       if (alreadyLiked) {
         localStorage.removeItem(storageKey);
         btn.classList.remove('liked');
@@ -52,6 +45,8 @@ function setupLikes(postRef, postSlug) {
         localStorage.setItem(storageKey, 'true');
         btn.classList.add('liked');
       }
+    } catch (err) {
+      console.error('Like failed:', err);
     } finally {
       btn.disabled = false;
     }
@@ -110,9 +105,12 @@ function setupComments(postSlug) {
       form.reset();
     } catch (err) {
       console.error('Comment failed:', err);
+      submitBtn.textContent = 'Failed — try again';
     } finally {
       submitBtn.disabled    = false;
-      submitBtn.textContent = 'Post Comment';
+      if (submitBtn.textContent === 'Posting…') {
+        submitBtn.textContent = 'Post Comment';
+      }
     }
   });
 }
