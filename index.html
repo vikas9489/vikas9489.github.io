@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vikas — Senior Android Developer | bytevikas</title>
   <meta name="description" content="Vikas (bytevikas) — Senior Android Developer with 5+ years building high-scale consumer apps. 30K+ downloads, 99.6% crash-free." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f59e0b'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='black' font-family='monospace' font-weight='900'>V</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='black' font-family='monospace' font-weight='900'>V</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:           #0a0805;
+      --bg:           #050505;
       --card-bg:      rgba(255,255,255,0.03);
       --card-border:  rgba(255,255,255,0.08);
       --text:         #ffffff;
       --muted:        #64748b;
       --muted-light:  #94a3b8;
-      --amber:        #f59e0b;
-      --amber-light:  #fbbf24;
-      --orange:       #fb923c;
-      --orange-light: #fdba74;
+      --amber:        #22c55e;
+      --amber-light:  #4ade80;
+      --orange:       #16a34a;
+      --orange-light: #6ee7b7;
       --blue:         #3b82f6;
       --blue-light:   #60a5fa;
       --green:        #10b981;
@@ -32,13 +32,13 @@
 
     /* GLOWS */
     .glow { position:fixed; z-index:-1; pointer-events:none; filter:blur(90px); }
-    .glow-1 { top:-20%; left:-10%; width:65%; height:65%; background:radial-gradient(circle,rgba(245,158,11,.08) 0%,transparent 70%); }
-    .glow-2 { bottom:-10%; right:-10%; width:55%; height:55%; background:radial-gradient(circle,rgba(251,146,60,.06) 0%,transparent 70%); }
+    .glow-1 { top:-20%; left:-10%; width:65%; height:65%; background:radial-gradient(circle,rgba(34,197,94,.08) 0%,transparent 70%); }
+    .glow-2 { bottom:-10%; right:-10%; width:55%; height:55%; background:radial-gradient(circle,rgba(22,163,74,.06) 0%,transparent 70%); }
 
     /* ANNOUNCE BAR */
     .announce-bar {
       position:fixed; top:0; left:0; right:0; z-index:1001;
-      background:rgba(245,158,11,.08); border-bottom:1px solid rgba(245,158,11,.18);
+      background:rgba(34,197,94,.08); border-bottom:1px solid rgba(34,197,94,.18);
       padding:9px 48px; min-height:40px;
       display:flex; align-items:center; justify-content:center;
       font-size:13px; color:var(--amber-light); font-weight:500; gap:8px;
@@ -53,7 +53,7 @@
     /* NAVBAR */
     .navbar {
       position:fixed; left:0; right:0; z-index:1000; top:40px;
-      background:rgba(10,8,5,.88); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      background:rgba(5,5,5,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
       border-bottom:1px solid var(--card-border);
       height:60px; display:flex; align-items:center; padding:0 24px;
       transition:top .3s;
@@ -65,11 +65,11 @@
     .nav-links a:hover { color:white; }
     .btn-open {
       display:inline-flex; align-items:center; gap:8px;
-      background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
+      background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3);
       color:var(--amber-light); padding:7px 16px; border-radius:50px;
       font-size:13px; font-weight:600; text-decoration:none; transition:all .2s;
     }
-    .btn-open:hover { background:rgba(245,158,11,.18); border-color:var(--amber-light); }
+    .btn-open:hover { background:rgba(34,197,94,.18); border-color:var(--amber-light); }
     .btn-open .pulse { width:7px; height:7px; border-radius:50%; background:var(--amber-light); flex-shrink:0; animation:blink 1.5s ease-in-out infinite; }
     @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
 
@@ -111,14 +111,14 @@
       background:linear-gradient(135deg,var(--amber) 0%,var(--orange) 100%);
       display:flex; align-items:center; justify-content:center;
       font-family:'Outfit',sans-serif; font-size:24px; font-weight:900; color:#0a0805;
-      border:2px solid rgba(245,158,11,.35); box-shadow:0 0 0 5px rgba(245,158,11,.08);
+      border:2px solid rgba(34,197,94,.35); box-shadow:0 0 0 5px rgba(34,197,94,.08);
       margin-bottom:24px;
     }
     /* Replace with actual photo: <img src="/photo.jpg" alt="Vikas" style="width:72px;height:72px;border-radius:50%;object-fit:cover"> */
 
     .hero-tag {
       display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:50px;
-      background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25);
+      background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25);
       color:var(--amber-light); font-size:13px; font-weight:600;
       font-family:'JetBrains Mono',monospace; margin-bottom:28px;
     }
@@ -138,8 +138,8 @@
     .expertise-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:20px; padding:36px 32px; transition:all .3s; }
     .expertise-card:hover { border-color:rgba(255,255,255,.14); transform:translateY(-4px); box-shadow:0 20px 50px -15px rgba(0,0,0,.5); }
     .e-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:20px; }
-    .e-icon.amber { background:rgba(245,158,11,.12); }
-    .e-icon.orange { background:rgba(251,146,60,.12); }
+    .e-icon.amber { background:rgba(34,197,94,.12); }
+    .e-icon.orange { background:rgba(22,163,74,.12); }
     .e-icon.purple { background:rgba(139,92,246,.12); }
     .expertise-card h3 { font-family:'Outfit',sans-serif; font-size:18px; font-weight:700; margin-bottom:10px; }
     .expertise-card p { font-size:14px; color:var(--muted-light); line-height:1.65; }
@@ -152,7 +152,7 @@
       align-items:center; position:relative; overflow:hidden;
       transition:all .4s cubic-bezier(.175,.885,.32,1.275);
     }
-    .featured-project::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(245,158,11,.45),transparent); }
+    .featured-project::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(34,197,94,.45),transparent); }
     .featured-project:hover { transform:translateY(-6px); border-color:rgba(255,255,255,.14); box-shadow:0 28px 70px -20px rgba(0,0,0,.6); }
     .proj-num { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; }
     .proj-name { font-family:'Outfit',sans-serif; font-size:32px; font-weight:900; color:white; margin-bottom:10px; letter-spacing:-0.5px; }
@@ -189,8 +189,8 @@
       border-radius:20px; padding:36px 32px;
       display:flex; flex-direction:column; transition:all .3s;
     }
-    .service-card:hover { border-color:rgba(245,158,11,.25); transform:translateY(-4px); box-shadow:0 20px 50px -15px rgba(0,0,0,.5); }
-    .service-icon { width:48px; height:48px; border-radius:14px; background:rgba(245,158,11,.1); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:20px; }
+    .service-card:hover { border-color:rgba(34,197,94,.25); transform:translateY(-4px); box-shadow:0 20px 50px -15px rgba(0,0,0,.5); }
+    .service-icon { width:48px; height:48px; border-radius:14px; background:rgba(34,197,94,.1); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:20px; }
     .service-card h3 { font-family:'Outfit',sans-serif; font-size:20px; font-weight:700; margin-bottom:10px; }
     .service-card > p { font-size:14px; color:var(--muted-light); line-height:1.65; margin-bottom:20px; }
     .service-list { list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:28px; flex:1; }
@@ -199,11 +199,11 @@
     .service-cta {
       display:inline-flex; align-items:center; justify-content:center;
       padding:12px 24px; border-radius:10px; margin-top:auto;
-      background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25);
+      background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25);
       color:var(--amber-light); font-size:14px; font-weight:600;
       text-decoration:none; transition:all .2s;
     }
-    .service-cta:hover { background:rgba(245,158,11,.18); border-color:var(--amber-light); }
+    .service-cta:hover { background:rgba(34,197,94,.18); border-color:var(--amber-light); }
 
     /* PROCESS */
     .process-steps {
@@ -213,17 +213,17 @@
     .process-steps::before {
       content:''; position:absolute; top:27px;
       left:12.5%; right:12.5%; height:1px;
-      background:linear-gradient(90deg,transparent,rgba(245,158,11,.3),transparent);
+      background:linear-gradient(90deg,transparent,rgba(34,197,94,.3),transparent);
     }
     .process-step { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 12px; position:relative; z-index:1; }
     .step-num {
       width:56px; height:56px; border-radius:50%;
-      background:var(--card-bg); border:1px solid rgba(245,158,11,.3);
+      background:var(--card-bg); border:1px solid rgba(34,197,94,.3);
       display:flex; align-items:center; justify-content:center;
       font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700;
       color:var(--amber-light); margin-bottom:20px; transition:all .3s;
     }
-    .process-step:hover .step-num { background:rgba(245,158,11,.1); border-color:var(--amber); box-shadow:0 0 20px rgba(245,158,11,.15); }
+    .process-step:hover .step-num { background:rgba(34,197,94,.1); border-color:var(--amber); box-shadow:0 0 20px rgba(34,197,94,.15); }
     .process-step h4 { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; margin-bottom:10px; }
     .process-step p { font-size:13px; color:var(--muted-light); line-height:1.6; }
 
@@ -246,7 +246,7 @@
     /* FAQ */
     .faq-list { display:flex; flex-direction:column; gap:12px; }
     .faq-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; overflow:hidden; transition:border-color .2s; }
-    .faq-item.open { border-color:rgba(245,158,11,.25); }
+    .faq-item.open { border-color:rgba(34,197,94,.25); }
     .faq-q {
       width:100%; display:flex; align-items:center; justify-content:space-between;
       padding:20px 28px; background:none; border:none; cursor:pointer;
@@ -259,16 +259,16 @@
       border-radius:50%; display:flex; align-items:center; justify-content:center;
       font-size:12px; transition:transform .3s,background .2s; color:var(--muted-light);
     }
-    .faq-item.open .faq-arrow { transform:rotate(180deg); background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.3); color:var(--amber-light); }
+    .faq-item.open .faq-arrow { transform:rotate(180deg); background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.3); color:var(--amber-light); }
     .faq-a { max-height:0; overflow:hidden; transition:max-height .4s ease; }
     .faq-item.open .faq-a { max-height:200px; }
     .faq-a p { padding:0 28px 22px; font-size:15px; color:var(--muted-light); line-height:1.75; }
 
     /* HIRE */
     .hire-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:28px; padding:72px 48px; text-align:center; position:relative; overflow:hidden; }
-    .hire-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:420px; height:1px; background:linear-gradient(90deg,transparent,rgba(245,158,11,.55),rgba(251,146,60,.35),transparent); }
+    .hire-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:420px; height:1px; background:linear-gradient(90deg,transparent,rgba(34,197,94,.55),rgba(22,163,74,.35),transparent); }
     .hire-card h2 { font-family:'Outfit',sans-serif; font-size:clamp(30px,5vw,50px); font-weight:900; letter-spacing:-1px; margin-bottom:20px; }
-    .salary-badge { display:inline-block; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.28); color:var(--amber-light); padding:9px 24px; border-radius:50px; font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; margin-bottom:28px; }
+    .salary-badge { display:inline-block; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.28); color:var(--amber-light); padding:9px 24px; border-radius:50px; font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; margin-bottom:28px; }
     .hire-card p { color:var(--muted-light); font-size:17px; max-width:520px; margin:0 auto 40px; line-height:1.75; }
     .hire-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
 
@@ -288,7 +288,7 @@
     footer { border-top:1px solid var(--card-border); padding:48px 0 32px; text-align:center; color:var(--muted); font-size:14px; }
     .footer-links { display:flex; justify-content:center; flex-wrap:wrap; gap:8px 4px; margin:16px 0 24px; }
     .footer-links a { color:var(--muted-light); text-decoration:none; padding:6px 14px; border-radius:8px; transition:all .2s; font-size:14px; }
-    .footer-links a:hover { color:var(--amber-light); background:rgba(245,158,11,.06); }
+    .footer-links a:hover { color:var(--amber-light); background:rgba(34,197,94,.06); }
     .back-top-link { display:inline-flex; align-items:center; gap:6px; color:var(--muted); text-decoration:none; font-size:13px; transition:color .2s; margin-top:8px; }
     .back-top-link:hover { color:var(--amber-light); }
 
@@ -321,7 +321,7 @@
       content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
       background:linear-gradient(180deg,var(--amber),var(--orange));
     }
-    .exp-company:hover { border-color:rgba(245,158,11,.2); }
+    .exp-company:hover { border-color:rgba(34,197,94,.2); }
     .exp-company-name { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; color:white; margin-bottom:4px; }
     .exp-company-meta { font-size:12px; color:var(--muted); margin-bottom:28px; font-family:'JetBrains Mono',monospace; }
     .exp-roles { display:flex; flex-direction:column; gap:0; }
@@ -405,7 +405,7 @@
       <!-- HERO -->
       <section class="hero">
         <div class="hero-content">
-          <!-- Replace the div below with: <img src="/photo.jpg" alt="Vikas" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:24px;border:2px solid rgba(245,158,11,.35)"> -->
+          <!-- Replace the div below with: <img src="/photo.jpg" alt="Vikas" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:24px;border:2px solid rgba(34,197,94,.35)"> -->
           <div class="avatar">VK</div>
 
           <div class="hero-tag">Android Team Lead &nbsp;·&nbsp; 5+ Years</div>
@@ -832,7 +832,7 @@
 
   <footer>
     <div class="container">
-      <p>Built by <strong style="color:white">Vikas</strong> with Kotlin &amp; Coffee</p>
+      <p>Built by <strong style="color:white">Vikas</strong> with <span style="color:var(--amber-light)">Kotlin</span> &amp; Coffee</p>
       <div class="footer-links">
         <a href="mailto:hi@bytevikas.com">Email</a>
         <a href="https://github.com/vikas9489" target="_blank">GitHub</a>

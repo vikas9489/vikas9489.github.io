@@ -13,16 +13,16 @@ Deploy = `git push origin main`. GitHub Pages auto-deploys in ~1 minute.
 ## Design System
 
 ```css
---bg:            #0a0805      /* warm black */
+--bg:            #050505      /* dark background */
 --card-bg:       rgba(255,255,255,0.03)
 --card-border:   rgba(255,255,255,0.08)
 --text:          #ffffff
 --muted:         #64748b
 --muted-light:   #94a3b8
---amber:         #f59e0b      /* primary brand accent */
---amber-light:   #fbbf24
---orange:        #fb923c      /* secondary accent */
---orange-light:  #fdba74
+--amber:         #22c55e      /* primary brand accent (green) */
+--amber-light:   #4ade80
+--orange:        #16a34a      /* secondary accent (deep green) */
+--orange-light:  #6ee7b7
 /* badge / blog-category only: */
 --blue:          #3b82f6
 --blue-light:    #60a5fa
@@ -30,7 +30,7 @@ Deploy = `git push origin main`. GitHub Pages auto-deploys in ~1 minute.
 --green-light:   #34d399
 ```
 
-**Theme:** Warm dark — amber/orange as primary accent. Blue/green kept ONLY for blog category labels and project download badges.
+**Theme:** Dark — green/white as primary accent. Blue/teal kept ONLY for blog category labels and project download badges.
 
 **Fonts** (loaded from Google Fonts):
 - `Outfit` — headings (800/900 weight)
