@@ -86,6 +86,30 @@
       .post-date{display:none;}
     }
   </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function(OneSignal) {
+      OneSignal.init({
+        appId: "YOUR_ONESIGNAL_APP_ID",
+        notifyButton: { enable: true },
+        promptOptions: {
+          slidedown: {
+            prompts: [{
+              type: "push",
+              autoPrompt: true,
+              text: {
+                actionMessage: "Get notified when new Android articles drop on bytevikas.",
+                acceptButton: "Subscribe",
+                cancelButton: "Not now"
+              },
+              delay: { pageViews: 1, timeDelay: 5 }
+            }]
+          }
+        }
+      });
+    });
+  </script>
 </head>
 <body>
 
