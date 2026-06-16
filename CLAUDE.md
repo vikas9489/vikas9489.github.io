@@ -129,7 +129,7 @@ vikas9489.github.io/
 ## Social / Content Handles (currently hidden)
 - YouTube: @bytevikas
 - Instagram: @bytevikas
-- LinkedIn: vikas9489
+- LinkedIn: vikas-dhiman9489
 
 ---
 

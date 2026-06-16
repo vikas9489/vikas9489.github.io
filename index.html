@@ -310,6 +310,39 @@
     }
     .whatsapp-btn:hover .whatsapp-tip { opacity:1; }
 
+    /* EXPERIENCE */
+    .exp-list { display:flex; flex-direction:column; gap:24px; }
+    .exp-company {
+      background:var(--card-bg); border:1px solid var(--card-border);
+      border-radius:20px; padding:36px 40px; position:relative; overflow:hidden;
+      transition:border-color .3s;
+    }
+    .exp-company::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+      background:linear-gradient(180deg,var(--amber),var(--orange));
+    }
+    .exp-company:hover { border-color:rgba(245,158,11,.2); }
+    .exp-company-name { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; color:white; margin-bottom:4px; }
+    .exp-company-meta { font-size:12px; color:var(--muted); margin-bottom:28px; font-family:'JetBrains Mono',monospace; }
+    .exp-roles { display:flex; flex-direction:column; gap:0; }
+    .exp-role + .exp-role { border-top:1px solid var(--card-border); padding-top:22px; margin-top:22px; }
+    .exp-role-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+    .exp-role-title { font-family:'Outfit',sans-serif; font-size:15px; font-weight:700; color:var(--amber-light); }
+    .exp-dates { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+    .exp-bullets { list-style:none; display:flex; flex-direction:column; gap:9px; }
+    .exp-bullets li { font-size:14px; color:var(--muted-light); line-height:1.65; display:flex; align-items:flex-start; gap:10px; }
+    .exp-bullets li::before { content:'◦'; color:var(--amber); flex-shrink:0; }
+    .exp-bullets strong { color:white; font-weight:600; }
+
+    .edu-card {
+      margin-top:20px; background:var(--card-bg); border:1px solid var(--card-border);
+      border-radius:16px; padding:22px 32px;
+      display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    }
+    .edu-card h4 { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; margin-bottom:4px; }
+    .edu-card p { font-size:14px; color:var(--muted-light); }
+    .edu-dates { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+
     /* RESPONSIVE */
     @media (max-width:900px) {
       .expertise-grid, .services-grid, .creator-grid { grid-template-columns:1fr; }
@@ -354,6 +387,7 @@
       <a href="#" class="nav-logo">&lt;bytevikas/&gt;</a>
       <ul class="nav-links">
         <li><a href="#expertise">Expertise</a></li>
+        <li><a href="#experience">Experience</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#blog">Blog</a></li>
@@ -374,10 +408,10 @@
           <!-- Replace the div below with: <img src="/photo.jpg" alt="Vikas" style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:24px;border:2px solid rgba(245,158,11,.35)"> -->
           <div class="avatar">VK</div>
 
-          <div class="hero-tag">Android Developer &nbsp;·&nbsp; 5+ Years</div>
+          <div class="hero-tag">Android Team Lead &nbsp;·&nbsp; 5+ Years</div>
           <h1>Crafting apps<br><span class="gradient-text">people love.</span></h1>
           <p class="hero-desc">
-            I'm <strong style="color:white">Vikas</strong> — Senior Android Engineer specializing in Clean Architecture, high-performance video streaming, and production-grade app development.
+            I'm <strong style="color:white">Vikas Dhiman</strong> — Android Team Lead and Jetpack Compose Specialist with 5+ years shipping production apps. Expert in Clean Architecture, performance engineering, and real-time video streaming.
           </p>
 
           <div class="hero-cta">
@@ -433,9 +467,89 @@
         </div>
       </section>
 
+      <!-- EXPERIENCE -->
+      <section id="experience" class="section">
+        <div class="section-eyebrow reveal">02 — Experience</div>
+        <h2 class="section-title reveal">Where I've worked</h2>
+        <p class="section-subtitle reveal">5+ years at product companies — from intern to team lead, shipping apps used by tens of thousands.</p>
+
+        <div class="exp-list">
+
+          <div class="exp-company reveal">
+            <div class="exp-company-name">Dharmani Apps &amp; Software Pvt Ltd</div>
+            <div class="exp-company-meta">Mohali, India &nbsp;·&nbsp; March 2021 – Present</div>
+            <div class="exp-roles">
+
+              <div class="exp-role">
+                <div class="exp-role-header">
+                  <span class="exp-role-title">Android Team Lead</span>
+                  <span class="exp-dates">Apr 2024 – Present</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Architected MVVM + Clean Architecture migration across 5 projects — <strong>40% faster</strong> dev cycles, <strong>30% fewer</strong> regressions.</li>
+                  <li>Reduced app startup time by <strong>45%</strong> and app size by <strong>40%</strong> via ProGuard, R8, lazy loading, and on-demand feature delivery.</li>
+                  <li>Grew code coverage from <strong>40% → 85%</strong> with JUnit &amp; Espresso; mentored 4 junior developers; established CI/CD via GitHub Actions.</li>
+                  <li>Integrated Mapbox, Stripe, and Agora SDK (HLS/DASH live streaming); maintained <strong>99.6%</strong> crash-free rate across staged Play Store rollouts.</li>
+                </ul>
+              </div>
+
+              <div class="exp-role">
+                <div class="exp-role-header">
+                  <span class="exp-role-title">Android Developer</span>
+                  <span class="exp-dates">Apr 2022 – Apr 2024</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Engineered modular OAuth 2.0 system (Google, Facebook, Firebase Auth) — <strong>27% increase</strong> in user sign-ups.</li>
+                  <li>Migrated legacy codebase to Dagger Hilt — <strong>22% faster</strong> build times and scalable, testable architecture.</li>
+                  <li>Built networking layer with Retrofit, OkHttp, and Coroutines/Flow; caching strategies cut server load by <strong>40%</strong>.</li>
+                </ul>
+              </div>
+
+              <div class="exp-role">
+                <div class="exp-role-header">
+                  <span class="exp-role-title">Junior Android Developer</span>
+                  <span class="exp-dates">Mar 2021 – Apr 2022</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Resolved 120+ critical bugs — crash rate dropped from <strong>2.3% → 0.4%</strong>, Play Store rating lifted from 3.8 to 4.6.</li>
+                  <li>Shipped 15+ features: offline mode (Room DB), dark theme, social sharing, WorkManager background tasks.</li>
+                  <li>Cut Gradle build times by <strong>35%</strong> via configuration cache and incremental builds.</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="exp-company reveal delay-1">
+            <div class="exp-company-name">Smart Programming</div>
+            <div class="exp-company-meta">Mohali, India &nbsp;·&nbsp; May 2020 – Jan 2021</div>
+            <div class="exp-roles">
+              <div class="exp-role">
+                <div class="exp-role-header">
+                  <span class="exp-role-title">Android Developer Intern</span>
+                  <span class="exp-dates">May 2020 – Jan 2021</span>
+                </div>
+                <ul class="exp-bullets">
+                  <li>Developed and shipped an educational app to the Play Store featuring ExoPlayer video streaming, course management, and user profile modules.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="edu-card reveal">
+          <div>
+            <h4>B.Tech — Information Technology</h4>
+            <p>Himachal Pradesh Technical University (H.P.T.U) &nbsp;·&nbsp; CGPA: 8.2 / 10</p>
+          </div>
+          <span class="edu-dates">2016 – 2020</span>
+        </div>
+      </section>
+
       <!-- PROJECTS -->
       <section id="projects" class="section">
-        <div class="section-eyebrow reveal">02 — Projects</div>
+        <div class="section-eyebrow reveal">03 — Projects</div>
         <h2 class="section-title reveal">Apps I've shipped</h2>
         <p class="section-subtitle reveal">Real products on the Play Store, real users, real engineering challenges.</p>
 
@@ -511,7 +625,7 @@
 
       <!-- SERVICES -->
       <section id="services" class="section">
-        <div class="section-eyebrow reveal">03 — Services</div>
+        <div class="section-eyebrow reveal">04 — Services</div>
         <h2 class="section-title reveal">How I can help</h2>
         <p class="section-subtitle reveal">Whether you need a feature built, a codebase reviewed, or a long-term engineering partner — here's what I offer.</p>
         <div class="services-grid">
@@ -563,7 +677,7 @@
 
       <!-- PROCESS -->
       <section id="process" class="section">
-        <div class="section-eyebrow reveal">04 — Process</div>
+        <div class="section-eyebrow reveal">05 — Process</div>
         <h2 class="section-title reveal">How I work</h2>
         <p class="section-subtitle reveal">A clear, repeatable process that keeps projects on track from the first call to the final release.</p>
         <div class="process-steps">
@@ -608,7 +722,7 @@
             <p>Quick Kotlin tips, code snippets, behind-the-scenes of app building, and honest developer life content.</p>
             <span class="creator-handle">@bytevikas</span>
           </a>
-          <a href="https://linkedin.com/in/vikas9489" target="_blank" class="creator-card reveal delay-3">
+          <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank" class="creator-card reveal delay-3">
             <div class="plat-icon li">in</div>
             <h3>LinkedIn</h3>
             <p>Professional updates, Android career perspectives, job market insights, and hot takes on the ecosystem.</p>
@@ -619,7 +733,7 @@
 
       <!-- BLOG -->
       <section id="blog" class="section">
-        <div class="section-eyebrow reveal">05 — Blog</div>
+        <div class="section-eyebrow reveal">06 — Blog</div>
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
@@ -653,7 +767,7 @@
 
       <!-- FAQ -->
       <section id="faq" class="section">
-        <div class="section-eyebrow reveal">06 — FAQ</div>
+        <div class="section-eyebrow reveal">07 — FAQ</div>
         <h2 class="section-title reveal">Common questions</h2>
         <p class="section-subtitle reveal">Things people ask before reaching out.</p>
         <div class="faq-list reveal">
@@ -710,7 +824,7 @@
           <div class="hire-btns">
             <a href="mailto:hi@bytevikas.com" class="btn btn-white">Email Me</a>
             <a href="/resume.pdf" download class="btn btn-ghost">&#8595; Download CV</a>
-            <a href="https://linkedin.com/in/vikas9489" target="_blank" class="btn btn-ghost">LinkedIn</a>
+            <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank" class="btn btn-ghost">LinkedIn</a>
           </div>
         </div>
       </section>
@@ -724,7 +838,7 @@
       <div class="footer-links">
         <a href="mailto:hi@bytevikas.com">Email</a>
         <a href="https://github.com/vikas9489" target="_blank">GitHub</a>
-        <a href="https://linkedin.com/in/vikas9489" target="_blank">LinkedIn</a>
+        <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank">LinkedIn</a>
         <a href="https://youtube.com/@bytevikas" target="_blank">YouTube</a>
         <a href="blog/index.html">Blog</a>
       </div>
