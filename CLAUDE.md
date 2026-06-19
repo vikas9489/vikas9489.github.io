@@ -110,12 +110,32 @@ vikas9489.github.io/
 | `clean-architecture.html` | 5 years of Clean Arch lessons, trade-offs, real patterns | Architecture |
 | `tiktok-feed.html` | ExoPlayer 3-player-pool for vertical video feed (Samachar) | Video |
 | `memory-leaks.html` | 8 leak patterns, LeakCanary, Memory Profiler, prevention checklist | Memory |
+| `google-io-2026-android-announcements.html` | Android CLI stable, Android Skills, Android Bench from I/O 2026 | News |
+| `jetpack-compose-1-11-pausable-composition-grid-api.html` | Compose 1.11 pausable composition + experimental Grid API | Compose |
+
+**Category accent colors in use** (pick a new, unused one for each new category): perf `#60a5fa`, arch `#34d399`, video `#c084fc`, memory `#fb923c`, news `#38bdf8`, compose `#2dd4bf`.
 
 **To add a new blog post:**
-1. Copy any existing `blog/*.html` file
-2. Update the content, category color, date, read time
-3. Add a new row to `blog/index.html` (the `.post-item` list)
-4. Add a new `.blog-card` to `index.html` `#blog` section
+1. Copy any existing `blog/*.html` file as the structural template (CSS variables, post-meta badge, announce-grid, code blocks, callouts, OneSignal script block, likes/comments interactions block).
+2. Update the content, category color (new category → new accent color, add a `.post-cat.<name>` / `.blog-cat.<name>` CSS rule), date, read time, and unique slug passed to `initInteractions('<slug>')`.
+3. Add a new row to `blog/index.html` (the `.post-item` list, newest at top).
+4. Update `index.html` `#blog` section — it shows only the **4 most recent** posts. Add the new `.blog-card` and remove the oldest of the current 4 to keep it to 4.
+5. Commit and push to `main` — GitHub Pages auto-deploys in ~1 minute.
+
+---
+
+## Automated Daily Blog Post
+
+A scheduled cloud agent runs **daily at 8:00 AM IST (2:30 AM UTC)** and publishes one new blog post automatically, with no human review step (auto-publish was explicitly authorized for this job).
+
+**Topic queue:** `blog/.next-topic.txt` (a dotfile — Jekyll's default processing excludes dotfiles from the published site, so this stays private even though it lives in the public repo).
+- If Vikas messages a topic or a URL during a normal session, write it into this file (plain text, one topic/link).
+- The daily job reads this file first. If non-empty, it writes that day's post about the given topic/link, then **clears the file back to empty** after a successful publish.
+- If the file is empty, the job fetches the latest news itself (priority order: official Android Developers Blog, Android Authority, 9to5Google, Kotlin Blog/KotlinConf, then broader AI/tech news relevant to developers) and picks one timely, technically substantive, **not-already-covered** topic (cross-check against the Blog Posts table above / `blog/index.html`).
+
+**Style bar:** every claim with a specific number, version, date, or API name must come from what was actually fetched that day — never invented. If a number can't be verified, write around it qualitatively.
+
+The job follows the same "add a new blog post" steps above (template, listing, homepage swap, commit, push).
 
 ---
 
