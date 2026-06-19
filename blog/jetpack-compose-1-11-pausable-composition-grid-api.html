@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jetpack Compose 1.11: Pausable Composition and the New Grid API — bytevikas</title>
+  <meta name="description" content="Compose 1.11.3 shipped June 17, 2026. Pausable composition now makes scroll performance match Views, and a real CSS-Grid-style layout API has arrived. Here's what it means for production apps." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Compose</span>
+      <span class="post-date">Jun 17, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Jetpack Compose 1.11: Pausable Composition Goes Default, and a Real Grid API Arrives</h1>
+
+    <div class="post-body">
+
+      <p>Compose 1.11.3 hit stable a couple of days ago, and unlike most point releases that quietly fix a handful of bugs, this one bundles two changes that actually shift how I think about building UI on Android. One fixes a performance ceiling that's been there since Compose launched. The other finally gives us a layout primitive that Row and Column nesting hacks have been faking for years.</p>
+
+      <p>Neither of these showed up with much fanfare. No keynote slot, no flashy demo. But if you ship Compose apps in production, both are worth understanding properly — one because it's free performance you get for doing nothing, the other because it changes how you'll architect screen-level layouts going forward.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">1.11.3</div>
+          <div class="announce-lbl">Current stable release</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Default</div>
+          <div class="announce-lbl">Pausable composition in lazy prefetch</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">Experimental Grid API</div>
+        </div>
+      </div>
+
+      <h2>1. Pausable Composition Is Now Default — and It Closes a Real Gap</h2>
+
+      <p>Here's the problem this solves. In classic Compose, once composition starts for a given frame, it has to run to completion before the frame can be drawn. If you're scrolling a <code>LazyColumn</code> and one of the upcoming items is composition-heavy — nested state reads, a moderately complex layout, maybe an image loader doing work synchronously — that composition can blow past the 16ms frame budget. The result is the thing every Compose developer has seen at least once: a stutter mid-scroll that you can't easily attribute to any single line of code.</p>
+
+      <p>Views never had this exact problem because measure/layout/draw on the View system don't compose UI trees the same way. It's one of the few areas where Compose genuinely lagged behind the old system, and it showed up most in feed-style UIs — exactly the kind of vertical, item-heavy lists I built for Samachar's news feed and Musist's media browser.</p>
+
+      <p>Pausable composition changes the contract. The runtime can now pause mid-composition if it's about to miss the frame deadline, hand control back to the system to draw the current frame, then resume exactly where it left off on the next frame. Paired with lazy layout prefetch — which already tries to compose upcoming list items ahead of time during idle frames — this means heavy items get composed incrementally across multiple frames instead of stalling a single one.</p>
+
+      <div class="callout">
+        <p><strong>The part that matters for you:</strong> this is enabled by default as of the December '25 runtime release, carried forward into 1.11. You don't opt in, you don't change any code. If you're on a recent Compose BOM, you're already benefiting from it.</p>
+      </div>
+
+      <p>Google's own scroll benchmarks now show Compose matching View-based scroll performance for equivalent layouts — a gap that's existed since Compose 1.0 and that no amount of <code>remember</code> or <code>derivedStateOf</code> tuning fully closed on its own. If you maintain a Macrobenchmark suite (and if you've read my <a href="startup-time-optimization.html">startup time post</a>, you know I think you should), this is worth a fresh baseline run. I re-ran frame timing on a feed-heavy screen after bumping the BOM and saw materially fewer dropped frames during fast flings, with zero code changes on my end.</p>
+
+      <h3>What this doesn't fix</h3>
+
+      <p>Pausable composition smooths out composition that's <em>structurally</em> fine but occasionally heavy. It will not save you from a <code>LazyColumn</code> item that's doing actual synchronous I/O, an unbounded recomposition loop from unstable lambda captures, or a layout pass that's expensive because you nested three <code>Box</code>es too many. Profile first. This raises the ceiling — it doesn't replace the floor.</p>
+
+      <h2>2. The New Grid API — CSS Grid, Finally, for Compose</h2>
+
+      <p>If you've ever tried to build a genuinely two-dimensional layout in Compose — a dashboard with cards spanning different row/column counts, a settings screen with mixed-size tiles, a media grid where the featured item is twice as wide as the rest — you know the pain. Row and Column give you one axis at a time. <code>LazyVerticalGrid</code> gets you uniform cells but falls apart the moment you need irregular spans. Most teams end up hand-rolling a custom <code>Layout</code> composable or reaching for a third-party library.</p>
+
+      <p>The new (experimental) <code>Grid</code> API is explicitly modeled on CSS Grid, and it shows. You define column and row tracks with fractional sizing, set a gap, then place children with explicit spans:</p>
+
+      <pre><code>@OptIn(ExperimentalGridApi::class)
+@Composable
+fun GridExample() {
+    Grid(
+        config = {
+            repeat(4) { column(0.25f) }
+            repeat(2) { row(0.5f) }
+            gap(16.dp)
+        }
+    ) {
+        Card1(modifier = Modifier.gridItem(rowSpan = 2))
+        Card2(modifier = Modifier.gridItem(columnSpan = 3))
+        Card3(modifier = Modifier.gridItem(columnSpan = 2))
+        Card4()
+    }
+}</code></pre>
+
+      <p>Four equal columns, two equal rows, 16dp gaps — then <code>Card1</code> spans two rows, <code>Card2</code> spans three columns, <code>Card3</code> spans two columns, and <code>Card4</code> just takes whatever cell is left. No nested <code>Box</code> offsets, no manual constraint math, no guessing where the next item lands. <code>Modifier.gridItem()</code> handles placement; the <code>Grid</code> composable handles track sizing.</p>
+
+      <h3>Where I'd actually reach for this</h3>
+
+      <ul>
+        <li><strong>Project/portfolio grids</strong> — a featured item spanning 2 columns next to three standard cards, which is exactly the layout pattern on this site's own project section, just done with manual CSS instead of Compose.</li>
+        <li><strong>Tablet and foldable dashboards</strong> — where the same screen needs a 4-column grid on a tablet and a 2-column stack on a phone, without maintaining two separate layout trees.</li>
+        <li><strong>Media browsers</strong> — a hero thumbnail spanning a 2×2 block surrounded by uniform smaller tiles, the layout almost every video app reaches for and almost nobody implements cleanly in Compose today.</li>
+      </ul>
+
+      <div class="callout-green">
+        <p>The API also supports reconfiguring the grid based on device state — tabletop posture on foldables, orientation changes — by recomputing the <code>config</code> block. That's a meaningfully better story for adaptive layouts than swapping between two separately maintained composables.</p>
+      </div>
+
+      <p>It's marked <code>@Experimental</code> and gated behind <code>@OptIn(ExperimentalGridApi::class)</code>, so treat it the way you'd treat any experimental Compose API: fine for side projects and internal tools, hold off shipping it as the backbone of a production screen until it stabilizes. APIs at this stage have changed shape between releases before.</p>
+
+      <h2>Two Smaller Additions Worth Knowing About</h2>
+
+      <p>Riding along in the same release window are two more experimental APIs that didn't get much attention but are worth bookmarking:</p>
+
+      <p><strong>Styles API</strong> brings CSS-like state-based styling to Compose components — a single declarative block where you describe the default appearance and override it for states like <code>pressed</code>, instead of branching with <code>remember { mutableStateOf }</code> and conditional modifiers:</p>
+
+      <pre><code>Button(
+    onClick = { /* ... */ },
+    style = {
+        background(Brush.linearGradient(listOf(lightPurple, lightBlue)))
+        width(75.dp)
+        pressed {
+            background(Brush.linearGradient(listOf(Color.Magenta, Color.Red)))
+        }
+    }
+) { Text("Login") }</code></pre>
+
+      <p><strong>MediaQuery API</strong> lets you branch layout decisions on device posture directly inside a composable — useful for the tabletop/foldable cases the Grid API also targets:</p>
+
+      <pre><code>@OptIn(ExperimentalMediaQueryApi::class)
+@Composable
+fun VideoPlayer() {
+    if (mediaQuery { windowPosture == UiMediaScope.Posture.Tabletop }) {
+        TabletopLayout()
+    } else {
+        FlatLayout()
+    }
+}</code></pre>
+
+      <p>Both are early. Neither needs action today. But the direction is consistent: Compose is borrowing well-proven patterns from CSS rather than inventing new mental models, which tends to mean a shorter learning curve once they stabilize.</p>
+
+      <h2>Should You Upgrade Now?</h2>
+
+      <p>Split this into two decisions. Bumping your Compose BOM to pick up pausable composition's default behavior is close to a no-brainer — it's a runtime scheduling change, not an API you opt into, and the downside risk is low. Run your existing test suite, do a sanity pass on your most scroll-heavy screens, ship it.</p>
+
+      <p>Building anything load-bearing on Grid, Styles, or MediaQuery today is a different call. They're real, they're usable, and the direction is clearly right — but "experimental" on a Compose API has meant breaking signature changes before final stabilization more than once. I'd prototype with Grid on an internal screen or a side project now, get comfortable with the mental model, and be ready to adopt it for production the moment it stabilizes rather than waiting for a "Compose 2.0" moment that probably won't come as a single event.</p>
+
+      <p>The bigger pattern across this release: Compose's performance story is converging with Views rather than asking you to trust that it eventually will, and its layout story is finally catching up to what web developers have had with CSS Grid for a decade. Neither is a flashy headline. Both are the kind of unglamorous foundation work that ends up mattering more than most feature announcements a year from now.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('jetpack-compose-1-11-pausable-composition-grid-api');
+  </script>
+</body>
+</html>
