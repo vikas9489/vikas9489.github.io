@@ -5,6 +5,12 @@ on:
     branches: [main]
     paths:
       - 'blog/*.html'
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Send one labelled test notification instead of diffing for new posts'
+        type: boolean
+        default: false
 
 jobs:
   notify:
@@ -17,19 +23,30 @@ jobs:
       - name: Detect new posts and send OneSignal push
         env:
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+          TEST_MODE: ${{ inputs.test_mode }}
         run: |
           set -e
           APP_ID="d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0"
+
+          if [ -z "$ONESIGNAL_REST_API_KEY" ]; then
+            echo "::warning::ONESIGNAL_REST_API_KEY secret is not set — skipping notification."
+            exit 0
+          fi
+
+          if [ "$TEST_MODE" = "true" ]; then
+            echo "Sending labelled test notification..."
+            curl -s -X POST "https://api.onesignal.com/notifications" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Key ${ONESIGNAL_REST_API_KEY}" \
+              -d "$(jq -n --arg appid "$APP_ID" \
+                    '{app_id: $appid, target_channel: "push", included_segments: ["Subscribed Users"], headings: {en: "[Test] bytevikas notify workflow"}, contents: {en: "This is a one-off test of the auto-notify pipeline — not a real post."}, url: "https://bytevikas.com/blog/index.html"}')"
+            exit 0
+          fi
 
           NEW_FILES=$(git diff --name-status HEAD^ HEAD -- 'blog/*.html' | awk '$1=="A" {print $2}' | grep -v '/index\.html$' || true)
 
           if [ -z "$NEW_FILES" ]; then
             echo "No new blog posts in this push — skipping notification."
-            exit 0
-          fi
-
-          if [ -z "$ONESIGNAL_REST_API_KEY" ]; then
-            echo "::warning::New post detected but ONESIGNAL_REST_API_KEY secret is not set — skipping notification."
             exit 0
           fi
 
