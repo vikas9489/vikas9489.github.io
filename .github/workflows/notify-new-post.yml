@@ -33,13 +33,46 @@ jobs:
             exit 0
           fi
 
-          if [ "$TEST_MODE" = "true" ]; then
-            echo "Sending labelled test notification..."
-            curl -s -X POST "https://api.onesignal.com/notifications" \
+          send_notification() {
+            local title="$1"
+            local body="$2"
+            local url="$3"
+
+            local PAYLOAD
+            PAYLOAD=$(jq -n --arg appid "$APP_ID" --arg title "$title" --arg body "$body" --arg url "$url" \
+              '{app_id: $appid, target_channel: "push", included_segments: ["Subscribed Users"], headings: {en: $title}, contents: {en: $body}, url: $url}')
+
+            local RESPONSE HTTP_STATUS BODY_RESP RECIPIENTS
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.onesignal.com/notifications" \
               -H "Content-Type: application/json" \
               -H "Authorization: Key ${ONESIGNAL_REST_API_KEY}" \
-              -d "$(jq -n --arg appid "$APP_ID" \
-                    '{app_id: $appid, target_channel: "push", included_segments: ["Subscribed Users"], headings: {en: "[Test] bytevikas notify workflow"}, contents: {en: "This is a one-off test of the auto-notify pipeline — not a real post."}, url: "https://bytevikas.com/blog/index.html"}')"
+              -d "$PAYLOAD")
+
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+            BODY_RESP=$(echo "$RESPONSE" | sed '$d')
+
+            echo "OneSignal HTTP status: $HTTP_STATUS"
+            echo "OneSignal response body: $BODY_RESP"
+
+            if [ "$HTTP_STATUS" -ge 400 ]; then
+              echo "::error::OneSignal API call failed (HTTP $HTTP_STATUS) for '$title': $BODY_RESP"
+              return 1
+            fi
+
+            RECIPIENTS=$(echo "$BODY_RESP" | jq -r '.recipients // "unknown"')
+            if [ "$RECIPIENTS" = "0" ]; then
+              echo "::warning::OneSignal accepted '$title' but reports 0 recipients — nobody is currently subscribed (or the segment name doesn't match). Response: $BODY_RESP"
+            else
+              echo "Notification '$title' sent to $RECIPIENTS recipient(s)."
+            fi
+          }
+
+          if [ "$TEST_MODE" = "true" ]; then
+            echo "Sending labelled test notification..."
+            send_notification \
+              "[Test] bytevikas notify workflow" \
+              "This is a one-off test of the auto-notify pipeline — not a real post." \
+              "https://bytevikas.com/blog/index.html"
             exit 0
           fi
 
@@ -57,14 +90,5 @@ jobs:
             URL="https://bytevikas.com/blog/${SLUG}"
 
             echo "Notifying for: $TITLE ($URL)"
-
-            curl -s -X POST "https://api.onesignal.com/notifications" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Key ${ONESIGNAL_REST_API_KEY}" \
-              -d "$(jq -n \
-                    --arg appid "$APP_ID" \
-                    --arg title "$TITLE" \
-                    --arg body "$EXCERPT" \
-                    --arg url "$URL" \
-                    '{app_id: $appid, target_channel: "push", included_segments: ["Subscribed Users"], headings: {en: $title}, contents: {en: $body}, url: $url}')"
+            send_notification "$TITLE" "$EXCERPT" "$URL"
           done
