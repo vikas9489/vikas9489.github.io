@@ -1,0 +1,53 @@
+name: Notify subscribers on new blog post
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'blog/*.html'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect new posts and send OneSignal push
+        env:
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+        run: |
+          set -e
+          APP_ID="d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0"
+
+          NEW_FILES=$(git diff --name-status HEAD^ HEAD -- 'blog/*.html' | awk '$1=="A" {print $2}' | grep -v '/index\.html$' || true)
+
+          if [ -z "$NEW_FILES" ]; then
+            echo "No new blog posts in this push — skipping notification."
+            exit 0
+          fi
+
+          if [ -z "$ONESIGNAL_REST_API_KEY" ]; then
+            echo "::warning::New post detected but ONESIGNAL_REST_API_KEY secret is not set — skipping notification."
+            exit 0
+          fi
+
+          for FILE in $NEW_FILES; do
+            TITLE=$(grep -oP '(?<=<h1>).*?(?=</h1>)' "$FILE" | head -1 | sed -e 's/&amp;/\&/g' -e 's/&lt;/</g' -e 's/&gt;/>/g')
+            EXCERPT=$(grep -oP '(?<=<meta name="description" content=").*?(?=")' "$FILE" | head -1)
+            SLUG=$(basename "$FILE")
+            URL="https://bytevikas.com/blog/${SLUG}"
+
+            echo "Notifying for: $TITLE ($URL)"
+
+            curl -s -X POST "https://api.onesignal.com/notifications" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Key ${ONESIGNAL_REST_API_KEY}" \
+              -d "$(jq -n \
+                    --arg appid "$APP_ID" \
+                    --arg title "$TITLE" \
+                    --arg body "$EXCERPT" \
+                    --arg url "$URL" \
+                    '{app_id: $appid, target_channel: "push", included_segments: ["Subscribed Users"], headings: {en: $title}, contents: {en: $body}, url: $url}')"
+          done

@@ -138,6 +138,10 @@ A scheduled cloud agent runs **daily at 8:00 AM IST (2:30 AM UTC)** and publishe
 
 The job follows the same "add a new blog post" steps above (template, listing, homepage swap, commit, push).
 
+**Auto-notify on publish:** `.github/workflows/notify-new-post.yml` runs on every push to `main` that touches `blog/*.html`. It diffs against the previous commit to find newly-**added** post files (ignores edits to existing posts and to `blog/index.html` itself), extracts the `<h1>` title and `<meta name="description">`, and sends a OneSignal push via their REST API (`https://api.onesignal.com/notifications`, `Authorization: Key <REST_API_KEY>`). This fires regardless of whether the post came from the daily cron job or a manual push — no separate trigger needed.
+
+Requires a **`ONESIGNAL_REST_API_KEY` GitHub Actions secret** (repo → Settings → Secrets and variables → Actions). Get the value from the OneSignal dashboard → Settings → Keys & IDs → REST API Key. This is different from the public App ID already embedded in every page's `<script>` tag — the REST key is sensitive and must never be committed to the repo or hardcoded anywhere.
+
 ---
 
 ## Hire Me Details
