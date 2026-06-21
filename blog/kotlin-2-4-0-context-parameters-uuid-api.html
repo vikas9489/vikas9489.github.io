@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kotlin 2.4.0: What Actually Matters for Android Developers — bytevikas</title>
+  <meta name="description" content="Kotlin 2.4.0 shipped June 10, 2026 with stable context parameters, explicit backing fields, and a stable UUID API. Here's what's worth adopting in a production Android codebase and what to watch out for." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#fbbf24;--accent-dim:rgba(251,191,36,.1);--accent-border:rgba(251,191,36,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(251,191,36,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(251,191,36,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Kotlin</span>
+      <span class="post-date">Jun 21, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Kotlin 2.4.0: What Actually Matters for Android Developers</h1>
+
+    <div class="post-body">
+
+      <p>Kotlin 2.4.0 shipped on June 10, 2026, and like most Kotlin releases these days it's a multiplatform-first changelog — Native, Wasm, and JS all get real attention. If you only ship Android, most of that is noise. But buried in the same release are a couple of language features finally going stable after a year or more in experimental purgatory, a standard library API I've wanted since I started writing Kotlin, and a couple of build-tooling changes that will quietly break someone's CI the first time they bump the version without reading the migration notes.</p>
+
+      <p>This is the Android-relevant cut: what's stable now, what's worth adopting in production code, and what to double-check before you touch the version number in your root <code>build.gradle.kts</code>.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">2.4.0</div>
+          <div class="announce-lbl">Released June 10, 2026</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Stable</div>
+          <div class="announce-lbl">Context parameters &amp; explicit backing fields</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">8.5.2</div>
+          <div class="announce-lbl">New minimum supported AGP version</div>
+        </div>
+      </div>
+
+      <h2>Context Parameters Are Stable — and They're Worth Using</h2>
+
+      <p>Context parameters have been experimental since Kotlin 2.2, and 2.4.0 promotes them to stable (the only exceptions left experimental are callable references and explicit context arguments — more on that below). If you haven't touched them yet, the pitch is simple: they let a function declare a dependency it needs from the calling context without it becoming a regular parameter you have to thread through every call site.</p>
+
+      <pre><code>class EmailSender
+class SmsSender
+
+context(emailSender: EmailSender)
+fun sendNotification() { println("Sent email notification") }
+
+context(smsSender: SmsSender)
+fun sendNotification() { println("Sent SMS notification") }</code></pre>
+
+      <p>The overload that gets resolved depends on what's available in the calling context — no explicit parameter passing, no receiver type gymnastics. The use case I keep coming back to is exactly the kind of cross-cutting dependency Dagger Hilt already injects everywhere in a Clean Architecture setup: a <code>Logger</code>, an <code>AnalyticsTracker</code>, a <code>CoroutineDispatcher</code>. Today those either ride along as constructor parameters on every class that might need them, or get smuggled in through a base class. Context parameters give you a third option — declare the dependency at the function level, scoped to exactly the call sites that need it, without polluting a class's public constructor signature just to satisfy one rarely-used method.</p>
+
+      <p>It's not a replacement for DI — you still need something to provide the context value at the top of the call chain. Think of it as a more precise alternative to "inject it into the constructor because one function three calls deep needs it."</p>
+
+      <div class="callout">
+        <p><strong>Worth knowing:</strong> explicit context arguments — calling a context function and passing the context value by name, like <code>sendNotification(emailSender = defaultEmailSender)</code> — are still experimental and gated behind <code>-Xexplicit-context-arguments</code>. The core feature is stable; that particular ergonomic improvement isn't yet.</p>
+      </div>
+
+      <h2>Explicit Backing Fields Close a Real Gap</h2>
+
+      <p>This one also goes stable in 2.4.0, and it fixes an annoyance every Android developer has hit: exposing a read-only public type backed by a mutable private one without the <code>_name</code> / <code>name</code> double-property dance.</p>
+
+      <pre><code>class FeedViewModel {
+    val items: List&lt;FeedItem&gt;
+        field = mutableListOf()
+
+    fun addItem(item: FeedItem) {
+        items.field.add(item)
+    }
+}</code></pre>
+
+      <p>Before this, the standard pattern was a private <code>_items: MutableList&lt;FeedItem&gt;</code> plus a public <code>items: List&lt;FeedItem&gt; get() = _items</code> — two declarations, two names to keep in sync, and an underscore-prefixed property leaking into every IDE autocomplete in the class. Explicit backing fields collapse that into one declaration. It's a small change, but if you've written a ViewModel exposing <code>StateFlow</code> or a repository exposing a cached list, you've written the old pattern dozens of times. This is the version of it that should have existed from day one.</p>
+
+      <h2>Standard Library: a Stable UUID API and Sorted-Order Checks</h2>
+
+      <p><code>kotlin.uuid.Uuid</code> is now stable (V4 and V7 generation remain experimental, but parsing, comparison, and null-returning parse are fully baked). If you've been pulling in <code>java.util.UUID</code> on Android purely because the Kotlin-native type wasn't stable yet, that workaround is no longer necessary:</p>
+
+      <pre><code>val sessionId = Uuid.random()
+val parsed = Uuid.parseOrNull(rawString) ?: return</code></pre>
+
+      <p>The other addition I'll actually use immediately is sorted-order checking on collections — <code>isSorted()</code>, <code>isSortedBy()</code>, <code>isSortedDescending()</code>, and friends:</p>
+
+      <pre><code>data class FeedItem(val id: String, val timestamp: Long)
+
+val items: List&lt;FeedItem&gt; = repository.getCachedFeed()
+check(items.isSortedByDescending { it.timestamp }) {
+    "Feed cache returned items out of order"
+}</code></pre>
+
+      <p>This is a precondition check I've hand-rolled with a manual <code>zipWithNext</code> fold more times than I'd like to admit — every time a feed or paginated list bug turned out to be an ordering assumption silently violated somewhere upstream. Having it in the standard library means it's one line instead of a private extension function copy-pasted across three modules.</p>
+
+      <h2>Build Tooling: Read the Migration Notes Before You Bump the Version</h2>
+
+      <p>A few changes here are easy to miss until they break your build:</p>
+
+      <ul>
+        <li><strong>Minimum AGP bumped to 8.5.2.</strong> If you're on an older Android Gradle Plugin for compatibility reasons, upgrading Kotlin first will fail before you've touched anything else.</li>
+        <li><strong>K1 compiler support is fully removed.</strong> If any module in a multi-module project still pins <code>languageVersion = "1.9"</code> for legacy reasons, that module will no longer compile under 2.4.0. Worth grepping your Gradle files for <code>languageVersion</code> before upgrading.</li>
+        <li><strong>Java 26 bytecode generation is supported</strong> on Kotlin/JVM, which doesn't affect Android directly (we target much older bytecode levels via D8/R8) but confirms JetBrains is keeping pace with JDK releases for the backend/server-side half of the Kotlin audience.</li>
+      </ul>
+
+      <p>If you read my <a href="jetpack-compose-1-11-pausable-composition-grid-api.html">post on Compose 1.11</a>, there's a directly relevant note buried in this release's Compose compiler section too: the <code>StrongSkipping</code> and <code>IntrinsicRemember</code> feature flags are now deprecation-level error (full removal lands in 2.5.0), and <code>OptimizeNonSkippingGroups</code> / <code>PausableComposition</code> are deprecated for removal in 2.6.0. If your Compose module's compiler config still sets any of these flags explicitly — a common leftover from when they were opt-in — clean that up now rather than waiting for the hard removal to force your hand.</p>
+
+      <div class="callout-green">
+        <p>None of these are reasons to avoid upgrading. They're reasons to grep your Gradle config for <code>languageVersion</code>, your AGP version line, and any Compose compiler feature flags before you bump the Kotlin version — a five-minute check that saves a confusing CI failure later.</p>
+      </div>
+
+      <h2>What I'm Skipping For Now</h2>
+
+      <p>Collection literals (<code>val fruit = ["apple", "banana", "cherry"]</code>), the improved compile-time constant evaluation, and the new map fallback functions (<code>getOrPutIfNull</code>, <code>getOrElseIfMissing</code>) are all genuinely useful but still experimental, each behind its own compiler flag. The multiplatform-specific work — Swift export going Alpha, the CMS garbage collector becoming default on Kotlin/Native, Wasm's component model support — matters a lot if you're maintaining a Kotlin Multiplatform target for iOS, but none of it touches a pure Android module.</p>
+
+      <h2>Should You Upgrade Now?</h2>
+
+      <p>Yes, with the five-minute check above done first. Context parameters and explicit backing fields are stable enough to start using in new code today — I wouldn't do a mass refactor of existing DI-heavy classes just to use context parameters, but for new cross-cutting utilities, they're a cleaner default than another constructor parameter. The stable UUID API and sorted-order checks are zero-risk wins you can adopt the moment the version bump lands.</p>
+
+      <p>The bigger pattern worth noticing: Kotlin's release cadence keeps shipping "this should have always existed" standard library additions alongside bigger multiplatform bets. For an Android-only shop, the multiplatform half is mostly background noise — but it's worth skimming anyway, because the Compose compiler flag deprecations buried in there are exactly the kind of thing that silently breaks a build eighteen months from now if nobody reads the notes today.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('kotlin-2-4-0-context-parameters-uuid-api');
+  </script>
+</body>
+</html>

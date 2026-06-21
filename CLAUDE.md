@@ -113,8 +113,9 @@ vikas9489.github.io/
 | `google-io-2026-android-announcements.html` | Android CLI stable, Android Skills, Android Bench from I/O 2026 | News |
 | `jetpack-compose-1-11-pausable-composition-grid-api.html` | Compose 1.11 pausable composition + experimental Grid API | Compose |
 | `android-developer-verification-2026.html` | Android developer verification enforcement (Sep 30, 2026), Limited Distribution tier, sideloading via ADB | Security |
+| `kotlin-2-4-0-context-parameters-uuid-api.html` | Kotlin 2.4.0 — stable context parameters, explicit backing fields, stable UUID API, AGP/Compose compiler migration notes | Kotlin |
 
-**Category accent colors in use** (pick a new, unused one for each new category): perf `#60a5fa`, arch `#34d399`, video `#c084fc`, memory `#fb923c`, news `#38bdf8`, compose `#2dd4bf`, security `#f43f5e`.
+**Category accent colors in use** (pick a new, unused one for each new category): perf `#60a5fa`, arch `#34d399`, video `#c084fc`, memory `#fb923c`, news `#38bdf8`, compose `#2dd4bf`, security `#f43f5e`, kotlin `#fbbf24`.
 
 **To add a new blog post:**
 1. Copy any existing `blog/*.html` file as the structural template (CSS variables, post-meta badge, announce-grid, code blocks, callouts, OneSignal script block, likes/comments interactions block).
