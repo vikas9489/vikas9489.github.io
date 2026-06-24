@@ -102,15 +102,16 @@
 
     /* HERO */
     .hero { min-height:100vh; display:flex; align-items:center; padding-top:100px; }
-    .hero-content { max-width:700px; animation:fadeUp .9s ease both; }
+    .hero-content { flex:1; animation:fadeUp .9s ease both; }
     @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
-    /* AVATAR */
-    .avatar {
-      width:110px; height:110px; border-radius:50%;
-      object-fit:cover;
-      border:2px solid rgba(34,197,94,.35); box-shadow:0 0 0 6px rgba(34,197,94,.1);
-      margin-bottom:24px; display:block;
+    /* HERO SPLIT */
+    .hero-split { display:flex; align-items:center; gap:80px; width:100%; }
+    .hero-photo-wrap { flex-shrink:0; animation:fadeUp 1s .12s ease both; }
+    .hero-avatar {
+      width:280px; height:340px; border-radius:24px; object-fit:cover; display:block;
+      border:1px solid rgba(34,197,94,.18);
+      box-shadow:0 0 0 10px rgba(34,197,94,.06), 0 40px 80px -10px rgba(0,0,0,.65);
     }
 
     .hero-tag {
@@ -346,6 +347,60 @@
     .edu-card p { font-size:14px; color:var(--muted-light); }
     .edu-dates { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
 
+    /* HAMBURGER */
+    .nav-hamburger {
+      display:none; flex-direction:column; justify-content:center; gap:5px;
+      background:none; border:none; cursor:pointer; padding:6px; flex-shrink:0;
+    }
+    .nav-hamburger span { display:block; width:22px; height:2px; background:white; border-radius:2px; transition:transform .3s,opacity .3s; }
+    .nav-hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity:0; }
+    .nav-hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* MOBILE MENU */
+    .mobile-menu {
+      display:none; position:fixed; z-index:999; left:0; right:0; top:100px;
+      background:rgba(5,5,5,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--card-border); flex-direction:column; padding:8px 0 20px;
+    }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a {
+      color:var(--muted-light); text-decoration:none; font-size:16px; font-weight:600;
+      padding:14px 24px; border-bottom:1px solid rgba(255,255,255,.04); display:block; transition:color .2s;
+    }
+    .mobile-menu a:hover { color:white; }
+    .mobile-menu-cta {
+      margin:16px 24px 0 !important; display:block; text-align:center;
+      background:rgba(34,197,94,.1) !important; border:1px solid rgba(34,197,94,.28);
+      color:var(--amber-light) !important; padding:12px; border-radius:12px;
+      font-size:14px; font-weight:600; border-bottom:none !important;
+    }
+
+    /* CONTACT FORM */
+    .contact-wrap { display:grid; grid-template-columns:1fr 1.1fr; gap:64px; align-items:start; }
+    .contact-info { display:flex; flex-direction:column; gap:24px; }
+    .contact-info > p { font-size:15px; color:var(--muted-light); line-height:1.8; }
+    .contact-detail { display:flex; align-items:flex-start; gap:16px; }
+    .contact-detail-icon { width:44px; height:44px; border-radius:12px; flex-shrink:0; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.18); display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .contact-detail-text { display:flex; flex-direction:column; gap:3px; }
+    .contact-detail-text span { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; font-family:'JetBrains Mono',monospace; font-weight:600; }
+    .contact-detail-text a { color:var(--muted-light); text-decoration:none; font-size:14px; transition:color .2s; }
+    .contact-detail-text a:hover { color:var(--amber-light); }
+    .contact-form-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:24px; padding:40px; }
+    .form-group { display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
+    .form-group label { font-size:11px; font-weight:700; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.8px; }
+    .form-input { background:rgba(255,255,255,.03); border:1px solid var(--card-border); border-radius:10px; padding:12px 15px; color:white; font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
+    .form-input:focus { border-color:rgba(34,197,94,.35); box-shadow:0 0 0 3px rgba(34,197,94,.08); }
+    .form-input::placeholder { color:var(--muted); }
+    textarea.form-input { resize:vertical; min-height:120px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .btn-submit { width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer; background:var(--amber); color:#050505; font-size:15px; font-weight:700; font-family:'Outfit',sans-serif; margin-top:4px; transition:all .25s; }
+    .btn-submit:hover:not(:disabled) { background:var(--amber-light); transform:translateY(-2px); box-shadow:0 10px 28px -8px rgba(34,197,94,.45); }
+    .btn-submit:disabled { opacity:.55; cursor:not-allowed; }
+    .form-status { font-size:14px; font-weight:600; padding:11px 16px; border-radius:10px; margin-top:14px; display:none; text-align:center; }
+    .form-status.success { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.2); color:var(--amber-light); display:block; }
+    .form-status.error { background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.18); color:#f87171; display:block; }
+
     /* RESPONSIVE */
     @media (max-width:900px) {
       .expertise-grid, .services-grid, .creator-grid { grid-template-columns:1fr; }
@@ -354,6 +409,9 @@
       .proj-grid-sm { grid-template-columns:1fr 1fr; }
       .process-steps { grid-template-columns:1fr 1fr; }
       .process-steps::before { display:none; }
+      .hero-split { flex-direction:column-reverse; gap:40px; }
+      .hero-avatar { width:220px; height:265px; }
+      .contact-wrap { grid-template-columns:1fr; gap:40px; }
     }
     @media (max-width:600px) {
       .announce-bar { font-size:12px; padding:9px 40px 9px 16px; text-align:left; min-height:44px; }
@@ -361,6 +419,12 @@
       .hero { padding-top:104px; }
       .hero h1 { letter-spacing:-1.5px; }
       .nav-links { display:none; }
+      .btn-open { display:none; }
+      .nav-hamburger { display:flex; }
+      .mobile-menu { top:104px; }
+      .hero-split { gap:28px; }
+      .hero-avatar { width:160px; height:192px; border-radius:16px; }
+      .hero-photo-wrap { display:flex; justify-content:center; }
       .hero-cta { flex-direction:column; }
       .hero-cta .btn { width:100%; justify-content:center; }
       .metrics-bar { gap:22px; }
@@ -370,6 +434,8 @@
       .blog-grid { grid-template-columns:1fr; }
       .faq-q { font-size:14px; padding:18px 20px; }
       .faq-a p { padding:0 20px 18px; }
+      .form-row { grid-template-columns:1fr; }
+      .contact-form-card { padding:24px 20px; }
     }
   </style>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -413,47 +479,64 @@
       <a href="mailto:hi@bytevikas.com" class="btn-open">
         <span class="pulse"></span>Open to Work
       </a>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#expertise">Expertise</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#services">Services</a>
+    <a href="#blog">Blog</a>
+    <a href="#contact">Contact</a>
+    <a href="#hire">Hire Me</a>
+    <a href="mailto:hi@bytevikas.com" class="mobile-menu-cta">Open to Work — Let's Talk</a>
+  </div>
 
   <main>
     <div class="container">
 
       <!-- HERO -->
       <section class="hero">
-        <div class="hero-content">
-          <img src="photo.jpeg" alt="Vikas" class="avatar">
+        <div class="hero-split">
+          <div class="hero-content">
+            <div class="hero-tag">Android Team Lead &nbsp;·&nbsp; 5+ Years</div>
+            <h1>Crafting apps<br><span class="gradient-text">people love.</span></h1>
+            <p class="hero-desc">
+              I'm <strong style="color:white">Vikas Dhiman</strong> — Android Team Lead and Jetpack Compose Specialist with 5+ years shipping production apps. Expert in Clean Architecture, performance engineering, and real-time video streaming.
+            </p>
 
-          <div class="hero-tag">Android Team Lead &nbsp;·&nbsp; 5+ Years</div>
-          <h1>Crafting apps<br><span class="gradient-text">people love.</span></h1>
-          <p class="hero-desc">
-            I'm <strong style="color:white">Vikas Dhiman</strong> — Android Team Lead and Jetpack Compose Specialist with 5+ years shipping production apps. Expert in Clean Architecture, performance engineering, and real-time video streaming.
-          </p>
+            <div class="hero-cta">
+              <a href="#projects" class="btn btn-white">View Projects</a>
+              <a href="#hire" class="btn btn-ghost">Hire Me</a>
+              <a href="https://github.com/vikas9489" target="_blank" class="btn btn-ghost">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:13px">GitHub</span>
+              </a>
+            </div>
 
-          <div class="hero-cta">
-            <a href="#projects" class="btn btn-white">View Projects</a>
-            <a href="#hire" class="btn btn-ghost">Hire Me</a>
-            <a href="https://github.com/vikas9489" target="_blank" class="btn btn-ghost">
-              <span style="font-family:'JetBrains Mono',monospace;font-size:13px">GitHub</span>
-            </a>
+            <div class="hero-chips">
+              <span class="chip">Kotlin</span>
+              <span class="chip">Jetpack Compose</span>
+              <span class="chip">Coroutines / Flow</span>
+              <span class="chip">HLS / DASH</span>
+              <span class="chip">Clean Architecture</span>
+              <span class="chip">Dagger Hilt</span>
+              <span class="chip">CI/CD</span>
+            </div>
+
+            <div class="metrics-bar">
+              <div class="metric"><span class="metric-val" data-count="5" data-suffix="+">5+</span><span class="metric-lbl">Years Exp.</span></div>
+              <div class="metric"><span class="metric-val" data-count="10" data-suffix="+">10+</span><span class="metric-lbl">Apps Shipped</span></div>
+              <div class="metric"><span class="metric-val" data-count="30" data-suffix="K+">30K+</span><span class="metric-lbl">Downloads</span></div>
+              <div class="metric"><span class="metric-val" data-count="60" data-suffix="%">60%</span><span class="metric-lbl">Startup Reduction</span></div>
+              <div class="metric"><span class="metric-val" data-count="99.6" data-suffix="%">99.6%</span><span class="metric-lbl">Crash-Free</span></div>
+            </div>
           </div>
-
-          <div class="hero-chips">
-            <span class="chip">Kotlin</span>
-            <span class="chip">Jetpack Compose</span>
-            <span class="chip">Coroutines / Flow</span>
-            <span class="chip">HLS / DASH</span>
-            <span class="chip">Clean Architecture</span>
-            <span class="chip">Dagger Hilt</span>
-            <span class="chip">CI/CD</span>
-          </div>
-
-          <div class="metrics-bar">
-            <div class="metric"><span class="metric-val">5+</span><span class="metric-lbl">Years Exp.</span></div>
-            <div class="metric"><span class="metric-val">10+</span><span class="metric-lbl">Apps Shipped</span></div>
-            <div class="metric"><span class="metric-val">30K+</span><span class="metric-lbl">Downloads</span></div>
-            <div class="metric"><span class="metric-val">60%</span><span class="metric-lbl">Startup Reduction</span></div>
-            <div class="metric"><span class="metric-val">99.6%</span><span class="metric-lbl">Crash-Free</span></div>
+          <div class="hero-photo-wrap">
+            <img src="photo.jpeg" alt="Vikas Dhiman" class="hero-avatar">
           </div>
         </div>
       </section>
@@ -780,6 +863,63 @@
         <a href="blog/index.html" class="view-all reveal">View all articles &nbsp;→</a>
       </section>
 
+      <!-- CONTACT -->
+      <section id="contact" class="section">
+        <div class="section-eyebrow reveal">08 — Contact</div>
+        <h2 class="section-title reveal">Get in touch</h2>
+        <p class="section-subtitle reveal">Have a project in mind or want to discuss a role? I reply within 24 hours.</p>
+        <div class="contact-wrap reveal">
+          <div class="contact-info">
+            <p>I'm currently open to Senior Android roles and freelance projects. Whether it's a quick question or a full project proposal — drop me a message and I'll get back to you.</p>
+            <div class="contact-detail">
+              <div class="contact-detail-icon">✉</div>
+              <div class="contact-detail-text">
+                <span>Email</span>
+                <a href="mailto:hi@bytevikas.com">hi@bytevikas.com</a>
+              </div>
+            </div>
+            <div class="contact-detail">
+              <div class="contact-detail-icon">💼</div>
+              <div class="contact-detail-text">
+                <span>LinkedIn</span>
+                <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank">vikas-dhiman9489</a>
+              </div>
+            </div>
+            <div class="contact-detail">
+              <div class="contact-detail-icon">💬</div>
+              <div class="contact-detail-text">
+                <span>WhatsApp</span>
+                <a href="https://wa.me/918219875918" target="_blank">+91 82198 75918</a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-form-card">
+            <form id="contactForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cf-name">Name</label>
+                  <input type="text" id="cf-name" name="name" class="form-input" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                  <label for="cf-email">Email</label>
+                  <input type="email" id="cf-email" name="email" class="form-input" placeholder="your@email.com" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="cf-subject">Subject</label>
+                <input type="text" id="cf-subject" name="subject" class="form-input" placeholder="What's this about?">
+              </div>
+              <div class="form-group">
+                <label for="cf-message">Message</label>
+                <textarea id="cf-message" name="message" class="form-input" placeholder="Tell me about your project or role..." required></textarea>
+              </div>
+              <button type="submit" class="btn-submit" id="submitBtn">Send Message</button>
+              <div class="form-status" id="formStatus"></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
       <!-- FAQ -->
       <section id="faq" class="section">
         <div class="section-eyebrow reveal">07 — FAQ</div>
@@ -883,6 +1023,82 @@
       announceBar.style.display = 'none';
       document.querySelector('.navbar').style.top = '0';
       document.querySelector('.hero').style.paddingTop = '60px';
+      document.getElementById('mobileMenu').style.top = '60px';
+    });
+
+    // Hamburger menu
+    const hamburger = document.getElementById('navHamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+
+    // Animated metric counters
+    function animateCount(el) {
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const isDecimal = target % 1 !== 0;
+      const duration = 1400;
+      const start = performance.now();
+      const step = ts => {
+        const p = Math.min((ts - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = isDecimal ? (target * eased).toFixed(1) : Math.floor(target * eased);
+        el.textContent = val + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const metricsObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        document.querySelectorAll('.metric-val[data-count]').forEach(animateCount);
+        metricsObs.disconnect();
+      }
+    }, { threshold: 0.6 });
+    const metricsBar = document.querySelector('.metrics-bar');
+    if (metricsBar) metricsObs.observe(metricsBar);
+
+    // Contact form
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const status = document.getElementById('formStatus');
+      const name = document.getElementById('cf-name').value.trim();
+      const email = document.getElementById('cf-email').value.trim();
+      const subject = document.getElementById('cf-subject').value.trim() || 'Portfolio Contact';
+      const message = document.getElementById('cf-message').value.trim();
+      if (!name || !email || !message) {
+        status.textContent = 'Please fill in your name, email, and message.';
+        status.className = 'form-status error';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      status.className = 'form-status';
+      try {
+        const res = await fetch('https://formsubmit.co/ajax/hi@bytevikas.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ name, email, _subject: subject, message })
+        });
+        if (res.ok) {
+          status.textContent = 'Message sent! I\'ll get back to you within 24 hours.';
+          status.className = 'form-status success';
+          e.target.reset();
+        } else { throw new Error(); }
+      } catch {
+        status.textContent = 'Something went wrong. Please email me directly at hi@bytevikas.com';
+        status.className = 'form-status error';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
     });
 
     // FAQ accordion
