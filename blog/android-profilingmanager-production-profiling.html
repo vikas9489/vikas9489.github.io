@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProfilingManager: Production Profiling in Android Without ADB or Dev Options — bytevikas</title>
+  <meta name="description" content="Android 15 introduced ProfilingManager — heap dumps, heap profiles, and stack sampling on real user devices, no developer options required. Android 16 adds system triggers that automatically capture cold starts and ANRs." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#e879f9;--accent-dim:rgba(232,121,249,.1);--accent-border:rgba(232,121,249,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(232,121,249,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(232,121,249,.06);border:1px solid rgba(232,121,249,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(232,121,249,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Profiling</span>
+      <span class="post-date">Jun 24, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>ProfilingManager: Production Profiling in Android Without ADB or Dev Options</h1>
+
+    <div class="post-body">
+
+      <p>For most of my Android career, profiling had a dirty secret: the devices that matter are never the ones you can profile. You can instrument your Pixel dev device all day with Perfetto, Android Studio Profiler, or simpleperf. What you can't do is attach anything meaningful to a mid-range device running on a user's crammed home screen, in a country where latency is twice what you measured in the office, in the exact memory-pressure situation that triggered the jank report.</p>
+
+      <p>Firebase Performance gives you coarse timing buckets. Custom instrumentation gets you the hot paths you already know to look at. What's always been missing is the thing you actually need for root cause analysis: a real CPU or heap trace from a real device at the exact moment something went wrong. Android 15 changed that with <code>ProfilingManager</code>. Android 16 took it further by making the hardest flows — cold starts and ANRs — automatic.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Android 15</div>
+          <div class="announce-lbl">ProfilingManager introduced — heap dumps, profiles, and stack sampling on production devices</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Perfetto</div>
+          <div class="announce-lbl">Industry-standard trace format, opens in ui.perfetto.dev with zero additional tooling</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Android 16</div>
+          <div class="announce-lbl">System-triggered: cold start, reportFullyDrawn(), and ANR traces fire automatically</div>
+        </div>
+      </div>
+
+      <h2>What ProfilingManager Actually Is</h2>
+
+      <p><code>android.os.ProfilingManager</code> is a system service introduced in Android 15 that lets your app request Perfetto profiling data from within its own process — on a production device, with no developer options enabled, and no ADB required. The output goes to your app's files directory via a callback, and the API rate-limits itself to minimize the impact on the running app.</p>
+
+      <p>The core entry point is <code>requestProfiling(Bundle, Executor, Consumer)</code>: pass a <code>Bundle</code> that specifies the profiling type and any applicable options, the executor on which the result should be delivered, and a <code>Consumer</code> callback that receives the profiling result when the trace is complete. Google's recommendation is to use the corresponding AndroidX wrapper — <code>androidx.core.os.Profiling</code> available in <strong>Core 1.15.0-rc01 or higher</strong> — which simplifies constructing the request bundle and adds backwards-compatibility handling.</p>
+
+      <pre><code>// Requires Core 1.15.0-rc01+
+// Add to build.gradle.kts:
+// implementation("androidx.core:core:1.15.0")
+
+import androidx.core.os.Profiling
+
+// Request a heap dump during a suspected leak window
+Profiling.requestProfiling(
+    context,
+    Profiling.PROFILING_TYPE_HEAP_DUMP,
+    Bundle(),                         // optional type-specific config
+    context.mainExecutor,
+) { result ->
+    if (result.errorCode == Profiling.ProfilingResult.ERROR_NONE) {
+        val traceFile = File(result.outputFilePath)
+        uploadOrAnalyze(traceFile)
+    }
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Note on the code above:</strong> The snippet shows the AndroidX wrapper pattern. Check the latest <code>androidx.core.os.Profiling</code> API reference for exact method and constant names — the underlying framework API evolves, and the wrapper provides the most stable surface.</p>
+      </div>
+
+      <h2>The Three Profiling Types and When to Reach for Each</h2>
+
+      <p>ProfilingManager supports three primary types of profiling data, each answering a different question:</p>
+
+      <h3>Heap dump</h3>
+      <p>A point-in-time snapshot of every live object on the heap. This is the right tool when you have a memory leak report — take a heap dump at the moment memory is unusually high, upload the result, open it in Android Studio's Heap Viewer or convert to <code>.hprof</code> for analysis. The dump is heavy (can be tens of MB on a real app), so you don't want this running constantly. Target it: trigger after <code>onTrimMemory(TRIM_MEMORY_RUNNING_CRITICAL)</code> or when your own memory usage counters cross a threshold.</p>
+
+      <h3>Heap profile</h3>
+      <p>Instead of a static snapshot, a heap profile records allocation call stacks over time. Where a heap dump tells you what's alive, a heap profile tells you where allocations came from during a session window. This is what you want for diagnosing allocation-heavy screens — the kind that don't leak but force GC every few seconds and cause the subtle stutter that users describe as "the app feels laggy sometimes." I've hit this in Musist's audio browser: each track thumbnail was triggering a new Bitmap allocation on every bind instead of recycling from the pool, and the heap profile showed it immediately as a hot allocation site.</p>
+
+      <h3>Stack sampling</h3>
+      <p>CPU stack sampling: captures where the CPU is spending time across threads. This is your go-to for diagnosing jank, slow operations, or any situation where the UI thread is blocked but you can't tell by what. It's the production-equivalent of the CPU profiler in Android Studio, but running on user devices under real workloads.</p>
+
+      <p>All three types produce Perfetto-compatible trace files you can open directly at <strong>ui.perfetto.dev</strong> — no additional tooling or conversion step required.</p>
+
+      <h2>Rate Limiting: What It Means in Practice</h2>
+
+      <p>The API is rate-limited by the system to minimize performance impact. This is the right default — you're not building a continuous monitoring pipeline with <code>ProfilingManager</code>, you're doing targeted, event-driven collection. Trigger profiling in response to specific conditions your app can detect: memory warnings, a slow operation timeout, a user report flow. Don't request traces in a tight loop or on every screen transition.</p>
+
+      <p>For production at scale, you also want to apply your own sampling layer on top: pick a percentage of sessions where profiling is enabled, or gate it on a feature flag. The system rate limits will protect you if you overshoot, but having your own control means you're not wasting quota on users where the conditions for the bug you're hunting aren't present.</p>
+
+      <h2>The Cold Start Problem — and Why Android 16 Fixes It</h2>
+
+      <p>There's an inherent limitation with <code>requestProfiling()</code>: your code has to be running to call it. Cold start happens before your first line of application code executes. By the time <code>Application.onCreate()</code> runs, the startup inflation has already happened. The <code>ContentProvider</code>s that were blocking your process are already initialized. You can measure the <em>outcome</em> with <code>ApplicationStartInfo</code> timings, but you can't observe the execution inside it with a manually triggered trace.</p>
+
+      <p>ANRs have the same problem in reverse: by the time the system kills your app, there's nothing left to run the code that would request a trace.</p>
+
+      <p>This is what Android 16's system-triggered profiling solves. Instead of your app requesting profiling at a specific moment, <strong>you register interest in trigger events once, and the system starts and stops the trace on your behalf whenever those events occur</strong>. The system has the context your code doesn't — it can begin instrumenting at actual process start, before any of your code runs, and it can capture the ANR trace at the moment of unresponsiveness rather than after the fact.</p>
+
+      <h2>System-Triggered Profiling in Android 16</h2>
+
+      <p>The three supported system triggers are:</p>
+
+      <ul>
+        <li><strong>Cold start</strong> — trace begins when the process is forked, covers the full path from zygote through <code>reportFullyDrawn()</code></li>
+        <li><strong>reportFullyDrawn()</strong> — if you call <code>Activity.reportFullyDrawn()</code> when your content is actually ready, the system uses that as a trace boundary</li>
+        <li><strong>ANRs</strong> — a trace is automatically captured at the moment an ANR is detected, covering what all threads were executing</li>
+      </ul>
+
+      <p>You register for these triggers through <code>ProfilingManager</code>, and the resulting traces are delivered to your app's data directory after the triggering event completes. The cold start trace in particular is something that was never cleanly achievable with manual instrumentation — you'd always be missing the first tens or hundreds of milliseconds where the heaviest initialization work actually happens.</p>
+
+      <div class="callout-green">
+        <p>If you've been relying on <code>ApplicationStartInfo</code> to measure startup times, that still applies — but now you can pair the timing with an actual Perfetto trace that shows <em>what was executing</em> during each startup phase, not just how long it took.</p>
+      </div>
+
+      <h3>ApplicationStartInfo.getStartComponent() — new in Android 16</h3>
+
+      <p>Alongside system-triggered profiling, Android 16 adds <code>ApplicationStartInfo.getStartComponent()</code>. This returns which component type actually triggered the process start — distinguishing between an Activity start, a Service start, a ContentProvider access, and a BroadcastReceiver invocation. It's a small addition with a disproportionate payoff: a significant chunk of "my startup is slow" investigations turn out to be a background Service or ContentProvider that's paying the same initialization cost as a foreground Activity start, but with no user visible benefit from doing so. Being able to split your startup traces by launch pathway rather than lumping everything into a single "cold start" bucket is the right way to build an optimization plan.</p>
+
+      <h2>Production Strategy: How to Actually Use This</h2>
+
+      <p>Here's how I'd approach integrating ProfilingManager into a shipping app, based on the patterns that have worked for me across different performance investigations:</p>
+
+      <p><strong>Start with system triggers for cold start.</strong> On Android 16 devices, register for cold start traces from <code>Application.onCreate()</code>. You don't need to do anything else — traces arrive in your data directory automatically. Implement a background upload from there, similar to how you'd handle crash log uploading. This gives you a continuous baseline of startup traces from real user devices, not just your dev machine.</p>
+
+      <p><strong>Use heap dumps reactively, not proactively.</strong> Hook into <code>onTrimMemory()</code> callbacks and request a heap dump when the device signals genuine memory pressure your app is contributing to. This pins the trace to the exact moment the problem is occurring, which is the only context where it's diagnostically useful.</p>
+
+      <p><strong>Gate on build type or feature flag for stack sampling.</strong> Stack sampling has more overhead than heap profiling. Enable it on internal build variants by default, and use a remote flag to turn it on for a controlled percentage of production sessions when you're actively investigating a jank report. Rate limiting provides a safety net, but a feature flag gives you explicit control.</p>
+
+      <p><strong>Analyze with Perfetto, not just Android Studio.</strong> <code>ui.perfetto.dev</code> handles the output files directly and has better support for long traces and cross-process analysis than Android Studio's profiler. For cold start traces, the Timeline view showing main thread work, binder calls, and GC pauses side-by-side is where you'll find the actual bottlenecks.</p>
+
+      <h2>What This Changes</h2>
+
+      <p>When I was hunting down the 60% startup improvement I shipped in Nodat, the hardest part wasn't the fix — it was closing the gap between what the Macrobenchmark showed on my local device and what actual users were experiencing on their hardware. ProfilingManager is the piece that closes that gap. You can now build a production profiling pipeline that delivers Perfetto traces from the devices that matter, triggered automatically on the flows that matter, without requiring your users to enable developer options or your team to be present with an ADB cable.</p>
+
+      <p>Datadog has already shipped this in production to deliver what their engineering team describes as millions of in-depth performance insights, as of June 2026. The underlying capability has been in Android 15 since its release. If your app supports API 35+ and you're not pulling traces from production yet, this is the starting point worth prioritizing this quarter.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-profilingmanager-production-profiling');
+  </script>
+</body>
+</html>
