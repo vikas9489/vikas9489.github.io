@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android XR Developer Preview 4: What the Jetpack XR SDK Actually Means for Android Developers — bytevikas</title>
+  <meta name="description" content="ARCore for Jetpack XR 1.0.0-alpha15 landed June 17 with a QR Code API, Geospatial mode overhaul, and hand tracking changes. Here's what Android XR Developer Preview 4 actually means if you're coming from years of mobile Android work." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a3e635;--accent-dim:rgba(163,230,53,.1);--accent-border:rgba(163,230,53,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(163,230,53,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(163,230,53,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">XR</span>
+      <span class="post-date">Jun 25, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Android XR Developer Preview 4: What the Jetpack XR SDK Actually Means for Android Developers</h1>
+
+    <div class="post-body">
+
+      <p>For most of the past year, Android XR felt like something you'd follow from a safe distance — interesting announcements at Google I/O, impressive headset demos, but nothing that touched the day-to-day work of shipping a production Android app. That changed this month. ARCore for Jetpack XR hit <strong>1.0.0-alpha15</strong> on June 17, bundling a Geospatial API overhaul, a brand-new QR Code detection API, and a set of hand tracking changes that signal the SDK is solidifying toward a stable release. Google also published a full mixed-reality tour guide sample built with the Geospatial API and Gemini just three days ago.</p>
+
+      <p>I'm not building an XR app tomorrow. You're probably not either. But after spending time with the Jetpack XR SDK, I think there's a better framing than "wait and see." If you've been doing Android for a few years, the SDK is a lot more familiar than the XR branding suggests — and the architecture decisions Google made mean that much of what you already know transfers directly.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">alpha15</div>
+          <div class="announce-lbl">ARCore for Jetpack XR latest (June 17, 2026)</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">DP4</div>
+          <div class="announce-lbl">Android XR Developer Preview 4</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">4</div>
+          <div class="announce-lbl">Form factors: headsets, wired glasses, audio glasses, display glasses</div>
+        </div>
+      </div>
+
+      <h2>The Four Form Factors, and Why They Matter for Architecture</h2>
+
+      <p>Android XR isn't a single device type. The SDK targets four distinct hardware categories:</p>
+
+      <ul>
+        <li><strong>XR Headsets</strong> — fully immersive high-fidelity devices (Samsung Galaxy XR is the first announced Android XR headset)</li>
+        <li><strong>Wired XR Glasses</strong> — glasses tethered to a phone for dedicated spatial experiences</li>
+        <li><strong>Audio Glasses</strong> — voice-first, no display; access to camera and onboard audio</li>
+        <li><strong>Display Glasses</strong> — lightweight augmented overlay with a small screen</li>
+      </ul>
+
+      <p>The architectural implication is that you can't write one codebase that assumes a single output surface. The SDK handles this through a layered approach: some libraries work across all form factors, some are scoped to headsets and wired glasses only, and some are specific to the glasses tier. You query capabilities at runtime rather than branching on device model strings — the same pattern we've been using for phone/tablet adaptivity, applied to an entirely new dimension.</p>
+
+      <h2>The SDK Layers: What Each One Does</h2>
+
+      <p>The Jetpack XR SDK isn't a monolith. It ships as six separate libraries, and understanding what each one handles saves you from conflating concerns that need to stay separate.</p>
+
+      <h3>ARCore for Jetpack XR</h3>
+
+      <p><strong>Dependency:</strong> <code>androidx.xr.arcore:arcore:1.0.0-alpha15</code></p>
+
+      <p>This is where the world-understanding lives. Plane detection with semantic labels (floor, wall, tabletop), persistent anchors, motion tracking, hand tracking, and — as of alpha12 — image marker tracking via <code>AugmentedImage</code>. The session lifecycle should feel immediately familiar to anyone who's used ARCore on mobile, though the API has been modernized to Kotlin coroutines and async patterns throughout:</p>
+
+      <pre><code>// Create a session — returns a Result, not a nullable
+val session = Session.create(context).getOrThrow()
+
+session.configure(
+    Config(
+        planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL,
+        geospatialMode = GeospatialMode.SPATIAL,  // replaces VPS_AND_GPS as of alpha14
+    )
+)
+
+// Plane updates come as a Flow
+session.planes
+    .collect { planes ->
+        planes
+            .filter { it.trackingState == TrackingState.TRACKING }
+            .forEach { plane ->
+                when (plane.label) {
+                    PlaneLabel.FLOOR   -> anchorToFloor(plane)
+                    PlaneLabel.TABLE   -> anchorToTable(plane)
+                    else               -> { /* skip */ }
+                }
+            }
+    }</code></pre>
+
+      <p>The rename from <code>Plane.Label</code> to <code>PlaneLabel</code> (and similar flattening of <code>Hand.HandSide</code> to <code>HandSide</code>, <code>Plane.Type</code> to <code>PlaneType</code>) landed in alpha13 and makes the API feel more idiomatic Kotlin — no nested sealed class path to navigate when you just want to pattern-match on a plane label.</p>
+
+      <h3>Jetpack Compose for XR</h3>
+
+      <p><strong>Dependency:</strong> <code>androidx.xr.compose:compose:1.0.0-alpha15</code></p>
+
+      <p>If you write Compose today, you already know most of the mental model here. The key concept is the <em>subspace</em> — the three-dimensional region around the user where XR content lives — versus the standard 2D Compose surface. You place content in the subspace using dedicated composables:</p>
+
+      <pre><code>@Composable
+fun MyXrApp() {
+    // Regular 2D composable — works as-is on XR
+    Box(Modifier.fillMaxSize()) {
+        Text("Standard 2D content")
+    }
+
+    // Subspace: opt into the 3D layer
+    Subspace {
+        SpatialPanel(
+            modifier = SubspaceModifier
+                .width(800.dp)
+                .height(600.dp)
+                .resizable()          // system-managed resize in alpha15
+                .movable()            // user can grab and reposition
+        ) {
+            // Any Compose content goes here — your existing screens just work
+            MyExistingScreen()
+        }
+
+        // glTF model floating next to the panel
+        SpatialGltfModel(
+            state = rememberSpatialGltfModelState(
+                source = SpatialGltfModelSource.fromResource(R.raw.my_model)
+            )
+        )
+    }
+}</code></pre>
+
+      <p>The <code>SpatialGltfModelSource.fromResource</code> API landed in alpha15 — before that, loading models from Android resources required more ceremony. Small quality-of-life change, but the kind that tells you the team is polishing toward stability.</p>
+
+      <h3>Jetpack SceneCore</h3>
+
+      <p><strong>Dependency:</strong> <code>androidx.xr.scenecore:scenecore:1.0.0-alpha15</code></p>
+
+      <p>The lower-level scene graph. If Compose for XR is the declarative layer, SceneCore is the imperative one beneath it. You use it directly when you need fine-grained control over entity placement, spatial audio sources, or when you're working with game engines that bypass Compose entirely. For most app developers, Compose for XR abstracts over SceneCore — you'd reach for it the way you'd reach for <code>Canvas</code> in traditional Android development: rarely, and when you genuinely need the control.</p>
+
+      <h3>Jetpack Compose Glimmer + Jetpack Projected</h3>
+
+      <p>These two libraries target the glasses tier specifically. Glimmer is a Compose subset optimized for the constraints of a small display glass — simplified color palette, no ripple effects (the display can't handle them cleanly), voice interaction support. Projected handles the phone-to-glasses communication channel and gives you access to glasses camera and display hardware via standard Android permission APIs. If you're only interested in headset development, you can ignore both of these for now.</p>
+
+      <h2>The Geospatial API Overhaul</h2>
+
+      <p>The biggest API evolution across recent alphas is the Geospatial mode redesign. In alpha13 and earlier, you could enable <code>GeospatialMode.VPS_AND_GPS</code> to get location-aware anchors — anchors placed relative to real-world geographic coordinates rather than just relative to where the session started. Useful for building experiences that persist across device restarts, or that multiple users can see in the same physical location.</p>
+
+      <p>Alpha14 deprecated <code>VPS_AND_GPS</code> in favor of two cleaner modes:</p>
+
+      <ul>
+        <li><strong><code>GeospatialMode.SPATIAL</code></strong> — the full geospatial mode, combining Visual Positioning System (VPS) and GPS for precise real-world anchor placement</li>
+        <li><strong><code>GeospatialMode.INERTIAL</code></strong> — lower-power tracking that uses inertial sensors only, without GPS or VPS lookups; useful when you need relative spatial positioning but not real-world coordinate grounding</li>
+      </ul>
+
+      <p>The practical split: if you're building something like a location-anchored tour guide (which is exactly what Google's June 22nd sample app does — blending Geospatial anchors with Gemini for contextual commentary), you want <code>SPATIAL</code>. If you're building an in-room experience where you just need objects to stay put relative to where the user is standing, <code>INERTIAL</code> gives you that at lower battery cost.</p>
+
+      <pre><code>session.configure(
+    Config(
+        // For world-anchored content that survives device restart or multi-user scenarios
+        geospatialMode = GeospatialMode.SPATIAL,
+
+        // Or: for in-room-only, no GPS dependency, lower power
+        // geospatialMode = GeospatialMode.INERTIAL,
+    )
+)
+
+// Check geospatial state before placing anchors
+session.earth?.let { earth ->
+    if (earth.trackingState == TrackingState.TRACKING &&
+        earth.earthState == GeospatialState.ENABLED) {
+        val anchor = earth.createAnchor(
+            latitude  = 28.6139,
+            longitude = 77.2090,
+            altitude  = 216.0,
+            eastUpSouthQuaternion = floatArrayOf(0f, 0f, 0f, 1f)
+        )
+    }
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Worth noting:</strong> VPS accuracy depends on Google's Street View imagery for the area. In India — where a large portion of Nodat's user base is — VPS coverage is solid in major cities but patchy in tier-2 and tier-3 cities. Design location-anchored features with graceful fallback to <code>INERTIAL</code> mode when <code>GeospatialState</code> isn't <code>ENABLED</code>.</p>
+      </div>
+
+      <h2>The QR Code API (alpha15)</h2>
+
+      <p>A small but genuinely useful addition in the June 17 release: <code>QrCode</code> tracking. The API follows the same pattern as <code>AugmentedImage</code> (which landed in alpha12 for arbitrary image marker tracking), but is optimized for the specific geometry and error-correction structure of QR codes. The practical use is obvious — scan-to-anchor, letting a user point their headset at a QR code on a physical object or location to trigger an XR experience tied to that exact spot:</p>
+
+      <pre><code>// Configure QR tracking in the session config
+session.configure(
+    Config(qrCodeMode = Config.QrCodeMode.ENABLED)
+)
+
+// React to detected QR codes
+session.qrCodes
+    .collect { codes ->
+        codes
+            .filter { it.trackingState == TrackingState.TRACKING }
+            .forEach { qr ->
+                val payload = qr.rawValue  // decoded string content
+                val anchor  = qr.createAnchor()  // anchor at the QR's physical location
+                handleQrTrigger(payload, anchor)
+            }
+    }</code></pre>
+
+      <p>This is the kind of API that becomes a standard UX pattern quickly. Every enterprise XR use case — warehouse inventory, equipment maintenance, onboarding guides — has a "scan this to activate" step. Having it as a first-class SDK primitive instead of a CV library integration reduces a meaningful amount of integration work.</p>
+
+      <h2>What Your Existing Android Skills Cover</h2>
+
+      <p>I've spent enough time in the XR samples and API references to have an opinion on this: the learning curve is smaller than the branding suggests, if you've been doing Android for a few years.</p>
+
+      <ul>
+        <li><strong>Kotlin coroutines and Flow</strong> — the entire ARCore for Jetpack XR async API is Flow-based. The tracking state of a plane, hand joints, geospatial earth state — all Flows. If you've been using Flow in your ViewModels, the pattern is identical.</li>
+        <li><strong>Jetpack Compose</strong> — Compose for XR is literally Compose. <code>SpatialPanel</code> wraps any <code>@Composable</code>. I dropped a ViewModel-backed screen from Nodat into a <code>SpatialPanel</code> in a test project with no changes to the screen itself.</li>
+        <li><strong>Dependency injection</strong> — Hilt works unchanged. XR-specific dependencies (the <code>Session</code>, the <code>SceneCore</code> session) can be scoped and injected normally.</li>
+        <li><strong>Lifecycle</strong> — XR sessions follow the same Activity lifecycle callbacks you already handle. No new lifecycle owner to learn.</li>
+      </ul>
+
+      <p>What's genuinely new is the spatial reasoning: thinking in three dimensions for layout, understanding tracking states and what to do when they degrade, and designing UX for users who are physically in a space rather than sitting at a phone. The SDK can't teach you that part. But it gets out of the way and lets you focus on it, which is the right call.</p>
+
+      <div class="callout-amber">
+        <p>Game engine support expanded at Google I/O 2026: Unity, Unreal Engine (with a native VR template), and Godot (via the OpenXR Vendors plugin) are all now supported. If you're an Android developer who's never touched a game engine, you don't need to — the Jetpack XR SDK is the native path and it's the one that integrates cleanly with everything you already use.</p>
+      </div>
+
+      <h2>Should You Start Building Now?</h2>
+
+      <p>The honest answer is: it depends on what "start" means.</p>
+
+      <p>If "start" means prototyping, learning the API shape, and building intuition for spatial UI — yes, today is a fine time. The emulator support in Android Studio is solid, the AVD for XR headsets is available without needing physical hardware, and the SDK has reached the point where the API surfaces are stable enough that prototypes you write today will need only targeted updates rather than wholesale rewrites when stable hits.</p>
+
+      <p>If "start" means shipping to production — that's a different answer. This is still a Developer Preview. The <code>@Experimental</code> annotations scattered across both Compose for XR and ARCore for Jetpack XR are accurate warnings: APIs have changed significantly between alphas (the alpha13 enum renaming was not a small diff), and they'll likely change again before 1.0.0 stable. Building production architecture on top of APIs that ship breaking changes between monthly releases is a bet I wouldn't take right now.</p>
+
+      <p>The right move for most Android developers is the same one I'm taking: follow the release notes, run the samples, maybe port one non-critical internal screen to a <code>SpatialPanel</code> to understand how the spatial model works, and be positioned to move fast when the stable release drops. The teams who understand this SDK's architecture now are the ones who'll be first to market when hardware availability makes XR apps a real business decision.</p>
+
+      <h2>Staying Current</h2>
+
+      <p>The release cadence has been roughly monthly since December 2024, and the changelogs in the Jetpack XR AndroidX release notes are genuinely informative — more so than most library changelogs. They explain the why behind renames and removals, not just the what. Worth subscribing to:</p>
+
+      <ul>
+        <li><code>androidx.xr.arcore:arcore</code> release notes — this is where the tracking and sensing API changes land</li>
+        <li><code>androidx.xr.compose:compose</code> release notes — Compose for XR spatial primitives</li>
+        <li><code>androidx.xr.scenecore:scenecore</code> release notes — lower-level scene graph changes</li>
+      </ul>
+
+      <p>If you're already tracking Compose and AndroidX releases (and at this point in 2026, if you're shipping Compose apps in production, you should be), adding three more release note feeds is low overhead for keeping your XR knowledge current.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-xr-developer-preview-4-jetpack-xr-sdk');
+  </script>
+</body>
+</html>
