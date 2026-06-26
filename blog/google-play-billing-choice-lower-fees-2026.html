@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Play's New Fee Structure and Billing Choice: What Actually Changes for Android Developers — bytevikas</title>
+  <meta name="description" content="Google Play is restructuring service fees and expanding billing choice effective June 30, 2026 in the US, UK, and EEA. Here's what the fee changes, alternative billing, external web links, and the reduced-rate programs actually mean for your app." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#06b6d4;--accent-dim:rgba(6,182,212,.1);--accent-border:rgba(6,182,212,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .fee-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:15px;}
+    .fee-table th{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+      border-bottom:1px solid var(--card-border);padding:10px 12px;text-align:left;
+    }
+    .fee-table td{
+      padding:12px;border-bottom:1px solid rgba(255,255,255,.04);
+      color:#c0cdd8;vertical-align:top;
+    }
+    .fee-table tr:last-child td{border-bottom:none;}
+    .fee-table .highlight{color:var(--accent);font-weight:600;}
+    .fee-table .dim{color:var(--muted);}
+
+    .callout{
+      background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+      .fee-table{font-size:13px;}
+      .fee-table th,.fee-table td{padding:8px;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(6,182,212,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Monetize</span>
+      <span class="post-date">Jun 26, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Google Play's New Fee Structure and Billing Choice: What Actually Changes for Android Developers</h1>
+
+    <div class="post-body">
+
+      <p>Google announced expanded billing choice and restructured service fees for Google Play, effective June 30, 2026 for the United States, United Kingdom, and European Economic Area. If you ship paid apps, sell in-app purchases, or run subscriptions through Play, these changes affect what you keep from every transaction.</p>
+
+      <p>I'll be honest — Play's fee policy has historically been one of those things I'd glance at once during initial monetization setup and then never revisit. That was a mistake. The new structure is meaningfully different from the old one in a few places, and the billing choice expansion in particular creates options that didn't exist before. Worth understanding properly before June 30 arrives.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">10%</div>
+          <div class="announce-lbl">Service fee for subscriptions &amp; first $1M annual earnings</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">0%</div>
+          <div class="announce-lbl">Additional billing fee when using external web links</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Jun 30</div>
+          <div class="announce-lbl">Effective date for US, UK, and EEA</div>
+        </div>
+      </div>
+
+      <h2>Breaking Down the New Service Fee Structure</h2>
+
+      <p>The service fee — the base percentage Google charges on revenue processed through Play — now varies by product type and by whether the user is a new or existing install:</p>
+
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>Transaction Type</th>
+            <th>New Installs</th>
+            <th>Existing Installs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>First $1M USD annual earnings</td>
+            <td class="highlight">10%</td>
+            <td class="highlight">10%</td>
+          </tr>
+          <tr>
+            <td>Auto-renewing subscriptions</td>
+            <td class="highlight">10%</td>
+            <td class="highlight">10%</td>
+          </tr>
+          <tr>
+            <td>Digital goods &amp; services</td>
+            <td class="dim">15%</td>
+            <td class="highlight">10%</td>
+          </tr>
+          <tr>
+            <td>Physical goods</td>
+            <td class="highlight">10%</td>
+            <td class="highlight">5%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>"New installs" means the first install or update on or after the regional rollout date. "Existing installs" means the app was already installed before the rollout. The distinction matters most for digital goods: a new user pays the 15% rate, but your existing user base gets the lower 10% rate applied to their purchases.</p>
+
+      <p>The 10% cap on the first $1M of annual earnings applies regardless of product type — which was already in place but is worth re-confirming. If you're building a side project or an early-stage app that hasn't cleared $1M in a year, the first-million bracket is effectively your entire revenue and the 10% rate applies to all of it.</p>
+
+      <h3>The additional billing fee — this is where it gets interesting</h3>
+
+      <p>On top of the service fee, Google charges a separate billing fee in the US, UK, and EEA that depends on how you collect payment:</p>
+
+      <ul>
+        <li><strong>Google Play's own billing system:</strong> 5% billing fee</li>
+        <li><strong>Alternative billing system (user's choice):</strong> 0% billing fee</li>
+        <li><strong>External web link (send users to your site):</strong> 0% billing fee</li>
+      </ul>
+
+      <p>This 5% is a processing fee, not the service fee — it covers Google's payment infrastructure. The practical implication: if you use Google Play Billing, your actual take rate is the service fee plus 5%. For a subscription, that's 10% + 5% = 15% effective rate. For digital goods sold to a new user, it's 15% + 5% = 20% effective rate. Using your own billing or an external link removes the 5% entirely.</p>
+
+      <div class="callout">
+        <p><strong>The math that matters:</strong> For a subscription priced at ₹499/month (~$6 USD), the difference between Google Play Billing (15% total) and alternative billing (10% total) is roughly ₹25 per renewal. Small per-transaction, but over a user base of even a few hundred active subscribers it compounds fast.</p>
+      </div>
+
+      <h2>The Billing Choice Program — and What Each Option Actually Means</h2>
+
+      <p>The Billing Choice Program expands in this update and now covers 195+ markets with 300+ local payment methods. In the US, UK, and EEA, you now have three distinct paths:</p>
+
+      <h3>Option 1: Keep Google Play Billing</h3>
+
+      <p>Nothing changes on your end — users see the familiar Play payment sheet, Google handles fraud, refunds, and payment processing. You pay the service fee plus the 5% billing fee. For most apps this is still the lowest-friction choice, especially if your users trust the Play payment experience and you don't have a web presence to send them to.</p>
+
+      <h3>Option 2: Offer an alternative billing system alongside Play</h3>
+
+      <p>You integrate a third-party payment provider (Stripe, RevenueCat, a local PSP) and present both options to the user. Google specifies a UX guideline for how the choice screen must look — you can't just hide Play Billing and offer only your own. The service fee stays the same; the 5% billing fee goes away because you're handling payment processing yourself.</p>
+
+      <p>This makes most sense for apps that already have significant web revenue and an existing payment relationship with users. Syncing subscription state across two billing systems is non-trivial. I'd think hard about implementation complexity before going this route just to save 5%.</p>
+
+      <h3>Option 3: Link users to your external website</h3>
+
+      <p>You add a link inside the app that directs users to your website to complete the purchase. No alternative billing UI inside the app, no payment sheet shown in-app at all. Same 0% billing fee as Option 2. You handle everything on your side — payments, receipts, provisioning entitlements back into the app.</p>
+
+      <p>This is the option that's gotten the most attention, and for good reason. You keep 100% minus just the service fee. But provisioning entitlements reliably — making sure a user who paid on your website gets their subscription state reflected in the app immediately, across devices, without a forced sync — is genuinely hard to do well. It's not a reason to avoid it, but it's engineering work you need to plan for, not just a checkbox in Play Console.</p>
+
+      <div class="callout-green">
+        <p>The Billing Choice Program requires enrollment in Play Console. Google provides the approved UX guidelines for the choice screen — don't skip reading them. Non-compliant implementations risk Play policy violations independent of the fee question.</p>
+      </div>
+
+      <h2>Games Level Up and Apps Experience Programs</h2>
+
+      <p>A second tranche of changes lands September 30, 2026: two programs that offer further reduced service fees for apps and games that meet a specific set of quality and engagement requirements.</p>
+
+      <p><strong>Games Level Up</strong> targets, predictably, games. <strong>Apps Experience</strong> covers non-game apps. Both programs require apps to meet all eligibility criteria — engagement metrics, crash rates, store listing completeness, policy compliance — to qualify for reduced rates. The specifics of each program's requirements are in the Play Console documentation.</p>
+
+      <p>For context: Nodat is the kind of productivity/utility app that could potentially qualify for the Apps Experience program if crash rate and engagement benchmarks are met. The reduced rates apply on top of the base fee structure — so qualifying on both the first-million bracket and an experience program stacks in your favor. Worth checking eligibility now rather than waiting.</p>
+
+      <h2>What This Looks Like in Practice for a Real App</h2>
+
+      <p>Let me make this concrete with numbers from the kind of app I actually build. Say you have a subscription app like Nodat with a ₹199/month premium tier (~$2.40 USD). You're somewhere between 1,000 and 5,000 paying subscribers — under the $1M first-year threshold for most of the user base.</p>
+
+      <pre><code>// Effective rates for a $2.40/month subscription (US/UK/EEA)
+
+// Using Google Play Billing:
+service_fee = 10%   // subscriptions
+billing_fee = 5%    // GPB processing
+effective_rate = 15%
+you_keep = $2.04
+
+// Using alternative billing or external link:
+service_fee = 10%   // same
+billing_fee = 0%    // you handle processing
+effective_rate = 10%
+you_keep = $2.16
+
+// Difference per renewal: $0.12
+// At 2,000 active subscribers: ~$240/month, ~$2,880/year</code></pre>
+
+      <p>$2,880/year isn't life-changing at that scale, but it's not nothing either — and the number scales with subscribers. The question is whether the complexity of running a second billing path (or an external purchase flow) is worth it at your current size. At 500 subscribers, probably not. At 10,000, the math gets more compelling.</p>
+
+      <h3>What about apps outside the US/UK/EEA?</h3>
+
+      <p>The June 30 changes apply specifically to those three regions. Additional markets will receive a phased rollout on a schedule Google hasn't fully published yet. For apps with most of their revenue in, say, India or Southeast Asia, the immediate impact is limited — but the billing choice framework is clearly the direction Google is moving globally, so planning for it now makes sense.</p>
+
+      <h2>What You Should Actually Do Before June 30</h2>
+
+      <p>Most apps don't need dramatic action before the deadline, but a few things are worth doing:</p>
+
+      <ul>
+        <li><strong>Pull your current revenue breakdown by region.</strong> If US/UK/EEA is a small fraction of your revenue, June 30 is a low-urgency event. If it's your primary market, read the new fee tables carefully against your current pricing.</li>
+        <li><strong>Check your subscription billing code.</strong> If you're using the Play Billing Library and nothing else, you're on Option 1 by default — no code changes needed.</li>
+        <li><strong>Look at the Games Level Up / Apps Experience eligibility criteria</strong> if you have an established app. September 30 gives you three months to improve metrics that might push you over the threshold.</li>
+        <li><strong>Don't rush into alternative billing</strong> to save 5% without accounting for the implementation cost. Dual billing paths or external purchase flows require proper entitlement sync, which means server-side state and reliable webhooks from your payment provider back to your backend. Budget that work properly.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>One more thing:</strong> the Play Console now has upgraded tools for tracking billing choice performance — showing conversion rates and revenue by billing path. If you do roll out an alternative, use the Console's tooling rather than just eyeballing revenue totals. Attribution matters when you're debugging why a billing change didn't move the needle you expected.</p>
+      </div>
+
+      <p>My honest read: the fee restructuring and billing choice expansion are genuinely developer-friendly moves, even if the motivation is partly regulatory (EU DMA compliance, US antitrust pressure). The 10% subscription rate for the first $1M is reasonable for what Play provides — global distribution, fraud protection, device-level payment auth. Whether to opt into alternative billing is a business call, not a technical one. Run the numbers for your specific user base and transaction volume, and don't make the decision based on the percentage alone without factoring in the engineering cost of doing it right.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('google-play-billing-choice-lower-fees-2026');
+  </script>
+</body>
+</html>
