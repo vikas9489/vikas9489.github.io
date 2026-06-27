@@ -1087,7 +1087,7 @@
       btn.textContent = 'Sending…';
       status.className = 'form-status';
       try {
-        const res = await fetch('https://formsubmit.co/ajax/hi@bytevikas.com', {
+        const res = await fetch('https://formsubmit.co/ajax/dhimanv209@gmail.com', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({ name, email, _subject: subject, message })
@@ -1098,7 +1098,7 @@
           e.target.reset();
         } else { throw new Error(); }
       } catch {
-        status.textContent = 'Something went wrong. Please email me directly at hi@bytevikas.com';
+        status.textContent = 'Something went wrong. Please email me directly at dhimanv209@gmail.com';
         status.className = 'form-status error';
       }
       btn.disabled = false;
