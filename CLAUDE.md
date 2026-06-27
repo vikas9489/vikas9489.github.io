@@ -119,8 +119,9 @@ vikas9489.github.io/
 | `android-profilingmanager-production-profiling.html` | Android 15 ProfilingManager — heap dumps, heap profiles, stack sampling on production devices; Android 16 system triggers for cold start, reportFullyDrawn(), ANRs; Perfetto output, AndroidX Core 1.15.0+ wrapper | Profiling |
 | `android-xr-developer-preview-4-jetpack-xr-sdk.html` | Android XR Developer Preview 4 — ARCore for Jetpack XR 1.0.0-alpha15, Geospatial API SPATIAL/INERTIAL mode split, QrCode API, SpatialPanel/SpatialGltfModel Compose for XR, what mobile Android skills transfer | XR |
 | `google-play-billing-choice-lower-fees-2026.html` | Google Play expanded billing choice and restructured service fees (effective June 30, 2026) — fee table by product type, 5% billing fee for GPB vs 0% for alternative billing/external links, Games Level Up & Apps Experience programs | Monetize |
+| `firebase-ai-logic-gemini-android-integration.html` | Firebase AI Logic on Android — Gemini 3.5 Flash structured JSON output via Schema API, Google Maps Grounding to prevent hallucinated coordinates, Gemini 2.5 Flash TTS with ResponseModality.AUDIO; patterns from the Android XR tour guide app | AI |
 
-**Category accent colors in use** (pick a new, unused one for each new category): perf `#60a5fa`, arch `#34d399`, video `#c084fc`, memory `#fb923c`, news `#38bdf8`, compose `#2dd4bf`, security `#f43f5e`, kotlin `#fbbf24`, platform `#818cf8`, data `#f472b6`, profiling `#e879f9`, xr `#a3e635`, monetize `#06b6d4`.
+**Category accent colors in use** (pick a new, unused one for each new category): perf `#60a5fa`, arch `#34d399`, video `#c084fc`, memory `#fb923c`, news `#38bdf8`, compose `#2dd4bf`, security `#f43f5e`, kotlin `#fbbf24`, platform `#818cf8`, data `#f472b6`, profiling `#e879f9`, xr `#a3e635`, monetize `#06b6d4`, ai `#7c3aed`.
 
 **To add a new blog post:**
 1. Copy any existing `blog/*.html` file as the structural template (CSS variables, post-meta badge, announce-grid, code blocks, callouts, OneSignal script block, likes/comments interactions block).
