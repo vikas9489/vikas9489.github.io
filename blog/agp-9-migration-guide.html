@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGP 9.x Migration: What Actually Breaks When You Bump the Version — bytevikas</title>
+  <meta name="description" content="AGP 9.0 dropped 14 property defaults, nuked the Variant API, and changed how R8 handles annotations. Then 9.1 repackaged your classes by default. Then 9.2 broke your ProGuard wildcards. A complete breakdown of what hits and how to fix it." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#fb7185;--accent-dim:rgba(251,113,133,.1);--accent-border:rgba(251,113,133,.22);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(251,113,133,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(251,113,133,.06);border:1px solid rgba(251,113,133,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-warn{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fbbf24;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .prop-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;}
+    .prop-table th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--card-border);color:var(--muted-light);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;}
+    .prop-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:#c0cdd8;font-family:'JetBrains Mono',monospace;font-size:13px;}
+    .prop-table tr:last-child td{border-bottom:none;}
+    .old-val{color:#f87171;}
+    .new-val{color:#4ade80;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+      .prop-table{font-size:12px;}
+      .prop-table td,.prop-table th{padding:8px 10px;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(251,113,133,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Gradle</span>
+      <span class="post-date">Jun 28, 2026</span>
+      <span class="read-time">11 min read</span>
+    </div>
+
+    <h1>AGP 9.x Migration: What Actually Breaks When You Bump the Version</h1>
+
+    <div class="post-body">
+
+      <p>I've been putting off the AGP 9 upgrade on Nodat for a while. The project was stable, CI was green, and "if it ain't broke" felt like reasonable engineering judgment. Then I ran the AGP Upgrade Assistant and found twelve places where <code>applicationVariants</code> was called, four ProGuard rules that R8 no longer respects by default, and a <code>build.gradle.kts</code> using DSL APIs that no longer exist. Then AGP 9.1 shipped and made class repackaging the default. Then AGP 9.2 made wildcard <code>-keepattributes</code> rules stop matching invisible annotations. Then I upgraded.</p>
+
+      <p>The good news: none of these are blockers once you understand what changed. The bad news: there are a lot of them, they span three releases, and the error messages when things go wrong are not always obvious about the root cause. Here's every significant change across the 9.x line, in order of how likely it is to actually stop your build.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Jan '26</div>
+          <div class="announce-lbl">AGP 9.0 stable release date</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">14</div>
+          <div class="announce-lbl">Gradle property defaults that flipped in 9.0</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">3</div>
+          <div class="announce-lbl">R8 behavior changes across 9.0, 9.1, 9.2</div>
+        </div>
+      </div>
+
+      <h2>1. The Variant API Is Actually Gone Now</h2>
+
+      <p>This was deprecated for years. In AGP 9.0, the deprecated <code>applicationVariants</code>, <code>libraryVariants</code>, <code>testVariants</code>, and <code>unitTestVariants</code> APIs are removed. So is <code>variantFilter</code>. If your <code>build.gradle.kts</code> uses any of these, the build fails with an unresolved reference — no warning, no graceful fallback.</p>
+
+      <p>The replacements have been available since AGP 7.x, but they changed the mental model enough that most teams deferred the migration. Here's what it looks like:</p>
+
+      <pre><code>// AGP 8.x — applicationVariants to iterate variants
+android {
+    applicationVariants.all { variant ->
+        variant.signingConfig.enableV1Signing = false
+        variant.outputs.all { output ->
+            output.outputFileName = "myapp-${variant.versionName}.apk"
+        }
+    }
+}
+
+// AGP 9.x — use androidComponents instead
+androidComponents {
+    onVariants { variant ->
+        variant.signingConfig.enableV1Signing.set(false)
+    }
+}</code></pre>
+
+      <p>The output filename case is worth calling out separately. The old <code>output.outputFileName</code> approach no longer works in AGP 9.x because variant outputs are no longer concrete objects you iterate at configuration time. If you were using this pattern to generate versioned APK filenames, you'll need to rethink it with a custom task or the new artifact API instead.</p>
+
+      <p>For <code>variantFilter</code> — which many teams used to disable specific build type / flavor combinations — the replacement is <code>beforeVariants</code>:</p>
+
+      <pre><code>// AGP 8.x — disable specific flavor combinations
+android {
+    variantFilter { variant ->
+        if (variant.buildType.name == "debug" &&
+            variant.flavors.any { it.name == "prod" }) {
+            setIgnore(true)
+        }
+    }
+}
+
+// AGP 9.x
+androidComponents {
+    beforeVariants(
+        selector()
+            .withBuildType("debug")
+            .withFlavor("environment", "prod")
+    ) { variantBuilder ->
+        variantBuilder.enable = false
+    }
+}</code></pre>
+
+      <p>Note <code>ComponentBuilder.enabled</code> (with a 'd') is also removed; the property is <code>enable</code> in AGP 9.x.</p>
+
+      <h2>2. DSL Interface Changes — The Subtle One</h2>
+
+      <p>AGP 9.0 finalises the new public DSL interfaces. The legacy <code>BaseExtension</code> and other old concrete classes are hidden. For most app developers this is invisible — your standard <code>android { }</code> block keeps working. Where it breaks is in custom Gradle plugins, build-logic modules, and convention plugin code that reaches into AGP internals via <code>extensions.getByType()</code>.</p>
+
+      <pre><code>// AGP 8.x — worked but used legacy types
+val ext: CommonExtension<*, *, *, *, *, *> =
+    extensions.getByType(CommonExtension::class)
+ext.apply {
+    defaultConfig {
+        minSdk { version = release(28) }
+    }
+}
+
+// AGP 9.x — new interfaces, slightly different call sites
+val ext: CommonExtension =
+    extensions.getByType(CommonExtension::class)
+ext.apply {
+    defaultConfig.apply {
+        minSdk { version = release(28) }
+    }
+}</code></pre>
+
+      <p>If you maintain a shared build-logic module (Gradle convention plugins are common in large codebases), audit every place you cast or reference AGP extension types. The AGP Upgrade Assistant will flag most of these.</p>
+
+      <p>The other DSL change worth knowing: the <code>dexOptions</code> block is removed entirely. It was a no-op ever since D8 replaced DX, but if you have it in your config it'll now fail the build rather than silently ignore it. Same for <code>PostProcessing</code> block, Wear OS <code>wearApp</code> configurations, and density split APK options — all gone, with App Bundle as the recommended path for the latter.</p>
+
+      <h2>3. The 14 Property Defaults That Silently Changed Your Build</h2>
+
+      <p>This is the one that catches the most teams by surprise. AGP 9.0 flipped fourteen Gradle property defaults at once. Most of them are harmless — enabling AndroidX by default was inevitable — but a handful have real build impact:</p>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Before</th>
+            <th>AGP 9.0</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>android.proguard.failOnMissingFiles</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.r8.strictFullModeForKeepRules</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.r8.optimizedResourceShrinking</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.enableAppCompileTimeRClass</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.onlyEnableUnitTestForTheTestedBuildType</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.defaults.buildfeatures.resvalues</td><td class="old-val">true</td><td class="new-val">false</td></tr>
+          <tr><td>android.defaults.buildfeatures.shaders</td><td class="old-val">true</td><td class="new-val">false</td></tr>
+          <tr><td>android.newDsl</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.builtInKotlin</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.uniquePackageNames</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.useAndroidx</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.sdk.defaultTargetSdkToCompileSdkIfUnset</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.default.androidx.test.runner</td><td class="old-val">false</td><td class="new-val">true</td></tr>
+          <tr><td>android.dependency.useConstraints</td><td class="old-val">true</td><td class="new-val">false</td></tr>
+        </tbody>
+      </table>
+
+      <p>The three that will actually hurt:</p>
+
+      <p><strong>android.proguard.failOnMissingFiles = true.</strong> If your <code>proguardFiles</code> block references a file that doesn't exist — a common artifact of copy-pasted build scripts from half-finished features — the build now fails instead of silently skipping it. Highly likely to catch something in older projects.</p>
+
+      <p><strong>android.r8.strictFullModeForKeepRules = true.</strong> Strict mode rejects keep rules that reference classes or members that don't exist in the codebase. Old ProGuard files accumulate dead rules over years of refactoring. They were always wrong — they just weren't fatal until now. Run a release build, read the R8 diagnostics, and clean up the dead entries.</p>
+
+      <p><strong>android.defaults.buildfeatures.resvalues = false.</strong> If any of your library modules use <code>resValue</code> in their build files without explicitly enabling the feature, the generated resource value simply won't be there anymore. This one is silent — no build error, just missing values at runtime. Enable per-module if needed:</p>
+
+      <pre><code>android {
+    buildFeatures {
+        resValues = true
+        shaders = true  // same story for shader support
+    }
+}</code></pre>
+
+      <h2>4. The R8 Changes Across 9.0, 9.1, and 9.2</h2>
+
+      <p>Three significant R8 behavior changes shipped across the AGP 9.x line, each in a different minor version.</p>
+
+      <h3>AGP 9.0: Kotlin null check handling and source file attributes</h3>
+
+      <p>R8 now processes Kotlin null checks by default with <code>-processkotlinnullchecks remove_message</code> — it removes the message from null check assertions but keeps the actual check via <code>getClass()</code>. This is a reasonable default: it shrinks string constants without removing safety checks. If you need the old behavior, add this to your ProGuard rules:</p>
+
+      <pre><code># Keep Kotlin null check messages intact
+-processkotlinnullchecks keep
+
+# Or remove checks entirely (removes the safety net — be careful)
+# -processkotlinnullchecks remove</code></pre>
+
+      <p>AGP 9.0 also changes the default <code>SourceFile</code> attribute in compiled classes to <code>r8-map-id-&lt;MAP_ID&gt;</code>. This enables automated stack trace retracing in Logcat using the mapping file ID rather than the filename. If you have tooling that parses stack traces and relies on seeing the source filename, it might need updating. Android Studio's built-in retrace and Firebase Crashlytics both handle this correctly already.</p>
+
+      <h3>AGP 9.1: Class repackaging is on by default</h3>
+
+      <p>This is the R8 change that surprised me most. AGP 9.1 enables repackaging of compiled classes into the unnamed (default) package by default — equivalent to implicitly adding <code>-repackageclasses</code> to your rules. The practical effect: class names in stack traces will look different in release builds, and any code that relies on the package structure being preserved at runtime (reflective lookups by package, package-level visibility tricks) will behave differently.</p>
+
+      <p>If you need to opt out:</p>
+
+      <pre><code># Add to your proguard-rules.pro
+-dontrepackage</code></pre>
+
+      <p>Worth verifying explicitly on any app that uses reflection to load classes by package, or libraries that have their own ProGuard rules assuming package structure is preserved.</p>
+
+      <h3>AGP 9.2: Stricter -keepattributes wildcards</h3>
+
+      <p>Wildcard patterns in <code>-keepattributes</code> directives no longer match runtime invisible annotations. Specifically:</p>
+
+      <pre><code># These rules NO LONGER keep runtime invisible annotations in AGP 9.2+:
+-keepattributes *
+-keepattributes *Annotation*
+-keepattributes *Invisible*
+
+# If you need them, use explicit rules:
+-keepattributes RuntimeInvisibleAnnotations,
+               RuntimeInvisibleParameterAnnotations,
+               RuntimeInvisibleTypeAnnotations</code></pre>
+
+      <p>Runtime invisible annotations are retained only in bytecode, not accessible via reflection — but they matter to tools like serialization libraries, DI frameworks, and annotation processors that inspect bytecode directly rather than through reflection. Most projects won't need to keep these explicitly. But if you're using a niche library that inspects bytecode and you see it behaving differently after the upgrade, this is the first thing to check.</p>
+
+      <p>AGP 9.2 also adds support for negated member name patterns in keep rules, which is a useful addition for precisely excluding test-only members from being kept:</p>
+
+      <pre><code>-keepclassmembers class com.example.MyClass {
+    *** !*ForTesting(...);
+}</code></pre>
+
+      <h2>5. Built-in Kotlin: One Less Plugin, One More Version to Watch</h2>
+
+      <p>AGP 9.0 includes Kotlin compilation built-in, so you no longer need to explicitly apply the <code>org.jetbrains.kotlin.android</code> plugin in your app module. AGP itself has a runtime dependency on Kotlin Gradle Plugin 2.2.10 and will use that version if you don't specify otherwise.</p>
+
+      <div class="callout">
+        <p><strong>Where this bites you:</strong> if your project pins a different KGP version at the root project level and that version conflicts with what AGP expects, you'll get dependency resolution errors that can be confusing to trace. Check your root <code>build.gradle.kts</code> for explicit KGP version declarations and make sure they're compatible with the bundled version. Using the Kotlin BOM usually resolves this cleanly.</p>
+      </div>
+
+      <p>For Kotlin Multiplatform projects, the integration changed more significantly: you can no longer use <code>org.jetbrains.kotlin.multiplatform</code> and <code>com.android.library</code> in the same subproject. JetBrains ships a dedicated Android Gradle Library Plugin for KMP that replaces this combination. If you maintain KMP modules with Android targets, check the JetBrains migration guide for the KMP-specific path before upgrading.</p>
+
+      <h2>6. Compatibility Requirements Changed at Each Minor Version</h2>
+
+      <p>Unlike some AGP bumps where the minimum Gradle version stays put across the minor line, 9.x raised the minimum at each release:</p>
+
+      <ul>
+        <li><strong>AGP 9.0:</strong> requires Gradle 9.1.0, JDK 17, SDK Build Tools 36.0.0</li>
+        <li><strong>AGP 9.1:</strong> requires Gradle 9.3.1</li>
+        <li><strong>AGP 9.2:</strong> requires Gradle 9.4.1</li>
+      </ul>
+
+      <p>If you're jumping straight to 9.2 (which you should — there's no reason to stop at 9.0 or 9.1 at this point), you need Gradle 9.4.1. Gradle 9.x itself has its own configuration cache improvements and deprecations, so budget time for that migration in parallel if you're still on a Gradle 8.x wrapper.</p>
+
+      <div class="callout-warn">
+        <p><strong>The opt-out window is closing:</strong> AGP 9.0 shipped with <code>android.newDsl=false</code> as a temporary escape hatch if incompatible third-party plugins blocked your upgrade. That escape hatch is being <strong>removed in AGP 10.0, targeting mid-2026</strong> — which is essentially now. If you're still on 8.x waiting for a "good time," the good time was three months ago. The second best time is before AGP 10.0 makes the migration mandatory.</p>
+      </div>
+
+      <h2>How to Actually Do This Upgrade</h2>
+
+      <p>The AGP Upgrade Assistant (accessible from the Android Studio menu: Tools → Android → AGP Upgrade Assistant) handles the majority of the mechanical work — variant API migration, removed DSL properties, updated dependency declarations. Run it first, then read the output carefully before applying. It misses some edge cases, particularly in complex multi-module builds or custom plugin code.</p>
+
+      <p>Google also released Android Skills for this migration: an AI-assisted upgrade flow available in the Android CLI. JetBrains ships a separate KMP-flavored version for Kotlin Multiplatform projects. For a large monorepo where running the Upgrade Assistant module-by-module would be tedious, both are worth evaluating.</p>
+
+      <p>My recommended sequence:</p>
+
+      <ol>
+        <li>Run the Upgrade Assistant and review its proposed changes.</li>
+        <li>Do a release build with <code>--info</code> to surface R8 diagnostics and ProGuard warnings.</li>
+        <li>Fix dead ProGuard rules flagged by strict mode (<code>android.r8.strictFullModeForKeepRules</code>).</li>
+        <li>Audit any module using <code>resValue</code> or shader compilation — re-enable explicitly where needed.</li>
+        <li>Run your Macrobenchmark suite and any instrumented tests against the release build. R8 repackaging (9.1) can affect runtime behavior in ways unit tests won't catch.</li>
+        <li>Check your stack trace symbolication pipeline. If you use a custom crash reporter or log parser, verify that retracing against the new map format still works.</li>
+      </ol>
+
+      <p>Most of these changes are things you should have dealt with years ago — dead ProGuard rules, deprecated variant API usage, missing ProGuard files that were silently ignored. The upgrade forces the cleanup. That's uncomfortable in the short term and healthy in the long term.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('agp-9-migration-guide');
+  </script>
+</body>
+</html>
