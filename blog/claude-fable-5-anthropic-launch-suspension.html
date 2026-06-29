@@ -8,35 +8,55 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --bg:#080808;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
       --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
-      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
       --accent:#a78bfa;--accent-dim:rgba(167,139,250,.08);--accent-border:rgba(167,139,250,.22);
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{scroll-behavior:smooth;}
-    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+    body{background:var(--bg);color:var(--text);font-family:'Lora',serif;line-height:1.9;}
 
-    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
-    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(167,139,250,.06) 0%,transparent 70%);}
+    /* Reading progress bar */
+    #progress-bar{
+      position:fixed;top:0;left:0;z-index:2000;
+      height:3px;width:0%;
+      background:linear-gradient(90deg,var(--accent),#60a5fa);
+      transition:width .1s linear;
+    }
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(100px);}
+    .glow-1{top:-10%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(167,139,250,.05) 0%,transparent 70%);}
+    .glow-2{bottom:-10%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(96,165,250,.04) 0%,transparent 70%);}
 
     .navbar{
-      position:fixed;top:0;left:0;right:0;z-index:1000;
-      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      position:fixed;top:3px;left:0;right:0;z-index:1000;
+      background:rgba(8,8,8,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
       border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
     }
-    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .navbar-inner{max-width:860px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
     .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
-    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;font-family:'Inter',sans-serif;}
     .nav-back:hover{color:white;}
 
-    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+    /* Hero image */
+    .hero-image-wrap{width:100%;max-width:860px;margin:80px auto 0;padding:0 24px;}
+    .hero-image-wrap img{
+      width:100%;height:420px;object-fit:cover;
+      border-radius:20px;display:block;
+    }
+    .hero-caption{
+      font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);
+      text-align:center;margin-top:10px;
+    }
 
-    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-wrap{max-width:720px;margin:0 auto;padding:48px 24px 100px;}
+
+    /* Category + meta */
+    .post-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:24px;}
     .post-cat{
       font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
       text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
@@ -44,95 +64,141 @@
       padding:4px 12px;border-radius:50px;
     }
     .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-    .read-time{font-size:13px;color:var(--muted);}
+    .read-time{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;}
 
+    /* Title */
     h1{
-      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
-      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+      font-family:'Outfit',sans-serif;font-size:clamp(30px,5vw,48px);font-weight:900;
+      line-height:1.12;letter-spacing:-0.5px;margin-bottom:36px;
     }
 
-    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
-    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
-    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
-    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
-    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
-    .post-body strong{color:white;}
+    /* Author card */
+    .author-card{
+      display:flex;align-items:center;gap:14px;
+      padding:20px 0;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);
+      margin-bottom:52px;
+    }
+    .author-avatar{
+      width:48px;height:48px;border-radius:50%;object-fit:cover;
+      border:2px solid var(--card-border);flex-shrink:0;
+    }
+    .author-info{font-family:'Inter',sans-serif;}
+    .author-name{font-size:15px;font-weight:600;color:white;display:block;}
+    .author-role{font-size:13px;color:var(--muted-light);}
+
+    /* Body typography — Medium style */
+    .post-body{font-size:19px;color:#d1dae3;}
+    .post-body p{line-height:1.9;margin-bottom:28px;}
+    .post-body h2{
+      font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;
+      margin:64px 0 18px;letter-spacing:-0.3px;color:white;line-height:1.2;
+    }
+    .post-body h3{
+      font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;
+      margin:40px 0 14px;color:#c8d5e0;
+    }
+    .post-body ul,.post-body ol{padding-left:28px;margin-bottom:28px;}
+    .post-body li{line-height:1.8;margin-bottom:10px;}
+    .post-body strong{color:white;font-weight:600;}
+    .post-body em{font-style:italic;color:#c8d5e0;}
+
+    /* Inline code */
     .post-body code{
-      font-family:'JetBrains Mono',monospace;font-size:14px;
-      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#c4b5fd;
+      font-family:'JetBrains Mono',monospace;font-size:15px;
+      background:rgba(255,255,255,.07);padding:2px 8px;border-radius:5px;color:#c4b5fd;
     }
     .post-body pre{
-      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
-      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+      background:#0f0f0f;border:1px solid var(--card-border);
+      border-radius:16px;padding:28px;overflow-x:auto;margin:36px 0;
     }
-    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.75;}
 
+    /* Blockquote — Medium pull quote style */
+    .post-body blockquote{
+      border-left:4px solid var(--accent);
+      margin:40px 0;padding:4px 0 4px 28px;
+    }
+    .post-body blockquote p{
+      font-size:22px;font-style:italic;color:#c8d5e0;line-height:1.7;margin:0;
+    }
+
+    /* Inline images */
+    .post-body figure{margin:44px 0;}
+    .post-body figure img{
+      width:100%;border-radius:14px;display:block;
+      border:1px solid var(--card-border);
+    }
+    .post-body figcaption{
+      font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);
+      text-align:center;margin-top:10px;line-height:1.5;
+    }
+
+    /* Callouts */
     .callout{
       background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);
-      border-left:3px solid var(--accent);border-radius:12px;
-      padding:20px 24px;margin:28px 0;
+      border-left:4px solid var(--accent);border-radius:14px;
+      padding:22px 26px;margin:36px 0;
     }
-    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout p{font-size:16px;color:var(--muted-light);margin:0;line-height:1.7;font-family:'Inter',sans-serif;}
     .callout strong{color:var(--accent);}
 
     .callout-warn{
       background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.2);
-      border-left:3px solid #fb923c;border-radius:12px;
-      padding:20px 24px;margin:28px 0;
+      border-left:4px solid #fb923c;border-radius:14px;
+      padding:22px 26px;margin:36px 0;
     }
-    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn p{font-size:16px;color:var(--muted-light);margin:0;line-height:1.7;font-family:'Inter',sans-serif;}
     .callout-warn strong{color:#fb923c;}
 
     .callout-green{
       background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
-      border-left:3px solid #22c55e;border-radius:12px;
-      padding:20px 24px;margin:28px 0;
+      border-left:4px solid #22c55e;border-radius:14px;
+      padding:22px 26px;margin:36px 0;
     }
-    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-green p{font-size:16px;color:var(--muted-light);margin:0;line-height:1.7;font-family:'Inter',sans-serif;}
     .callout-green strong{color:#22c55e;}
 
+    /* Stats grid */
     .announce-grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-      margin:32px 0;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:36px 0;
     }
     .announce-card{
       background:var(--card-bg);border:1px solid var(--card-border);
-      border-radius:14px;padding:20px;text-align:center;
+      border-radius:16px;padding:22px;text-align:center;
     }
     .announce-num{
-      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
-      color:var(--accent);line-height:1;margin-bottom:6px;
+      font-family:'Outfit',sans-serif;font-size:24px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:8px;
     }
-    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.5;font-family:'Inter',sans-serif;}
 
-    .timeline{display:flex;flex-direction:column;gap:0;margin:32px 0;}
-    .timeline-item{display:grid;grid-template-columns:90px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--card-border);}
+    /* Timeline */
+    .timeline{display:flex;flex-direction:column;margin:36px 0;border:1px solid var(--card-border);border-radius:16px;overflow:hidden;}
+    .timeline-item{display:grid;grid-template-columns:100px 1fr;gap:0;padding:22px 24px;border-bottom:1px solid var(--card-border);}
     .timeline-item:last-child{border-bottom:none;}
     .timeline-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;padding-top:3px;}
-    .timeline-content strong{color:white;font-size:15px;display:block;margin-bottom:4px;}
-    .timeline-content p{font-size:14px;color:var(--muted-light);margin:0;line-height:1.6;}
+    .timeline-content strong{color:white;font-size:15px;display:block;margin-bottom:5px;font-family:'Inter',sans-serif;}
+    .timeline-content p{font-size:14px;color:var(--muted-light);margin:0;line-height:1.6;font-family:'Inter',sans-serif;}
 
-    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+    /* Divider */
+    .divider{border:none;border-top:1px solid var(--card-border);margin:64px 0;}
 
-    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    /* Footer */
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;font-family:'Inter',sans-serif;}
     footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
     footer a:hover{color:var(--accent);}
 
-    @media(max-width:600px){
-      .announce-grid{grid-template-columns:1fr;}
-      .timeline-item{grid-template-columns:1fr;}
-      .timeline-date{padding-top:0;}
-    }
-
-    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    /* Interactions */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);font-family:'Inter',sans-serif;}
     .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
     .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
     .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
     .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
     .like-btn:disabled{opacity:.6;cursor:not-allowed;}
-    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .heart-icon{font-size:17px;line-height:1;}
+    .like-label{font-size:14px;color:var(--muted);}
     .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
-    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;}
     .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
     .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
     .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
@@ -146,9 +212,15 @@
     .form-input:focus,.form-textarea:focus{border-color:rgba(167,139,250,.5);}
     .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
     .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
-    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;}
     .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
     .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+      .timeline-item{grid-template-columns:1fr;gap:6px;}
+      .hero-image-wrap img{height:240px;}
+    }
   </style>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
@@ -167,7 +239,9 @@
 </head>
 <body>
 
+  <div id="progress-bar"></div>
   <div class="glow glow-1" aria-hidden="true"></div>
+  <div class="glow glow-2" aria-hidden="true"></div>
 
   <nav class="navbar">
     <div class="navbar-inner">
@@ -175,6 +249,16 @@
       <a href="index.html" class="nav-back">← All posts</a>
     </div>
   </nav>
+
+  <!-- Hero image -->
+  <div class="hero-image-wrap">
+    <img
+      src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1400&q=80"
+      alt="Abstract AI neural network visualization"
+      loading="eager"
+    />
+    <p class="hero-caption">Photo by <a href="https://unsplash.com" target="_blank" style="color:inherit">Unsplash</a></p>
+  </div>
 
   <div class="post-wrap">
     <div class="post-meta">
@@ -184,6 +268,19 @@
     </div>
 
     <h1>Claude Fable 5: Anthropic's Most Powerful Model, a Record-Breaking Launch, and a Government Suspension</h1>
+
+    <!-- Author card -->
+    <div class="author-card">
+      <img
+        src="../photo.jpeg"
+        alt="Vikas"
+        class="author-avatar"
+      />
+      <div class="author-info">
+        <span class="author-name">Vikas</span>
+        <span class="author-role">Senior Android Developer · bytevikas.com</span>
+      </div>
+    </div>
 
     <div class="post-body">
 
@@ -210,12 +307,21 @@
 
       <p>Anthropic describes Fable 5 as showing "exceptional performance in software engineering, knowledge work, vision, scientific research, and many other areas," with the gap over other models widening on longer and more complex tasks. Stripe reportedly used it to migrate a 50-million-line codebase in a single day — the kind of benchmark that's hard to independently verify but signals the order of magnitude of capability being claimed.</p>
 
+      <blockquote>
+        <p>The longer and more complex the task, the larger Fable 5's lead over other models. — Anthropic</p>
+      </blockquote>
+
       <p>The pricing tells part of the story: <strong>$10 per million input tokens and $50 per million output tokens</strong>, which Anthropic noted is less than half the price of Claude Mythos Preview. That matters because Mythos Preview was already the most capable model Anthropic had made available before this launch. Fable 5 being priced below it while claiming superior performance suggests a significant efficiency improvement in the underlying architecture.</p>
 
       <p>The model shares a 1M token context window with Mythos 5 as the default, supporting up to 128k output tokens per request. For reference, the previous generation of Claude models topped out at much lower context and output limits — the jump to 128k output tokens is meaningful for agentic tasks that need to produce large artifacts in a single pass.</p>
 
+      <figure>
+        <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1200&q=80" alt="AI model capabilities comparison visualization" loading="lazy" />
+        <figcaption>Frontier model capability improvements have been accelerating — Fable 5 represents Anthropic's biggest single jump yet.</figcaption>
+      </figure>
+
       <div class="callout">
-        <p><strong>The safety boundary:</strong> Anthropic launched Fable 5 with a specific safeguard — queries on certain sensitive topics automatically fall through to Claude Opus 4.8 instead of Fable 5. This is an intentional tiered routing approach rather than a hard block, which is an interesting design choice that lets the system remain useful while limiting access to the most capable model for the most sensitive categories of request.</p>
+        <p><strong>The safety boundary:</strong> Anthropic launched Fable 5 with a specific safeguard — queries on certain sensitive topics automatically fall through to Claude Opus 4.8 instead of Fable 5. This is an intentional tiered routing approach rather than a hard block, which lets the system remain useful while limiting access to the most capable model for the most sensitive categories of request.</p>
       </div>
 
       <h2>The Suspension — What We Know</h2>
@@ -256,8 +362,6 @@
 
       <p>The Fable 5 situation surfaces something developers building on AI APIs generally don't think about: <strong>frontier model availability is not guaranteed</strong>. A model can be launched, integrated into production systems, and taken offline within the same week by external forces entirely outside the vendor's control.</p>
 
-      <p>This isn't an Anthropic-specific risk. Any frontier AI lab operating at the capability level where government export controls become relevant faces the same dynamic. The more capable the model, the more likely regulatory bodies will take interest — and "emergency directives" by definition don't come with advance notice.</p>
-
       <p>The practical implication for production systems is straightforward: don't hard-code a single model identifier in your API calls if that model is a frontier release. Build in model fallback logic from day one.</p>
 
       <pre><code>// Don't do this for frontier models
@@ -281,42 +385,35 @@ val response = try {
 
       <h2>The Broader June 2026 AI Landscape</h2>
 
-      <p>The Fable 5 story didn't happen in isolation. June 2026 has been one of the most active months in AI model releases in recent memory, and several announcements directly affect how developers should think about their AI stack:</p>
+      <p>The Fable 5 story didn't happen in isolation. June 2026 has been one of the most active months in AI model releases in recent memory, and several announcements directly affect how developers should think about their AI stack.</p>
 
       <h3>Gemini 3.5 Flash went GA</h3>
 
-      <p>Google's Gemini 3.5 Flash reached general availability on May 19 at Google I/O 2026, with API pricing at $1.50 per million input tokens and $9.00 per million output tokens. It's already the default model in the Gemini app and AI Mode in Google Search. For developers, the relevant addition is <strong>computer use as a built-in tool</strong> — Gemini 3.5 Flash now supports agentic computer use tasks natively, alongside Google Search, Maps Grounding, File Search, Code Execution, URL Context, and Function Calling. The multimodal benchmark performance (CharXiv: 84.2%) puts it in a category where it's genuinely competitive with models that cost significantly more per token.</p>
+      <p>Google's Gemini 3.5 Flash reached general availability on May 19 at Google I/O 2026, with API pricing at $1.50 per million input tokens and $9.00 per million output tokens. For developers, the relevant addition is <strong>computer use as a built-in tool</strong> — Gemini 3.5 Flash now supports agentic computer use tasks natively, alongside Google Search, Maps Grounding, File Search, Code Execution, URL Context, and Function Calling.</p>
+
+      <figure>
+        <img src="https://images.unsplash.com/photo-1555255707-c07966088b7b?w=1200&q=80" alt="Developer working on AI integration" loading="lazy" />
+        <figcaption>The AI developer tooling landscape in June 2026 is moving faster than any previous period — multiple frontier models, new APIs, and now regulatory intervention.</figcaption>
+      </figure>
 
       <h3>Apple opened Foundation Models to developers</h3>
 
-      <p>Apple announced free access to Apple Foundation Models running on Private Cloud Compute for developers with fewer than two million first-time App Store downloads. For Android developers this is interesting context rather than something to act on — but it signals that on-device and private-cloud AI is becoming a first-class capability across platforms, not just a research direction. If Apple is doing this, Google's on-device AI story (Gemini Nano, now integrated with the ML Kit GenAI APIs) becomes more important to watch.</p>
-
-      <h3>GitHub Copilot moved to usage-based billing</h3>
-
-      <p>As of June 1, GitHub Copilot switched all plans to usage-based billing with GitHub AI Credits. Subscribers get a monthly included allocation; usage beyond that is billed per credit. If your team uses Copilot heavily and was on a flat-rate plan, check your billing — this change likely affected your effective cost per developer.</p>
+      <p>Apple announced free access to Apple Foundation Models running on Private Cloud Compute for developers with fewer than two million first-time App Store downloads. For Android developers this is interesting context rather than something to act on — but it signals that on-device and private-cloud AI is becoming a first-class capability across platforms. Google's on-device AI story (Gemini Nano, now integrated with the ML Kit GenAI APIs) becomes more important to watch in response.</p>
 
       <div class="callout-green">
-        <p><strong>The practical 2026 AI coding stack:</strong> according to developer surveys this month, the combination that's getting the most traction for production work is Cursor for daily editing plus Claude Code for agentic heavy lifting, both pointed at Fable 5 when available (and Opus 4.8 as the current fallback while Fable 5 is suspended). If you're building AI features into your Android app rather than using AI for development, Gemini 3.5 Flash via the Gemini API or Firebase AI Logic is the clearest path.</p>
+        <p><strong>The practical 2026 AI coding stack:</strong> Cursor for daily editing plus Claude Code for agentic heavy lifting, both pointed at Fable 5 when available (and Opus 4.8 as the current fallback while Fable 5 is suspended). For building AI features into your Android app, Gemini 3.5 Flash via Firebase AI Logic is the clearest path right now.</p>
       </div>
-
-      <h2>The Talent Signal</h2>
-
-      <p>One story from the research side that's worth noting: Noam Shazeer, co-author of the 2017 "Attention Is All You Need" paper that introduced the Transformer architecture underlying virtually all modern LLMs, left Google DeepMind and joined OpenAI as Lead for Architecture Research. Personnel moves at that level don't change model capabilities overnight, but they're a leading indicator of where the next architectural shifts in the field are likely to originate.</p>
 
       <h2>What Developers Should Do Right Now</h2>
 
-      <p>If you're building with AI APIs, the Fable 5 situation suggests a few concrete things to have in place:</p>
-
       <ol>
-        <li><strong>Model fallback handling:</strong> treat frontier model identifiers as potentially temporary. Always have a fallback to a stable, proven model that isn't subject to the same regulatory exposure. For Anthropic's stack, Claude Opus 4.8 is currently the stable fallback while Fable 5 is suspended.</li>
+        <li><strong>Model fallback handling:</strong> treat frontier model identifiers as potentially temporary. Always have a fallback to a stable, proven model. For Anthropic's stack, Claude Opus 4.8 is currently the stable fallback.</li>
         <li><strong>Monitor model availability:</strong> Anthropic, Google, and OpenAI all have status pages and API changelogs. Subscribe to notifications — model-level outages like the Fable 5 suspension won't always show up as general API incidents.</li>
-        <li><strong>Don't build critical paths on models in "preview" or "alpha" status:</strong> Fable 5 was technically a full release rather than a preview, which makes the suspension more surprising — but the general principle still applies. The further from GA a model is, the higher the availability risk.</li>
-        <li><strong>For Android apps specifically:</strong> if you're using Gemini via Firebase AI Logic, Gemini 3.5 Flash is GA and stable. If you're calling the Anthropic API directly, build the fallback logic described above before the next frontier model lands.</li>
+        <li><strong>Don't build critical paths on preview-status models:</strong> the further from GA a model is, the higher the availability risk.</li>
+        <li><strong>For Android apps specifically:</strong> if you're using Gemini via Firebase AI Logic, Gemini 3.5 Flash is GA and stable. Build the fallback logic above before the next frontier model lands.</li>
       </ol>
 
-      <p>The last few weeks have been a reminder that the AI infrastructure layer is still less stable than the APIs we're used to building on as Android developers. Google Play, Firebase, the Android SDK — these don't go offline because a government agency issued a directive. The frontier AI layer operates under different constraints, and building production systems on top of it requires accounting for that.</p>
-
-      <p>Fable 5 will almost certainly come back online. When it does, the capability jump is real enough that it'll be worth integrating. But the Stripe codebase migration story and the government suspension story are both true, and both are relevant to how you think about your AI dependencies.</p>
+      <p>The last few weeks have been a reminder that the AI infrastructure layer is still less stable than the APIs we're used to building on as Android developers. Fable 5 will almost certainly come back online. When it does, the capability jump is real enough that it'll be worth integrating. But the Stripe codebase migration story and the government suspension story are both true, and both are relevant to how you think about your AI dependencies.</p>
 
     </div>
 
@@ -350,6 +447,16 @@ val response = try {
       </p>
     </div>
   </footer>
+
+  <script>
+    // Reading progress bar
+    window.addEventListener('scroll', () => {
+      const doc = document.documentElement;
+      const scrolled = doc.scrollTop;
+      const total = doc.scrollHeight - doc.clientHeight;
+      document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+    });
+  </script>
 
   <script type="module">
     import { initInteractions } from './blog-interactions.js';
