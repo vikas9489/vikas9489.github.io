@@ -66,21 +66,23 @@
 
     .posts-list { padding-bottom:100px; }
 
+    /* Medium-style post item with thumbnail */
     .post-item {
-      display:grid;grid-template-columns:auto 1fr;gap:32px;
-      padding:36px 0;border-bottom:1px solid var(--card-border);
-      text-decoration:none;align-items:start;transition:all .2s;
+      display:grid;grid-template-columns:1fr 140px;gap:28px;
+      padding:32px 0;border-bottom:1px solid var(--card-border);
+      text-decoration:none;align-items:center;transition:all .2s;
     }
     .post-item:hover .post-title { color:var(--blue-light); }
     .post-item:first-child { border-top:1px solid var(--card-border); }
 
-    .post-date {
-      font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);
-      padding-top:4px;min-width:90px;
+    .post-content { display:flex;flex-direction:column;gap:0; }
+
+    .post-meta-row {
+      display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;
     }
     .post-cat {
-      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
-      text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;
+      font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;
     }
     .post-cat.perf   { color:var(--blue-light); }
     .post-cat.arch   { color:var(--green-light); }
@@ -99,12 +101,24 @@
     .post-cat.gradle { color:#fb7185; }
     .post-cat.media { color:#0ea5e9; }
 
-    .post-title {
-      font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;
-      color:white;line-height:1.3;margin-bottom:10px;transition:color .2s;
+    .post-dot { color:var(--muted);font-size:10px; }
+    .post-date {
+      font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
     }
-    .post-excerpt { font-size:14px;color:var(--muted-light);line-height:1.65;margin-bottom:12px; }
+    .post-title {
+      font-family:'Outfit',sans-serif;font-size:19px;font-weight:700;
+      color:white;line-height:1.3;margin-bottom:8px;transition:color .2s;
+    }
+    .post-excerpt { font-size:14px;color:var(--muted-light);line-height:1.65;margin-bottom:10px; }
     .post-read { font-size:12px;color:var(--muted); }
+
+    /* Thumbnail */
+    .post-thumb {
+      width:140px;height:100px;border-radius:10px;object-fit:cover;
+      border:1px solid var(--card-border);flex-shrink:0;
+      transition:opacity .2s;
+    }
+    .post-item:hover .post-thumb { opacity:.85; }
 
     footer { border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px; }
     footer a { color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s; }
@@ -112,7 +126,7 @@
 
     @media(max-width:600px){
       .post-item{grid-template-columns:1fr;}
-      .post-date{display:none;}
+      .post-thumb{display:none;}
       .tab-btn{padding:10px 16px;font-size:11px;}
     }
   </style>
@@ -160,153 +174,213 @@
       <section class="posts-list">
 
         <a href="media3-1-11-compose-player-pool-preloading.html" class="post-item">
-          <span class="post-date">Jun 29, 2026</span>
-          <div>
-            <div class="post-cat media">Media</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat media">Media</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 29, 2026</span>
+            </div>
             <div class="post-title">Media3 1.11.0-alpha01: PlayerPool, the Compose Player UI Overhaul, and What Changes for Video Apps</div>
-            <p class="post-excerpt">PlayerPool brings official sliding-window preloading for vertical feeds, dynamic scheduling is now default, and the Compose player UI suite finally has all its pieces: MiniController, PlayerDefaults, ErrorState.</p>
+            <p class="post-excerpt">PlayerPool brings official sliding-window preloading for vertical feeds, dynamic scheduling is now default, and the Compose player UI suite finally has all its pieces.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="agp-9-migration-guide.html" class="post-item">
-          <span class="post-date">Jun 28, 2026</span>
-          <div>
-            <div class="post-cat gradle">Gradle</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat gradle">Gradle</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 28, 2026</span>
+            </div>
             <div class="post-title">AGP 9.x Migration: What Actually Breaks When You Bump the Version</div>
-            <p class="post-excerpt">AGP 9.0 dropped 14 property defaults, removed the Variant API, and changed R8 annotation handling. Then 9.1 repackaged your classes by default. Then 9.2 broke ProGuard wildcards. Everything you need to migrate cleanly.</p>
+            <p class="post-excerpt">14 property defaults flipped, Variant API removed, R8 repackaging on by default. Everything you need to migrate cleanly.</p>
             <span class="post-read">11 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="google-play-billing-choice-lower-fees-2026.html" class="post-item">
-          <span class="post-date">Jun 26, 2026</span>
-          <div>
-            <div class="post-cat monetize">Monetize</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat monetize">Monetize</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 26, 2026</span>
+            </div>
             <div class="post-title">Google Play's New Fee Structure and Billing Choice: What Actually Changes for Android Developers</div>
-            <p class="post-excerpt">Google Play restructures service fees and expands billing choice effective June 30, 2026 in the US, UK, and EEA. What the fee changes, alternative billing options, and the external web link path actually mean for your app's revenue.</p>
+            <p class="post-excerpt">Service fees restructured, billing choice expanded effective June 30, 2026. What it means for subscriptions, digital goods, and indie revenue.</p>
             <span class="post-read">9 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="android-xr-developer-preview-4-jetpack-xr-sdk.html" class="post-item">
-          <span class="post-date">Jun 25, 2026</span>
-          <div>
-            <div class="post-cat xr">XR</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat xr">XR</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 25, 2026</span>
+            </div>
             <div class="post-title">Android XR Developer Preview 4: What the Jetpack XR SDK Actually Means for Android Developers</div>
-            <p class="post-excerpt">ARCore for Jetpack XR 1.0.0-alpha15 landed June 17 with a QR Code API, a Geospatial mode overhaul (SPATIAL vs INERTIAL), and hand tracking renames. What transfers from years of mobile Android work, and what's genuinely new.</p>
+            <p class="post-excerpt">ARCore 1.0.0-alpha15 — QR Code API, Geospatial mode overhaul, hand tracking renames. What transfers from mobile Android work.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="android-profilingmanager-production-profiling.html" class="post-item">
-          <span class="post-date">Jun 24, 2026</span>
-          <div>
-            <div class="post-cat profiling">Profiling</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat profiling">Profiling</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 24, 2026</span>
+            </div>
             <div class="post-title">ProfilingManager: Production Profiling in Android Without ADB or Dev Options</div>
-            <p class="post-excerpt">Android 15 introduced ProfilingManager — heap dumps, heap profiles, and stack sampling on real user devices with no developer options required. Android 16 adds system triggers that automatically capture cold starts, reportFullyDrawn(), and ANRs.</p>
+            <p class="post-excerpt">Heap dumps, heap profiles, and stack sampling on real user devices. Android 16 adds automatic cold start and ANR capture.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="room-3-0-ksp-only-breaking-changes.html" class="post-item">
-          <span class="post-date">Jun 23, 2026</span>
-          <div>
-            <div class="post-cat data">Database</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat data">Database</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 23, 2026</span>
+            </div>
             <div class="post-title">Room 3.0 Hits RC: The Breaking Changes Every Android Dev Needs to Know Before Upgrading</div>
-            <p class="post-excerpt">Room 3.0.0-rc01 shipped in a new androidx.room3 package. KSP-only, no more Java or KAPT, no SupportSQLite or Cursor, and coroutines are now mandatory. What actually breaks and what's worth migrating for.</p>
+            <p class="post-excerpt">New package, KSP-only, no SupportSQLite, mandatory coroutines. What actually breaks and what's worth migrating for.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="android-17-developer-behavior-changes.html" class="post-item">
-          <span class="post-date">Jun 22, 2026</span>
-          <div>
-            <div class="post-cat platform">Platform</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat platform">Platform</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 22, 2026</span>
+            </div>
             <div class="post-title">Android 17 Is Out: The Behavior Changes That'll Actually Bite You, Not the Headline Features</div>
-            <p class="post-excerpt">Forget Bubbles and foldable gaming mode — six API 37 behavior changes around background audio, memory limits, SMS OTP access, and large-screen adaptivity that will actually break things.</p>
+            <p class="post-excerpt">Six API 37 behavior changes around background audio, memory limits, SMS OTP, and large-screen adaptivity that will actually break things.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="kotlin-2-4-0-context-parameters-uuid-api.html" class="post-item">
-          <span class="post-date">Jun 21, 2026</span>
-          <div>
-            <div class="post-cat kotlin">Kotlin</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat kotlin">Kotlin</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 21, 2026</span>
+            </div>
             <div class="post-title">Kotlin 2.4.0: What Actually Matters for Android Developers</div>
-            <p class="post-excerpt">Stable context parameters, explicit backing fields, and a stable UUID API — plus the AGP and Compose compiler changes worth checking before you bump the version.</p>
+            <p class="post-excerpt">Stable context parameters, explicit backing fields, stable UUID API — plus AGP and Compose compiler changes worth checking before bumping the version.</p>
             <span class="post-read">9 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="android-developer-verification-2026.html" class="post-item">
-          <span class="post-date">Jun 20, 2026</span>
-          <div>
-            <div class="post-cat security">Security</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat security">Security</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 20, 2026</span>
+            </div>
             <div class="post-title">Android Developer Verification Is Coming: What It Actually Means for Indie Developers</div>
-            <p class="post-excerpt">Enforcement starts September 30, 2026 in Brazil, Indonesia, Singapore, and Thailand. What changes for Play Console developers, the free Limited Distribution tier, and why sideloading via ADB isn't going anywhere.</p>
+            <p class="post-excerpt">Enforcement starts Sep 30, 2026 in Brazil, Indonesia, Singapore, and Thailand. What changes for Play Console developers.</p>
             <span class="post-read">9 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="jetpack-compose-1-11-pausable-composition-grid-api.html" class="post-item">
-          <span class="post-date">Jun 17, 2026</span>
-          <div>
-            <div class="post-cat compose">Compose</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat compose">Compose</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 17, 2026</span>
+            </div>
             <div class="post-title">Jetpack Compose 1.11: Pausable Composition Goes Default, and a Real Grid API Arrives</div>
-            <p class="post-excerpt">Compose 1.11.3 closes a long-standing performance gap with Views and ships an experimental CSS-Grid-style layout API. What it means for production apps.</p>
+            <p class="post-excerpt">Compose 1.11.3 closes a long-standing performance gap with Views and ships an experimental CSS-Grid-style layout API.</p>
             <span class="post-read">9 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="google-io-2026-android-announcements.html" class="post-item">
-          <span class="post-date">Jun 10, 2026</span>
-          <div>
-            <div class="post-cat news">Google I/O</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat news">Google I/O</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 10, 2026</span>
+            </div>
             <div class="post-title">Top 3 Android Developer Productivity Announcements from Google I/O 2026</div>
-            <p class="post-excerpt">Android CLI hits stable, AI agents get deep Android skills, and Android Bench adds open-source model support — the three announcements that actually matter for your daily workflow.</p>
+            <p class="post-excerpt">Android CLI stable, AI agents with Android skills, Android Bench open-source support — the announcements that actually matter.</p>
             <span class="post-read">8 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="memory-leaks.html" class="post-item">
-          <span class="post-date">Jun 15, 2026</span>
-          <div>
-            <div class="post-cat memory">Memory</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat memory">Memory</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 15, 2026</span>
+            </div>
             <div class="post-title">Memory Leaks in Android: How to Detect, Fix, and Never Let Them Slip Again</div>
             <p class="post-excerpt">8 real leak patterns with bad → fixed code examples, LeakCanary setup, Memory Profiler walkthrough, and a pre-ship checklist.</p>
             <span class="post-read">14 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="startup-time-optimization.html" class="post-item">
-          <span class="post-date">May 12, 2026</span>
-          <div>
-            <div class="post-cat perf">Performance</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat perf">Performance</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">May 12, 2026</span>
+            </div>
             <div class="post-title">How I Cut App Startup Time by 60% on a Production Android App</div>
-            <p class="post-excerpt">A deep-dive case study on profiling cold start, eliminating blocking content providers, lazy Hilt initialization, and shipping Baseline Profiles to production.</p>
+            <p class="post-excerpt">Profiling cold start, eliminating blocking content providers, lazy Hilt initialization, and shipping Baseline Profiles to production.</p>
             <span class="post-read">8 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="clean-architecture.html" class="post-item">
-          <span class="post-date">Apr 28, 2026</span>
-          <div>
-            <div class="post-cat arch">Architecture</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat arch">Architecture</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Apr 28, 2026</span>
+            </div>
             <div class="post-title">Clean Architecture on Android: 5 Years of Lessons</div>
-            <p class="post-excerpt">Where Clean Architecture genuinely shines, where it adds unnecessary ceremony, and how I've evolved it across 10+ apps over 5 years of professional Android development.</p>
+            <p class="post-excerpt">Where Clean Architecture genuinely shines, where it adds unnecessary ceremony, and how I've evolved it across 10+ apps.</p>
             <span class="post-read">12 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1503694978374-8a2fa686963a?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="tiktok-feed.html" class="post-item">
-          <span class="post-date">Mar 14, 2026</span>
-          <div>
-            <div class="post-cat video">Video</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat video">Video</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Mar 14, 2026</span>
+            </div>
             <div class="post-title">Building a TikTok-Style Vertical Feed with ExoPlayer</div>
-            <p class="post-excerpt">How I built Samachar's addictive vertical news feed — the preloading strategy, ViewPager2 pooling tricks, seamless auto-transitions, and avoiding memory leaks in a video list.</p>
+            <p class="post-excerpt">The preloading strategy, ViewPager2 pooling tricks, seamless auto-transitions, and avoiding memory leaks in a video list.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300&q=80" alt="" loading="lazy" />
         </a>
 
       </section>
@@ -317,23 +391,31 @@
       <section class="posts-list">
 
         <a href="claude-fable-5-anthropic-launch-suspension.html" class="post-item">
-          <span class="post-date">Jun 29, 2026</span>
-          <div>
-            <div class="post-cat ai">AI</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat ai">AI</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 29, 2026</span>
+            </div>
             <div class="post-title">Claude Fable 5: Anthropic's Most Powerful Model, a Record-Breaking Launch, and a Government Suspension</div>
-            <p class="post-excerpt">Anthropic launched Claude Fable 5 on June 9 — Mythos-class capability, 1M token context, 128k output, priced below the previous preview. Three days later the US government suspended it. What happened and what it means for developers building with AI APIs.</p>
+            <p class="post-excerpt">Mythos-class capability, 1M token context, 128k output — launched June 9, suspended by the US government three days later. What it means for developers building with AI APIs.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&q=80" alt="" loading="lazy" />
         </a>
 
         <a href="firebase-ai-logic-gemini-android-integration.html" class="post-item">
-          <span class="post-date">Jun 27, 2026</span>
-          <div>
-            <div class="post-cat ai">AI</div>
+          <div class="post-content">
+            <div class="post-meta-row">
+              <span class="post-cat ai">AI</span>
+              <span class="post-dot">·</span>
+              <span class="post-date">Jun 27, 2026</span>
+            </div>
             <div class="post-title">Firebase AI Logic on Android: Gemini Integration Patterns Every Developer Should Know</div>
-            <p class="post-excerpt">Structured JSON schemas, Google Maps Grounding to stop hallucinated coordinates, and native Gemini 2.5 Flash TTS — three production patterns from Google's XR tour guide app that apply to any Android project.</p>
+            <p class="post-excerpt">Structured JSON schemas, Maps Grounding to stop hallucinated coordinates, and Gemini 2.5 Flash TTS — three production patterns from Google's XR tour guide app.</p>
             <span class="post-read">10 min read</span>
           </div>
+          <img class="post-thumb" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80" alt="" loading="lazy" />
         </a>
 
       </section>
