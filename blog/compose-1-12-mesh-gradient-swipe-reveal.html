@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose 1.12: MeshGradient, SwipeToReveal with Programmatic Control, and Scroll Indicators — bytevikas</title>
+  <meta name="description" content="Compose Foundation 1.12.0-beta02 (July 1, 2026) landed MeshGradient, a properly controllable SwipeToReveal, and Scroll Indicators across every scrollable container. Here's what actually changed and when to use each." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Compose</span>
+      <span class="post-date">Jul 5, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Compose 1.12: MeshGradient, a Properly Controllable SwipeToReveal, and Scroll Indicators Across Everything</h1>
+
+    <div class="post-body">
+
+      <p>Compose Foundation 1.12.0-beta02 dropped on July 1, 2026, alongside Compose UI 1.12.0-beta02 and Material3 1.5.0-alpha23. Looking at the release notes in aggregate, three things stand out as genuinely useful in production — not "interesting, file for later" but "I can improve an existing screen with this today." There's also a handful of Material3 component APIs graduating to stable that unblock teams still holding off on expressive components for that reason.</p>
+
+      <p>This is a different post from my <a href="jetpack-compose-1-11-pausable-composition-grid-api.html">Compose 1.11 write-up</a>, which covered pausable composition and the new Grid API. Both of those were runtime and layout changes that mostly affect how you <em>build</em> screens. The 1.12 additions are more surface-level — they're about how screens <em>look and behave</em> — which means quicker wins with less architectural consideration required.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">1.12</div>
+          <div class="announce-lbl">beta02 — July 1, 2026</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">MeshGradient + Scroll Indicators</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Stable</div>
+          <div class="announce-lbl">TopAppBar, ButtonGroup in M3</div>
+        </div>
+      </div>
+
+      <h2>1. MeshGradient — Organic Gradients Without the Custom Drawing Code</h2>
+
+      <p>If you've ever wanted a gradient that doesn't look like it came from a 2015 design template, <code>MeshGradient</code> is the answer. It's a gradient system where you define a grid of control points, each with its own color, and the renderer smoothly interpolates between them. The result is those rich, organic, multi-directional color flows you see on iOS (where SwiftUI has had this since iOS 18) and in modern design-forward apps.</p>
+
+      <p>The API arrived as <code>Modifier.meshGradient()</code> in alpha02 and was paired with <code>MeshGradientPainter</code> in alpha03 for use as a background or a painted asset. Here's the basic shape:</p>
+
+      <pre><code>@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ProfileHeader() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .meshGradient(
+                width = 3,
+                height = 3,
+                points = listOf(
+                    // row 0
+                    Offset(0f, 0f), Offset(0.5f, 0f), Offset(1f, 0f),
+                    // row 1
+                    Offset(0f, 0.5f), Offset(0.5f, 0.5f), Offset(1f, 0.5f),
+                    // row 2
+                    Offset(0f, 1f), Offset(0.5f, 1f), Offset(1f, 1f)
+                ),
+                colors = listOf(
+                    Color(0xFF0D1B2A), Color(0xFF1A2744), Color(0xFF0D2137),
+                    Color(0xFF1B3A6B), Color(0xFF22C55E), Color(0xFF164E63),
+                    Color(0xFF0A0F1E), Color(0xFF0D2137), Color(0xFF050505)
+                )
+            )
+    ) {
+        // header content
+    }
+}</code></pre>
+
+      <p>Width and height define the control point grid (3×3 here gives 9 points), <code>points</code> are normalized 0..1 coordinates, and <code>colors</code> match 1:1. The renderer handles the Bezier interpolation between those points — you get a smooth, non-linear blend across the entire surface without writing a single line of Canvas code.</p>
+
+      <h3>Where this actually earns its keep</h3>
+
+      <p>The obvious use is hero sections and onboarding screens — anything that currently uses a static <code>LinearGradient</code> background that looks fine but unremarkable. For Nodat, the project detail page uses a solid card background because a proper gradient background was too much manual canvas work. MeshGradient makes this trivially achievable.</p>
+
+      <p>The less obvious use: animated mesh gradients. The control point coordinates and colors are regular Compose state, so you can animate them with <code>animateFloatAsState</code> or <code>Animatable</code>. The ambient, breathing gradient effects you see in premium audio apps — think Spotify's color-extracted backgrounds — are now much closer to feasible in pure Compose.</p>
+
+      <div class="callout">
+        <p><strong>API status:</strong> <code>MeshGradient</code> is still experimental, gated behind <code>@OptIn(ExperimentalComposeUiApi::class)</code>. The shape is stable enough for side projects and internal screens today, but "experimental" in Compose has historically meant the signature can shift before finalization. Worth using; just don't bet a major production feature on this specific API surface yet.</p>
+      </div>
+
+      <h2>2. SwipeToReveal Gets Real Programmatic Control</h2>
+
+      <p>SwipeToReveal shipped in an earlier Compose Foundation release and it works — until you need to do anything beyond the default fling-and-snap behavior. The common complaint from developers building Gmail-style list interactions: there's no way to trigger a reveal programmatically (for a tutorial hint, or to open the item from a keyboard shortcut), no way to configure fling velocity thresholds, and no way to know the current drag position to animate something else in sync.</p>
+
+      <p>1.12.0-beta02 addresses all three. The additions:</p>
+
+      <ul>
+        <li><strong><code>RevealState.drag()</code></strong> — triggers the swipe programmatically with animation, from code rather than a user gesture. Useful for first-launch tutorial flows, accessibility action handlers, and keyboard shortcut bindings.</li>
+        <li><strong><code>SwipeToRevealDragScope</code></strong> — exposes the current drag offset during a user gesture, so you can synchronize external UI (like a background icon scaling in) with the swipe position.</li>
+        <li><strong>Custom <code>flingBehavior</code></strong> — replaces the default snap logic with your own, so you can tune velocity thresholds, control where the item settles, or prevent settling past a certain offset.</li>
+      </ul>
+
+      <pre><code>val revealState = rememberRevealState()
+
+// programmatic reveal for an accessibility action
+LaunchedEffect(shouldHintSwipe) {
+    if (shouldHintSwipe) {
+        revealState.drag(targetValue = RevealValue.FullyRevealed)
+    }
+}
+
+SwipeToReveal(
+    state = revealState,
+    flingBehavior = rememberSnapFlingBehavior(
+        snapLayoutInfoProvider = remember(revealState) {
+            RevealSnapLayoutInfoProvider(revealState, minVelocityThreshold = 800.dp)
+        }
+    ),
+    action = {
+        DeleteAction(
+            modifier = Modifier.swipeToRevealDragScope(revealState)
+        )
+    }
+) {
+    ListItem(headlineContent = { Text("Swipe me") })
+}</code></pre>
+
+      <p>The thing I was actually blocked on before this: building a "swipe to archive" pattern in Nodat's note list where the archive button scales from 0 to full size as the swipe progresses. With <code>SwipeToRevealDragScope</code> exposing the offset, you can now drive that scale transform directly from the gesture rather than having to approximate it from state snapshots.</p>
+
+      <h3>The flingBehavior gap this closes</h3>
+
+      <p>Default SwipeToReveal has an opinionated snap threshold — fast enough fling means the item snaps fully open, below that threshold it snaps back. This is correct for Gmail-style "delete on release," but it's wrong for "peek then snap" interactions where you want the item to reveal a bit, wait for deliberate confirmation, then act. Custom <code>flingBehavior</code> lets you implement that second pattern without forking the composable.</p>
+
+      <h2>3. Scroll Indicator: A Consistent API Across Every Scrollable Container</h2>
+
+      <p>Before 1.12, if you wanted a custom scroll indicator (not the default thin platform scrollbar, but something on-brand — a dot indicator, a progress track, a custom-styled bar), you were writing it from scratch by reading scroll state and positioning something yourself. Workable, but tedious, especially when you need to keep it consistent across <code>LazyColumn</code>, <code>LazyGrid</code>, <code>Pager</code>, and regular <code>ScrollState</code> containers.</p>
+
+      <p>The new <code>Modifier.scrollIndicator()</code> API standardizes this with a <code>ScrollIndicatorFactory</code> interface. You implement the factory once, and it works across all of these container types:</p>
+
+      <ul>
+        <li><code>LazyListState</code></li>
+        <li><code>LazyGridState</code></li>
+        <li><code>LazyStaggeredGridState</code></li>
+        <li><code>PagerState</code></li>
+        <li><code>ScrollState</code></li>
+      </ul>
+
+      <pre><code>@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PostFeed(posts: List<Post>) {
+    val listState = rememberLazyListState()
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .scrollIndicator(
+                state = listState,
+                factory = DotScrollIndicatorFactory(
+                    activeColor = Color(0xFF22C55E),
+                    inactiveColor = Color(0xFF22C55E).copy(alpha = 0.25f)
+                )
+            )
+    ) {
+        items(posts) { post ->
+            PostCard(post)
+        }
+    }
+}</code></pre>
+
+      <p><code>ScrollIndicatorFactory</code> takes the <code>ScrollIndicatorState</code> from whichever container type you're using and gives you the current thumb fraction and thumb offset to position your custom indicator however you like. The framework handles the mapping from scroll position to normalized position — you just draw.</p>
+
+      <div class="callout-green">
+        <p>This is the kind of API that sounds small until you consider how many apps maintain three or four slightly-different hand-rolled scroll indicator implementations across different screen types. A single factory that covers all container types is a meaningful deduplication — especially if you're maintaining a design system component library across multiple apps.</p>
+      </div>
+
+      <h2>4. Grid Named Areas — The 1.11 Grid API Gets More Expressive</h2>
+
+      <p>If you read my Compose 1.11 post, you know the new Grid API lets you define CSS Grid-style track sizes and place items with row/column spans. The 1.12 addition is a higher-level placement mechanism: <strong>named areas</strong>.</p>
+
+      <p>Instead of placing items with numeric <code>row</code>/<code>column</code> span values that require you to mentally track grid coordinates, you define semantic regions in the grid configuration and place items into those regions by name:</p>
+
+      <pre><code>@OptIn(ExperimentalGridApi::class)
+@Composable
+fun DashboardLayout() {
+    Grid(
+        config = {
+            repeat(4) { column(1.fr) }
+            repeat(3) { row(1.fr) }
+            gap(12.dp)
+
+            val header = area(row = 0, column = 0, rowSpan = 1, columnSpan = 4)
+            val featured = area(row = 1, column = 0, rowSpan = 2, columnSpan = 2)
+            val sidebar = area(row = 1, column = 2, rowSpan = 2, columnSpan = 2)
+        }
+    ) {
+        HeaderCard(modifier = Modifier.gridItem(header))
+        FeaturedPostCard(modifier = Modifier.gridItem(featured))
+        SidebarStack(modifier = Modifier.gridItem(sidebar))
+    }
+}</code></pre>
+
+      <p>The difference in readability is real. With numeric spans you need to mentally reconstruct the grid every time you touch the layout. With named areas, <code>Modifier.gridItem(featured)</code> says exactly what it does — this composable fills the featured slot — and any change to what "featured" means happens in one place in the config block, not scattered across every item's modifier.</p>
+
+      <p>This is the pattern CSS Grid developers have relied on for years with <code>grid-template-areas</code>. Getting it in Compose 1.12 makes complex, semantically structured layouts meaningfully easier to maintain, especially on foldable and tablet targets where you're rebuilding the same content into different regional arrangements.</p>
+
+      <h2>5. Material3 Expressive: TopAppBar and ButtonGroup Hit Stable</h2>
+
+      <p>A fair number of teams have been hesitant to adopt Material3 Expressive components precisely because of the experimental annotation — and the memory of previous Compose API churn makes that caution understandable. The 1.5.0-alpha22 and alpha23 releases made significant progress toward unblocking those teams.</p>
+
+      <p>What graduated to non-experimental in this cycle:</p>
+
+      <ul>
+        <li><strong><code>TopAppBar</code>, <code>MediumFlexibleTopAppBar</code>, <code>LargeTopAppBar</code>, <code>LargeFlexibleTopAppBar</code>, <code>TwoRowsTopAppBar</code>, <code>FlexibleBottomAppBar</code></strong> — the full set of adaptive top and bottom app bars is out of experimental status.</li>
+        <li><strong><code>ExpandedDockedSearchBarWithGap</code> and <code>ExpandedFullScreenContainedSearchBar</code></strong> — the two expanded search bar variants are stable.</li>
+        <li><strong><code>ButtonGroup</code></strong> — the animated, compressible button group graduated in alpha22. The compression animation with asymmetric paddings and RTL layouts was also fixed in the same release.</li>
+        <li><strong>Expressive list item APIs</strong> — non-interactive list item variants compliant with Material Expressive specs are now stable in alpha23.</li>
+      </ul>
+
+      <p>The new Expressive TimePicker (alpha23) is still in active development, but worth noting: it uses the Material Expressive design language rather than the older wheel/dial pattern, and it introduces interaction sounds via the new <code>SoundEffectOnInteraction</code> composable from Compose UI 1.12.</p>
+
+      <pre><code>// TopAppBarScrollBehavior is now stable — no OptIn needed
+@Composable
+fun ArticleScreen(scrollBehavior: TopAppBarScrollBehavior) {
+    Scaffold(
+        topBar = {
+            MediumFlexibleTopAppBar(
+                title = { Text("Android Engineering") },
+                scrollBehavior = scrollBehavior
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) { /* content */ }
+    }
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Note on Material3 versioning:</strong> These stabilizations are in Material3 1.5.0-alpha23, which is not a stable release of the library. "Graduated to non-experimental" means the annotations were removed from those specific APIs — not that the library version is stable. You're still taking on alpha-channel risk for other components in the library.</p>
+      </div>
+
+      <h2>Should You Move to 1.12 Now?</h2>
+
+      <p>The calculus here is different for different features. <strong>MeshGradient and Scroll Indicators</strong> are experimental but have low coupling to the rest of your architecture — you can adopt them on a single screen, see how they feel in production, and pull them out without touching anything else if the API changes before final stabilization. Worth experimenting with now.</p>
+
+      <p><strong>SwipeToReveal improvements</strong> are additive — if you're already using <code>SwipeToReveal</code>, the new <code>RevealState.drag()</code> and custom <code>flingBehavior</code> are strictly more capable than what you had. Upgrade your BOM and use them.</p>
+
+      <p><strong>Grid Named Areas</strong> requires you to be on the Grid API from 1.11 already. If you're not there yet, I'd still hold off on load-bearing production use until the API stabilizes further. But if you're already using Grid experimentally, named areas are an improvement worth adopting.</p>
+
+      <p><strong>Material3 component stabilizations</strong> are the clearest call: if you were waiting for <code>TopAppBar</code> or <code>ButtonGroup</code> to lose the experimental annotation before shipping them, that blocker is gone.</p>
+
+      <p>The broader pattern here: 1.12 is filling in the UI toolkit gaps that have frustrated Compose developers without requiring you to rethink how your app is structured. You don't need to migrate architecture to get better gradients. The boring, quiet releases are often the most useful ones.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-1-12-mesh-gradient-swipe-reveal');
+  </script>
+</body>
+</html>
