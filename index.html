@@ -258,6 +258,7 @@
     .blog-cat.di { color:#d946ef; }
     .blog-cat.agents { color:#67e8f9; }
     .blog-cat.bench { color:#22d3ee; }
+    .blog-cat.paging { color:#0369a1; }
     .blog-card h3 { font-family:'Outfit',sans-serif; font-size:17px; font-weight:700; line-height:1.35; margin-bottom:12px; color:white; }
     .blog-card p { font-size:13px; color:var(--muted-light); line-height:1.65; flex:1; margin-bottom:24px; }
     .blog-meta { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); padding-top:18px; border-top:1px solid var(--card-border); margin-top:auto; }
@@ -870,29 +871,29 @@
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
-          <a href="blog/android-bench-harbor-framework-llm-leaderboard.html" class="blog-card reveal delay-1">
+          <a href="blog/paging-3-5-asitemsnapshotlistflow.html" class="blog-card reveal delay-1">
+            <div class="blog-cat paging">Paging</div>
+            <h3>Paging 3.5.0: The APIs That Finally Let You Compose Paging State With the Rest of Your UI</h3>
+            <p>asItemSnapshotListFlow() makes paging a real Flow you can combine() with other state. New append/prepend/refresh/retry give you manual load control outside of scroll position.</p>
+            <div class="blog-meta"><span>Jul 10, 2026 &nbsp;·&nbsp; 10 min</span><span class="read-more">Read →</span></div>
+          </a>
+          <a href="blog/android-bench-harbor-framework-llm-leaderboard.html" class="blog-card reveal delay-2">
             <div class="blog-cat bench">Bench</div>
             <h3>Android Bench + Harbor Framework: Which AI Model Should You Use for Android Work?</h3>
             <p>Android Bench migrated to Harbor on Jul 8 — adding latency, cost, and CI range dimensions. Claude Fable 5 tops at 84.5%, open-weight models now included. How to read the leaderboard for your real workflow.</p>
             <div class="blog-meta"><span>Jul 9, 2026 &nbsp;·&nbsp; 9 min</span><span class="read-more">Read →</span></div>
           </a>
-          <a href="blog/appfunctions-android-mcp-ai-agents.html" class="blog-card reveal delay-2">
+          <a href="blog/appfunctions-android-mcp-ai-agents.html" class="blog-card reveal delay-1">
             <div class="blog-cat agents">Agents</div>
             <h3>AppFunctions: How Android Turns Your App Into a First-Class AI Agent Tool</h3>
             <p>Android 16's on-device MCP equivalent — annotate Kotlin suspend functions with @AppFunction, write clear KDoc, and Gemini can discover and call your app's capabilities directly.</p>
             <div class="blog-meta"><span>Jul 8, 2026 &nbsp;·&nbsp; 10 min</span><span class="read-more">Read →</span></div>
           </a>
-          <a href="blog/hilt-1-4-0-stable-viewmodel-factory.html" class="blog-card reveal delay-1">
+          <a href="blog/hilt-1-4-0-stable-viewmodel-factory.html" class="blog-card reveal delay-2">
             <div class="blog-cat di">DI</div>
             <h3>Hilt 1.4.0 Goes Stable: The ViewModel Factory Change That Completes the Lifecycle 2.11 Story</h3>
             <p>rememberHiltViewModelFactory() drops the ViewModelStoreOwner parameter and pairs with Lifecycle 2.11's rememberViewModelStoreOwner for clean per-Pager-page Hilt ViewModels. Plus the artifact split you need to know about.</p>
             <div class="blog-meta"><span>Jul 7, 2026 &nbsp;·&nbsp; 8 min</span><span class="read-more">Read →</span></div>
-          </a>
-          <a href="blog/gemma-4-aicore-mlkit-genai-android.html" class="blog-card reveal delay-2">
-            <div class="blog-cat genai">GenAI</div>
-            <h3>Gemma 4 and the ML Kit GenAI Prompt API: Building Real On-Device AI in Android Apps</h3>
-            <p>Gemma 4 E2B/E4B are available now via the ML Kit GenAI Prompt API and AICore Developer Preview. Production architecture, hybrid Firebase inference, prefix caching, and when on-device AI makes sense.</p>
-            <div class="blog-meta"><span>Jul 6, 2026 &nbsp;·&nbsp; 9 min</span><span class="read-more">Read →</span></div>
           </a>
         </div>
         <a href="blog/index.html" class="view-all reveal">View all articles &nbsp;→</a>
