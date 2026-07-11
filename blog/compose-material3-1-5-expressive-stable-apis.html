@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Material Expressive Reaches Compose Material3 1.5.0: The Components Worth Building With Now — bytevikas</title>
+  <meta name="description" content="Material3 1.5.0-alpha23 (Jul 1, 2026) graduated FloatingToolbar, ButtonGroup, WavyProgressIndicator, SplitButton, and 10+ other Expressive APIs to stable. Here's what actually changed, with code, and an honest take on what to adopt today." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ff6b6b;--accent-dim:rgba(255,107,107,.1);--accent-border:rgba(255,107,107,.25);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,107,107,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-green strong{color:#22c55e;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,107,107,.4);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Design</span>
+      <span class="post-date">Jul 11, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Material Expressive Reaches Compose Material3 1.5.0: The Components Worth Building With Now</h1>
+
+    <div class="post-body">
+
+      <p>Something shifted quietly on July 1, 2026. Material3 1.5.0-alpha23 landed in the Jetpack release channel, and the release notes listed something I'd been waiting for: over a dozen Material Expressive components officially graduating from <code>@ExperimentalMaterial3ExpressiveApi</code> to stable. No big announcement, no I/O demo — just a release note update that changes what you can safely ship.</p>
+
+      <p>Material Expressive has been in flight since late 2025. Google's stated goal is to make Android apps feel less static — more reactive to gestures, more personalized, more alive in ways that Material Design 3 couldn't express. The design spec and the Compose implementation have been maturing in lockstep through the 1.5.0 alpha cycle, and alpha23 is the point where I'd call the core of it production-ready if you're willing to stay on the alpha track of a library.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">alpha23</div>
+          <div class="announce-lbl">Material3 1.5.0 build released Jul 1, 2026</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">10+</div>
+          <div class="announce-lbl">Expressive APIs promoted to stable in this release</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Unified</div>
+          <div class="announce-lbl">New rememberBottomSheetState() replaces two separate APIs</div>
+        </div>
+      </div>
+
+      <h2>What Material Expressive Actually Is</h2>
+
+      <p>The short version: it's the next evolution of Material Design 3, built specifically for the era of foldables, large screens, and apps that need to feel distinct and branded rather than generic. Where Material You (M3) nailed adaptive theming and dynamic color, Material Expressive adds motion-forward components, more sculptural shapes, and richer interaction states.</p>
+
+      <p>In practice that means things like: a progress indicator that moves in a satisfying wave instead of a flat bar. Buttons and chips that morph their shape based on selection state. A floating toolbar that reveals additional actions without a separate bottom sheet. Group controls for toggle behavior that used to require hand-rolled composables. None of these are frivolous — they're components that, once you use them, make the old versions feel like placeholders.</p>
+
+      <p>The separation between Compose 1.x (the layout/foundation/runtime libraries) and Material3 1.5.0 (the component library) is important here. You don't need to bump your Compose BOM to pick up Material Expressive — you just need to update the <code>compose-material3</code> dependency. The two versioned separately through the 1.5.0 alpha cycle, which is why this release doesn't show up in Compose 1.12 post titles.</p>
+
+      <h2>The Expressive Theme: Adopting It Without Breaking Everything</h2>
+
+      <p>The entry point to Material Expressive is <code>materialExpressTheme</code> paired with <code>expressiveLightColorScheme()</code>, both now stable in alpha23. These are drop-in replacements for <code>MaterialTheme</code> and <code>lightColorScheme()</code> that unlock the expressive defaults across all the new components:</p>
+
+      <pre><code>// Before
+MaterialTheme(
+    colorScheme = lightColorScheme(primary = yourBrandColor),
+    typography = yourTypography
+) {
+    AppContent()
+}
+
+// After — expressive defaults, same color slot structure
+MaterialExpressiveTheme(
+    colorScheme = expressiveLightColorScheme(primary = yourBrandColor),
+    typography = yourTypography
+) {
+    AppContent()
+}</code></pre>
+
+      <p>The color scheme slots are identical to M3, so if your app already uses dynamic color or has a hand-crafted color scheme, the migration is mechanical — swap the wrapper and the scheme constructor, nothing else. What changes is the default shape system (rounded, more sculptural) and the motion spec used by components internally. Your custom components that don't use Material3 defaults are completely unaffected.</p>
+
+      <p>For Nodat, which uses a fairly opinionated design language on top of M3, my plan would be to adopt the theme at the root and then selectively override the places where the expressive defaults conflict with the app's visual identity. That's the same approach that works for any theme migration in Compose — start at the root, measure what breaks, fix the overrides.</p>
+
+      <h2>WavyProgressIndicator: The Easiest Win</h2>
+
+      <p>This is the component I'd adopt first in any production app. The existing <code>LinearProgressIndicator</code> gets the job done, but it's visually boring — a flat bar that fills in a straight line. <code>WavyProgressIndicator</code> replaces it with an animated wave that communicates progress in a way that feels inherently more dynamic, especially for media loading or file uploads where the user is actively waiting.</p>
+
+      <pre><code>// Indeterminate loading
+WavyProgressIndicator(
+    modifier = Modifier.fillMaxWidth()
+)
+
+// Determinate progress (e.g. upload, download)
+WavyProgressIndicator(
+    progress = { uploadProgress },
+    modifier = Modifier.fillMaxWidth()
+)</code></pre>
+
+      <p>The API surface matches <code>LinearProgressIndicator</code> exactly — same <code>progress</code> lambda, same modifier parameter, same color slots through <code>ProgressIndicatorDefaults</code>. The implementation is pure Canvas drawing with no external dependencies, so it adds no meaningful overhead to your composable tree.</p>
+
+      <p>In Musist, I've been using a custom animated progress bar for track loading because the stock one looked flat against the app's dark theme. <code>WavyProgressIndicator</code> styled with the app's accent color would replace that entirely and lose roughly 80 lines of custom animation code. That's the best kind of migration: one where the platform does what you were already doing yourself, better.</p>
+
+      <h2>ButtonGroup and ToggleButtons: Finally, Clean Segmented Controls</h2>
+
+      <p>Before Material Expressive, building a proper segmented control in Compose was painful. You'd combine <code>OutlinedButton</code>s, manually clip their corners based on position, manage mutual exclusion with your own state, and hope it looked right on every screen density. There was no official API. Everyone had a slightly different approach, and they all had edge cases.</p>
+
+      <p><code>ButtonGroup</code> with <code>ToggleButton</code> children is the official solution, and both are now stable:</p>
+
+      <pre><code>var selectedMode by remember { mutableIntStateOf(0) }
+
+ButtonGroup {
+    ToggleButton(
+        checked = selectedMode == 0,
+        onCheckedChange = { selectedMode = 0 }
+    ) {
+        Icon(Icons.Default.ViewList, contentDescription = "List view")
+    }
+    ToggleButton(
+        checked = selectedMode == 1,
+        onCheckedChange = { selectedMode = 1 }
+    ) {
+        Icon(Icons.Default.GridView, contentDescription = "Grid view")
+    }
+    ToggleButton(
+        checked = selectedMode == 2,
+        onCheckedChange = { selectedMode = 2 }
+    ) {
+        Icon(Icons.Default.Map, contentDescription = "Map view")
+    }
+}</code></pre>
+
+      <p>The <code>ButtonGroup</code> handles corner rounding automatically — the leftmost button gets rounded-left corners, the rightmost gets rounded-right, middle buttons are square — and applies the right selection highlight to whichever <code>ToggleButton</code> has <code>checked = true</code>. It also enforces the visual spacing contract from the Material Expressive spec, which means all three options sit flush against each other with no gaps.</p>
+
+      <p>I'd put this straight into the bottom toolbar for Samachar's article view, where users switch between reading mode, text size controls, and sharing options. It's exactly the use case this was designed for.</p>
+
+      <h2>FloatingToolbar: A Better Pattern for Multi-Action Surfaces</h2>
+
+      <p>The classic FAB pattern works well for a single primary action. But what about screens with three or four related actions? The traditional answer is "use a bottom app bar with icons, or a speed dial FAB." Both have real UX problems — the bottom bar competes with navigation, and speed dials bury actions behind a tap that users have to discover. <code>FloatingToolbar</code> is a cleaner alternative.</p>
+
+      <p>The component renders as a pill-shaped floating container that can either show all its actions inline or collapse to a single FAB and expand on tap. The expansion animation is smooth — it's one of the places where Material Expressive's motion emphasis shows most clearly:</p>
+
+      <pre><code>var expanded by remember { mutableStateOf(false) }
+
+FloatingToolbar(
+    expanded = expanded,
+    floatingActionButton = {
+        FloatingToolbarDefaults.VibrantFloatingActionButton(
+            onClick = { expanded = !expanded }
+        ) {
+            Icon(
+                imageVector = if (expanded) Icons.Default.Close else Icons.Default.Edit,
+                contentDescription = if (expanded) "Close" else "Edit"
+            )
+        }
+    }
+) {
+    IconButton(onClick = { /* Bold */ }) {
+        Icon(Icons.Default.FormatBold, contentDescription = "Bold")
+    }
+    IconButton(onClick = { /* Italic */ }) {
+        Icon(Icons.Default.FormatItalic, contentDescription = "Italic")
+    }
+    IconButton(onClick = { /* Link */ }) {
+        Icon(Icons.Default.Link, contentDescription = "Insert link")
+    }
+}</code></pre>
+
+      <p><code>FloatingToolbarDefaults.VibrantFloatingActionButton</code> is the expressive-styled FAB that goes with it — it uses a higher-contrast, more saturated color fill than the standard M3 FAB. You can substitute a plain FAB if you prefer the stock appearance.</p>
+
+      <p>The toolbar respects <code>WindowInsets</code> automatically, so positioning it above a navigation bar or system gesture zone is handled without manual padding. That alone removes a category of device-testing headaches.</p>
+
+      <h2>Bottom Sheet State Unification</h2>
+
+      <p>This one is less glamorous than the new components, but it'll affect most apps that use bottom sheets. Material3 1.5.0 introduces a single <code>rememberBottomSheetState()</code> that works with both <code>ModalBottomSheet</code> and <code>BottomSheetScaffold</code>, deprecating the separate <code>rememberModalBottomSheetState()</code> and <code>rememberStandardBottomSheetState()</code> functions that currently exist:</p>
+
+      <pre><code>// Both of these are now deprecated
+val modalState = rememberModalBottomSheetState()
+val scaffoldState = rememberStandardBottomSheetState()
+
+// Use this for both
+val sheetState = rememberBottomSheetState(
+    initialValue = SheetValue.Hidden,
+    confirmValueChange = { it != SheetValue.Hidden || canHide }
+)
+
+// Works with ModalBottomSheet
+ModalBottomSheet(
+    onDismissRequest = { /* ... */ },
+    sheetState = sheetState
+) {
+    SheetContent()
+}
+
+// Also works with BottomSheetScaffold
+BottomSheetScaffold(
+    sheetContent = { SheetContent() },
+    sheetState = sheetState
+) {
+    MainContent()
+}</code></pre>
+
+      <p>If your app uses both modal and persistent bottom sheets, you no longer need to track which state type belongs to which component. The unified state object carries the same properties — <code>currentValue</code>, <code>targetValue</code>, <code>isVisible</code> — so migration is find-and-replace plus removing the modal/standard distinction from your state declarations.</p>
+
+      <div class="callout">
+        <p><strong>Migration note:</strong> The old functions are deprecated but not yet removed. You have time to migrate, and the IDE will show deprecation warnings pointing at the unified API. I'd do this migration alongside any other Material3 1.5.0 work rather than as a separate pass.</p>
+      </div>
+
+      <h2>Shape Morphing Chips: Selection That Feels Alive</h2>
+
+      <p>New overloads for <code>FilterChip</code>, <code>ElevatedFilterChip</code>, and <code>InputChip</code> add shape morphing to the selection state. When a chip transitions from unselected to selected, its shape shifts — rounded corners change, the aspect ratio subtly adjusts — rather than just swapping a color. The effect is subtle but it makes filter chips feel genuinely interactive rather than just toggling between two static appearances.</p>
+
+      <pre><code>FilterChip(
+    selected = isSelected,
+    onClick = { isSelected = !isSelected },
+    label = { Text("Architecture") },
+    leadingIcon = if (isSelected) {
+        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+    } else null
+    // shape morphing is applied via the new overloads — check FilterChipDefaults
+    // for the expressive shape parameters
+)</code></pre>
+
+      <p>The shape morphing overloads follow the same composable signature as the existing chips, so these are additive — you opt into the expressive shape behavior per-callsite rather than changing it globally. That's the right design: apps that need a consistent, uniform chip appearance everywhere can ignore the overloads; apps that want the expressive defaults can adopt them incrementally.</p>
+
+      <h2>What's Still Experimental</h2>
+
+      <div class="callout-green">
+        <p><strong>Not yet stable in alpha23:</strong> The Material Expressive <code>TimePicker</code> variant, the <code>Scrim</code> and <code>StaticSheet</code> standalone components, and some of the new <code>SearchBar</code> expanded states are still marked experimental as of 1.5.0-alpha23. Don't build load-bearing production features on these — they're present but API shape may still change. The stable promotions in alpha23 cover the main action and navigation component set; form components are following behind.</p>
+      </div>
+
+      <p>Similarly, <code>SplitButton</code> (primary action + secondary dropdown in a single pill shape) is now stable, as are the expressive button variants and expressive menu APIs — but the full expressive form system (text fields with <code>TextFieldLabelPosition.Inside</code> and the new <code>roundedShape</code> defaults) is still settling. The rule for now: if it's not listed as a stable promotion in the 1.5.0-alpha23 release notes, treat it as experimental.</p>
+
+      <h2>My Production Take: What to Adopt and When</h2>
+
+      <p>The 1.5.0 alpha track is not stable — the library version says alpha, and library alphas in Jetpack can and do have breaking API changes between releases. That's the honest caveat. But "not stable" on an alpha track doesn't mean "not usable," and this matters for how you plan.</p>
+
+      <p>Here's how I'd approach it for a real app:</p>
+
+      <ul>
+        <li><strong>Adopt immediately, low risk:</strong> <code>WavyProgressIndicator</code> — it's a drop-in, the API is clean, and the worst that happens if it changes is a one-line fix. <code>ButtonGroup</code> + <code>ToggleButtons</code> is similar — small surface area, clear stable signal.</li>
+        <li><strong>Adopt with a migration plan:</strong> <code>materialExpressTheme</code> at the app root changes shape and motion defaults globally. Do this in a feature branch, audit your screens for regressions, then merge. It's a one-time cost and the visual payoff is significant.</li>
+        <li><strong>Prototype now, ship at 1.5.0-stable:</strong> <code>FloatingToolbar</code> is feature-complete and stable-marked, but I'd wait for the library itself to hit stable before putting it in a screen that 100K+ users see daily. Same for <code>SplitButton</code>.</li>
+        <li><strong>Wait:</strong> Anything still in <code>@ExperimentalMaterial3ExpressiveApi</code>. The experimental annotation exists for a reason.</li>
+      </ul>
+
+      <p>One thing I'd track closely: the 1.5.0 stable release date. The alpha cycle has been moving steadily — alpha01 through alpha23 in roughly 6 months — so a stable release in late 2026 seems plausible. At that point, everything that graduated to stable in the alphas becomes a straightforward library version bump with no code changes on your side.</p>
+
+      <p>The bigger picture here is what Material Expressive represents for Android as a platform. Google has spent years watching iOS develop a more polished, motion-forward UI vocabulary and fighting the perception that Android apps feel generic. Material Expressive is the structural answer — not just new widgets, but a design language that makes it possible to build UI that feels custom and alive without rolling everything from scratch. For apps like Musist that live and die on their visual feel, that's genuinely meaningful.</p>
+
+      <p>The components are there, they're stable enough to act on, and the migration story from M3 is as smooth as any Jetpack library upgrade I've seen. July 1, 2026 is a quiet date that I think will look more significant in retrospect.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-material3-1-5-expressive-stable-apis');
+  </script>
+</body>
+</html>
