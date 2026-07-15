@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media3 1.11.0-beta01: Track Priority, DASH CDN Fallback, and the Session Crashes Worth Fixing — bytevikas</title>
+  <meta name="description" content="Beta01 lands Format.selectionPriority for HLS/DASH adaptive streaming, multi-Location DASH fallback for CDN resilience, and fixes a ForegroundServiceStartNotAllowedException crash that bites every background music app." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#0ea5e9;--accent-dim:rgba(14,165,233,.1);--accent-border:rgba(14,165,233,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(14,165,233,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#22c55e;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(14,165,233,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Media</span>
+      <span class="post-date">Jul 15, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Media3 1.11.0-beta01: Track Priority, DASH CDN Fallback, and the Session Crashes Worth Fixing Now</h1>
+
+    <div class="post-body">
+
+      <p>A week after the alpha01 drop brought PlayerPool and the full Compose player UI suite, Media3 1.11.0-beta01 landed on July 7th. The version bump is meaningful — beta signals that the public API surface is largely locked, so if you've been sitting on the sideline waiting for alpha to stabilize before evaluating 1.11, that moment is now.</p>
+
+      <p>But beta01 isn't just an API freeze. It adds two genuinely new capabilities that weren't in alpha at all — <code>Format.selectionPriority</code> for influencing HLS and DASH adaptive bitrate decisions, and multi-Location fallback in <code>DashMediaSource</code> for CDN resilience — plus a cluster of bug fixes that are embarrassing to hit in production. I've personally been burned by the foreground service crash pattern this release addresses. Let me walk through what actually matters here.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">beta01</div>
+          <div class="announce-lbl">API surface largely locked for 1.11.0</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">selectionPriority</div>
+          <div class="announce-lbl">New HLS &amp; DASH adaptive track control</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">8+</div>
+          <div class="announce-lbl">Production bug fixes in session, audio &amp; video</div>
+        </div>
+      </div>
+
+      <h2>1. Format.selectionPriority: Finally, a Preference Signal for ABR</h2>
+
+      <p>Adaptive bitrate streaming has always been a black box in ExoPlayer/Media3. The adaptive track selector picks variants based on bandwidth estimates, buffer fullness, and viewport size — but there's been no clean way for the server or the app to say "prefer this variant when conditions are roughly equivalent." Beta01 introduces <code>Format.selectionPriority</code> to fill that gap.</p>
+
+      <p>The value is populated from the <code>SCORE</code> attribute of <code>EXT-X-STREAM-INF</code> and <code>EXT-X-I-FRAME-STREAM-INF</code> in HLS manifests. If your HLS manifest declares a score on each stream variant, Media3 now reads it and stores it on the <code>Format</code> object. The adaptive track selector factors this into variant preference when bandwidth allows multiple viable options.</p>
+
+      <pre><code># HLS manifest with SCORE attributes
+#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360,CODECS="avc1.42c01e,mp4a.40.2",SCORE=2.0
+/streams/360p.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=2400000,RESOLUTION=1280x720,CODECS="avc1.4d401f,mp4a.40.2",SCORE=5.0
+/streams/720p.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.640028,mp4a.40.2",SCORE=8.0
+/streams/1080p.m3u8</code></pre>
+
+      <p>You can also read the value in your own track selection logic. If you're building a custom <code>TrackSelector</code> or running any post-selection filtering:</p>
+
+      <pre><code>// After track selection, inspect selectionPriority on each Format
+val trackGroups = player.currentTracks.groups
+for (group in trackGroups) {
+    for (i in 0 until group.length) {
+        val format = group.getTrackFormat(i)
+        val priority = format.selectionPriority // defaults to 0 if not set in manifest
+        Log.d("Tracks", "${format.height}p → priority=$priority")
+    }
+}</code></pre>
+
+      <p>In practice, this matters most if you control your own CDN and manifest generation. If you serve streams from multiple geographic origins at the same bitrate but different latency profiles, you can now nudge the selector toward the better origin without changing bitrate thresholds. For apps like Musist or Samachar where we source content from a third-party CDN and don't control manifest generation, the immediate impact is lower — but it's a capability worth knowing when you do negotiate CDN agreements or build your own delivery pipeline.</p>
+
+      <h2>2. DASH Multi-Location Fallback: CDN Resilience You Actually Need</h2>
+
+      <p>DASH manifests (MPD files) have supported multiple <code>&lt;Location&gt;</code> elements for a long time — the spec allows you to list fallback manifest URLs so that if the primary URL fails, the player tries the next one. Until beta01, <code>DashMediaSource</code> only ever used the first <code>&lt;Location&gt;</code> element and stopped there.</p>
+
+      <p>Beta01 fixes this properly. When a manifest fetch fails, <code>DashMediaSource</code> now iterates through all declared <code>Location</code> elements in order until one succeeds. This is a pure bug fix in terms of spec compliance, but the production impact can be significant if you're delivering DASH content through a multi-CDN or multi-region setup:</p>
+
+      <pre><code>&lt;!-- MPD with multiple Location fallbacks --&gt;
+&lt;MPD xmlns="urn:mpeg:dash:schema:mpd:2011" ...&gt;
+  &lt;Location&gt;https://primary-cdn.example.com/manifest.mpd&lt;/Location&gt;
+  &lt;Location&gt;https://fallback-cdn.example.com/manifest.mpd&lt;/Location&gt;
+  &lt;Location&gt;https://origin.example.com/manifest.mpd&lt;/Location&gt;
+  ...
+&lt;/MPD&gt;</code></pre>
+
+      <p>Before this fix, if your primary CDN went down and returned errors during the manifest fetch, the player would immediately throw a load error rather than trying your declared fallbacks. That meant users saw a playback failure when the content was actually available from a healthy origin — just one URL away. Now the fallback chain works as the spec intends.</p>
+
+      <div class="callout">
+        <p><strong>Worth noting:</strong> this fallback applies specifically to manifest loads, not to segment loads. Segment-level CDN failover is handled through different mechanisms (redirect following, retry policies). But manifest availability is often the first failure mode in a CDN incident, so this fix directly reduces the "content unavailable" rate in multi-CDN setups without any app-side changes.</p>
+      </div>
+
+      <h2>3. Cast Extension: Observing the Route Picker State</h2>
+
+      <p>The Cast extension gets a small but useful addition: <code>MediaRouteButtonState</code> and the Compose-friendly <code>rememberMediaRouteButtonState()</code>. These let you observe whether the Cast route picker is currently visible — something that was previously impossible without digging into internal Cast SDK state.</p>
+
+      <pre><code>@Composable
+fun PlayerTopBar(castContext: CastContext) {
+    val routeButtonState = rememberMediaRouteButtonState(castContext)
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Now Playing")
+        Spacer(Modifier.weight(1f))
+        // conditionally show different UI while picker is open
+        if (routeButtonState.isPickerVisible) {
+            Text("Selecting device...", color = MaterialTheme.colorScheme.primary)
+        } else {
+            MediaRouteButton(
+                castContext = castContext,
+                state = routeButtonState,
+            )
+        }
+    }
+}</code></pre>
+
+      <p>The <code>state</code> parameter on <code>MediaRouteButton</code> is also new in this release — it replaces the previous pattern of managing picker visibility externally. It's a small quality-of-life improvement for Compose Cast UIs, not a critical feature, but it closes a genuine API gap for any app that shows contextual UI around the Cast button.</p>
+
+      <h2>4. The Bug Fixes That Actually Matter in Production</h2>
+
+      <p>Beta01's changelog has more bug fixes than features, and a few of them are the kind that make you check your own crash dashboard immediately.</p>
+
+      <h3>ForegroundServiceStartNotAllowedException — the silent music app killer</h3>
+
+      <p>This one hits music and podcast apps hard. The crash pattern: your player is running, the user minimizes the app, and at some point an artwork bitmap load finishes asynchronously. The <code>MediaNotificationManager</code> tries to update the notification — which requires starting a foreground service — but the app is now backgrounded. Android throws <code>ForegroundServiceStartNotAllowedException</code> and you get a crash that shows up in your dashboard with zero user-visible symptom before it.</p>
+
+      <p>I've seen this pattern in Musist's crash logs. It's particularly insidious because it depends on network timing — if artwork loads quickly, you're fine. If it's slow and finishes after the user backgrounds, you crash. Beta01 fixes this by properly guarding the foreground service start attempt in the async callback path inside <code>MediaNotificationManager</code>.</p>
+
+      <h3>Track selection concurrency race condition</h3>
+
+      <p>If a user is rapidly switching quality settings — say, toggling between "Auto" and a specific resolution multiple times quickly — there was a timing-dependent race where some of those updates could be silently lost. The track selector's internal state could end up reflecting an intermediate selection rather than the last one the user made. Beta01 fixes the concurrency issue in the track selection parameter update path. If you've ever had users report "I switched to HD but it went back to low quality by itself," this is likely why.</p>
+
+      <h3>MediaSession artwork blurriness in notifications</h3>
+
+      <p>When <code>MediaSession</code> needed to downscale artwork to fit platform limits, it was applying the downscaling twice — once internally, then again when the platform received it. The result was notification artwork that was significantly blurrier than the source image, especially on high-resolution devices where the platform limit is lower than you'd expect. Beta01 fixes the double-downscaling. If your music app's notifications look like they're running through a JPEG compression cycle too many, upgrade and retest.</p>
+
+      <h3>PositionInfo missing Timeline UIDs</h3>
+
+      <p>If you're using <code>MediaController</code> to receive playback state from a <code>MediaSession</code> (common in car apps, widget implementations, or any multi-process media setup), the <code>PositionInfo</code> objects you received were missing their <code>Timeline</code> UIDs. This meant you couldn't reliably identify which item in the queue a position update referred to — just its index, which shifts as the queue changes. Beta01 fixes the UID propagation so <code>PositionInfo</code> always carries the stable UID from the originating session's timeline.</p>
+
+      <h3>HLS playlist refresh leak</h3>
+
+      <p>In some HLS switching scenarios — particularly when switching between streams in a playlist — the previous playlist's refresh timer wasn't always properly cancelled. Scheduled refreshes could continue firing for a playlist that was no longer being played. In a long-lived player session (think a multi-hour live stream or a radio app), this could accumulate into meaningless background network traffic and subtle memory pressure. Fixed in beta01.</p>
+
+      <h2>5. MP3 Gapless Playback Gets Tighter</h2>
+
+      <p>Two MP3-specific fixes are in this release that are worth knowing about if you play local music files or podcast downloads:</p>
+
+      <ul>
+        <li><strong>Gapless-aware durations from Xing/Info headers.</strong> MP3 files encoded with gapless metadata embed duration information in Xing or Info headers that accounts for encoder delay and padding. Media3 now reads these headers for seeking accuracy, fixing cases where the seek bar and elapsed time were slightly off on gapless-encoded files.</li>
+        <li><strong>Encoder delay and padding alignment.</strong> The trimming of encoder delay and padding during decoding now matches what the Xing/LAME headers specify. Previously, decoded PCM output could include a few extra frames at the start or end of gapless tracks, causing a faint click or pop at transition points in continuous playback albums.</li>
+      </ul>
+
+      <p>These are small but meaningful for any app that treats music playback seriously. Gapless is one of those features where a 10ms error is perceptible to anyone with headphones on a quiet album transition. Musist's local playback quality gets a quiet improvement here.</p>
+
+      <div class="callout-amber">
+        <p><strong>AVI files:</strong> there's also a fix for AVI files without keyframe flags on audio tracks causing audio loss and <code>OutOfMemoryError</code>. Unless you're explicitly supporting legacy AVI container playback, this probably doesn't affect you — but if you are, it was a genuine crash-inducing bug before this release.</p>
+      </div>
+
+      <h2>6. API Cleanup: generateAudioSessionIdV21 Is Gone</h2>
+
+      <p>Beta01 removes the deprecated <code>androidx.media3.common.C.generateAudioSessionIdV21</code> method. If you're calling it directly — which would be unusual since it was an internal utility — migrate to <code>androidx.media3.common.util.Util.generateAudioSessionId</code>. The method does the same thing; it just moved to a more logical home. A quick <code>grep</code> across your codebase for <code>generateAudioSessionIdV21</code> will confirm whether this affects you.</p>
+
+      <h2>Should You Upgrade to beta01?</h2>
+
+      <p>Yes, and the reasoning is straightforward. The foreground service crash fix alone is worth it for any app with background playback — that crash pattern is a silent reputation killer because it's timing-dependent and might not appear in your own testing but absolutely appears for users. The track selection race condition fix matters if you offer manual quality controls. The artwork blurriness fix is visible to users in notifications.</p>
+
+      <p>The upgrade from 1.10.x is the same path as alpha01 — if you already evaluated that, beta01 should be a clean drop-in:</p>
+
+      <pre><code>// libs.versions.toml
+[versions]
+media3 = "1.11.0-beta01"
+
+[libraries]
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
+media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
+# if you use the Cast extension:
+media3-cast = { group = "androidx.media3", name = "media3-cast", version.ref = "media3" }</code></pre>
+
+      <p>The only mandatory migration from 1.10.x is the removal of <code>C.generateAudioSessionIdV21</code> if you're calling it. Everything else in beta01 is additive or a bug fix — no API renames, no behavioral changes that require code updates on your end.</p>
+
+      <p>Beta01 is also the right moment to evaluate the <code>PlayerPool</code> and Compose player UI APIs from alpha01 if you haven't yet. With beta signaling API stability, you can build features on top of <code>rememberPooledPlayer</code> with more confidence that the interface won't change between now and stable. That's a meaningful upgrade to the confidence level if alpha01's "experimental" label was holding you back.</p>
+
+      <p>The 1.11.0 stable release is likely a few weeks out at this pace. Between now and then, the changelog will be mostly bug fixes and documentation. If you're in a position to take betas in your build — and for a library as battle-tested as Media3, you likely should be — there's no good reason to wait on this one.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('media3-1-11-beta01-track-selection-cdn-fallback');
+  </script>
+</body>
+</html>
