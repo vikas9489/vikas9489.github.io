@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkManager 2.12: Production Metrics for Your Background Jobs — bytevikas</title>
+  <meta name="description" content="WorkManager 2.12.0-alpha01 ships a new work-analytics artifact with WorkMetricsInfo — duration, stop reasons, retry counts, and execution history — so background job failures finally leave a paper trail." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#78e8d0;--accent-dim:rgba(120,232,208,.08);--accent-border:rgba(120,232,208,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(120,232,208,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(120,232,208,.06);border:1px solid rgba(120,232,208,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#fbbf24;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(120,232,208,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Background</span>
+      <span class="post-date">Jul 17, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>WorkManager 2.12: Your Background Jobs Finally Leave a Paper Trail</h1>
+
+    <div class="post-body">
+
+      <p>Background work has always been the most opaque part of Android development. You enqueue a worker, it disappears into the OS scheduling black box, and when something goes wrong — a failed sync that users never see, a periodic job that silently stops running, a worker that keeps retrying without anyone noticing — you're left with nothing but <code>WorkInfo.State.FAILED</code> and a prayer. Crash reporters can't catch it. Logs rarely survive long enough. Production users just see stale data and move on.</p>
+
+      <p>WorkManager 2.12.0-alpha01, released July 15, 2026, starts to fix this. The headline is a new <code>work-analytics</code> artifact that ships <code>WorkMetricsInfo</code> — a structured record of exactly what happened to any piece of work: how long it ran, how many times it was stopped, why it stopped, how many explicit retries were triggered, and timestamps for the full lifecycle from enqueue to finish. It's the paper trail that background debugging has been missing.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">work-analytics artifact with WorkMetricsInfo</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Exp.</div>
+          <div class="announce-lbl">Scheduling event listener API</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Changed</div>
+          <div class="announce-lbl">Default dispatcher is now Dispatchers.Default</div>
+        </div>
+      </div>
+
+      <h2>The work-analytics Artifact</h2>
+
+      <p>The metrics APIs live in a separate artifact so existing apps don't carry the weight if they don't need it. Add it alongside your existing WorkManager dependency:</p>
+
+      <pre><code>// build.gradle.kts
+dependencies {
+    implementation("androidx.work:work-runtime-ktx:2.12.0-alpha01")
+    implementation("androidx.work:work-analytics:2.12.0-alpha01")
+}</code></pre>
+
+      <p>The separation is deliberate. WorkManager's core runtime is already a substantial dependency that many apps pulled in before Hilt existed and before coroutines were idiomatic. Keeping analytics opt-in means apps that only need basic enqueue/observe behavior stay lean.</p>
+
+      <h2>WorkMetricsInfo: What You Can Now Observe</h2>
+
+      <p>The central new type is <code>WorkMetricsInfo</code>. It tracks everything that happened to a unit of work after it was enqueued:</p>
+
+      <pre><code>// Retrieve metrics for a specific work request
+val metricsRepo: WorkMetricsInfoRepository = WorkManager
+    .getInstance(context)
+    .workMetricsInfoRepository
+
+val query = WorkMetricsQuery.Builder()
+    .addTag("sync-contacts")
+    .build()
+
+metricsRepo.getWorkMetricsInfo(query).collect { metricsInfoList ->
+    metricsInfoList.forEach { info ->
+        Log.d("WorkMetrics", """
+            Worker:            ${info.workerClassName}
+            Duration:          ${info.workerDurationMillis}ms
+            Total runtime:     ${info.totalRuntimeMillis}ms
+            Run attempts:      ${info.runAttemptCount}
+            Explicit retries:  ${info.explicitRetryCount}
+            Stop reasons:      ${info.stopReasonCounts}
+            Enqueued at:       ${info.enqueueTimestamp}
+            First started:     ${info.firstStartTimestamp}
+            Finished at:       ${info.finishTimestamp}
+        """.trimIndent())
+    }
+}</code></pre>
+
+      <p>Let me break down what each field actually tells you:</p>
+
+      <ul>
+        <li><strong><code>workerDurationMillis</code></strong> — wall-clock time spent inside <code>doWork()</code>. This is the execution time, not the total lifecycle time. A worker that took 200ms to actually run but waited 45 minutes in the scheduler has a <code>workerDurationMillis</code> of 200ms.</li>
+        <li><strong><code>totalRuntimeMillis</code></strong> — cumulative execution time across <em>all</em> run attempts. If a worker failed and retried three times, each running for 2 seconds before throwing, <code>totalRuntimeMillis</code> is 6 seconds.</li>
+        <li><strong><code>runAttemptCount</code></strong> — total number of times <code>doWork()</code> was called, including the initial attempt and all retries.</li>
+        <li><strong><code>explicitRetryCount</code></strong> — how many times the worker returned <code>Result.retry()</code>. Separating this from <code>runAttemptCount</code> lets you distinguish "retried because the network was unavailable" from "retried because the OS killed it mid-run."</li>
+        <li><strong><code>stopReasonCounts</code></strong> — a <code>Map&lt;Int, Int&gt;</code> of WorkInfo stop reason codes to occurrence counts. Finally you can see whether your worker is being stopped by <code>STOP_REASON_CONSTRAINT_NETWORK</code>, <code>STOP_REASON_TIMEOUT</code>, or the dreaded <code>STOP_REASON_DEVICE_STATE</code>.</li>
+        <li><strong><code>enqueueTimestamp</code>, <code>firstStartTimestamp</code>, <code>finishTimestamp</code></strong> — the full lifecycle in milliseconds. The delta between enqueue and firstStart is your scheduling latency — how long the OS made you wait.</li>
+      </ul>
+
+      <p>For Nodat, where background sync of note collections has to happen reliably without draining battery, this is exactly the data I've wanted to make sense of why certain users occasionally see stale content. The existing <code>WorkInfo</code> tells you the current state; <code>WorkMetricsInfo</code> tells you the history.</p>
+
+      <h3>WorkMetricsQuery: Filtering What You Get Back</h3>
+
+      <p>You don't have to collect metrics for every worker in the app. <code>WorkMetricsQuery</code> lets you filter by tag, worker class, or unique work name:</p>
+
+      <pre><code>val query = WorkMetricsQuery.Builder()
+    .addTag("upload")
+    .setWorkerClass(ImageUploadWorker::class.java)
+    .build()
+
+// One-shot fetch for finished work
+val finished = metricsRepo.getWorkMetricsInfo(query).first()
+
+// Flow for observing as work completes
+metricsRepo.getFinishedWorkMetricsInfoFlow(query)
+    .collect { info -> reportToAnalytics(info) }</code></pre>
+
+      <p>The <code>getFinishedWorkMetricsInfoFlow</code> API is the one I'd wire into a monitoring pipeline. In a production app, you could feed finished metrics directly to your event-logging layer — Firebase Analytics, a custom endpoint, whatever you already use for behavioral analytics. That gives you background task success rates, retry distributions, and scheduling latency as first-class product metrics rather than a dev-only debugging tool.</p>
+
+      <h3>Retention Configuration</h3>
+
+      <p>Metrics don't accumulate forever. The retention window defaults to 7 days and is configurable per-<code>WorkMetricsInfoRepository</code> at initialization:</p>
+
+      <pre><code>// API 26+
+val repo = WorkMetricsInfoRepository(
+    workManager = WorkManager.getInstance(context),
+    retentionDuration = Duration.ofDays(14)
+)
+
+// API 23+ fallback
+val repo = WorkMetricsInfoRepository(
+    workManager = WorkManager.getInstance(context),
+    retentionTime = 14,
+    retentionTimeUnit = TimeUnit.DAYS
+)</code></pre>
+
+      <p>This uses the same pruning mechanism as WorkManager's internal database, so old records don't pile up. For most apps, the 7-day default is fine — crash/issue investigations rarely need to look further back than that.</p>
+
+      <h2>Scheduling Event Listeners (Experimental)</h2>
+
+      <p>Separate from the metrics API is a new experimental listener for WorkManager's scheduling decisions in real time:</p>
+
+      <pre><code>@OptIn(ExperimentalWorkManagerApi::class)
+WorkManager.getInstance(context)
+    .addSchedulingEventListener { event ->
+        when (event) {
+            is SchedulingEvent.WorkEnqueued -> { /* ... */ }
+            is SchedulingEvent.WorkStarted  -> { /* ... */ }
+            is SchedulingEvent.WorkStopped  -> { /* ... */ }
+            is SchedulingEvent.WorkFinished -> { /* ... */ }
+        }
+    }</code></pre>
+
+      <p>This is lower-level than <code>WorkMetricsInfo</code> and more useful during development than in production. The main use case is understanding the OS scheduling decisions as they happen — not after the fact. If you're debugging why a periodic job isn't running on a device with Doze enabled, or why a worker with network constraints starts immediately on some devices and waits 20 minutes on others, this gives you the live signal you'd otherwise have to reconstruct from ADB logs.</p>
+
+      <div class="callout">
+        <p><strong>Important:</strong> the scheduling event listener is marked <code>@ExperimentalWorkManagerApi</code>. The API surface is likely to shift. Use it for debugging and tooling, not as a production monitoring primitive — that's what <code>getFinishedWorkMetricsInfoFlow</code> is for.</p>
+      </div>
+
+      <h2>Worker Class Name Now in WorkInfo</h2>
+
+      <p>A smaller but welcome addition: <code>WorkInfo</code> now exposes the worker class name via <code>WorkInfo.workerClassName</code>. Before this release, if you observed a <code>WorkInfo</code> object from a <code>WorkQuery</code> result and the work was tagged with a generic tag like <code>"sync"</code>, you couldn't tell which specific <code>ListenableWorker</code> subclass was behind it without keeping a separate mapping yourself.</p>
+
+      <pre><code>WorkManager.getInstance(context)
+    .getWorkInfosByTagLiveData("sync")
+    .observe(this) { workInfoList ->
+        workInfoList.forEach { info ->
+            Log.d("WM", "Class: ${info.workerClassName}, State: ${info.state}")
+        }
+    }</code></pre>
+
+      <p>Useful in large apps where the same tag is applied across multiple worker types and you want to log or route differently per class.</p>
+
+      <h2>The Dispatchers.Default Change — and Why It Matters</h2>
+
+      <p>This is the one that could cause real behavioral changes if you're not expecting it. WorkManager has historically used its own internal thread pool for coroutine dispatch inside <code>CoroutineWorker</code>. As of 2.12.0-alpha01, the default has changed to <code>Dispatchers.Default</code>.</p>
+
+      <div class="callout-amber">
+        <p><strong>What changes:</strong> if your <code>CoroutineWorker.doWork()</code> does CPU-bound work directly on the incoming dispatcher (without explicitly switching to <code>Dispatchers.IO</code> for blocking calls), the thread pool it runs on changes. For pure coroutine code that already uses structured concurrency correctly, this is invisible. For code that blocks the calling thread inside <code>doWork()</code>, you may now be blocking a thread on the shared <code>Default</code> pool, which is shared with the rest of your app's coroutines.</p>
+      </div>
+
+      <p>The right move is what the Kotlin coroutines guide has always recommended: use <code>withContext(Dispatchers.IO)</code> for any blocking I/O inside a worker, and let the default dispatcher handle computation. If you were relying on WorkManager's internal pool as a free "extra threads for blocking work" mechanism, this is the push to fix that properly.</p>
+
+      <pre><code>class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+    override suspend fun doWork(): Result {
+        // Computation on the Default dispatcher — fine as-is
+        val processed = processLocalData()
+
+        // Blocking I/O must use IO dispatcher explicitly
+        val result = withContext(Dispatchers.IO) {
+            database.sync(processed)
+        }
+
+        return if (result.isSuccess) Result.success() else Result.retry()
+    }
+}</code></pre>
+
+      <p>If you want to keep the old behavior while evaluating the migration, you can supply a custom dispatcher via <code>WorkManager.Configuration</code>. But I'd treat that as a short-term hold, not a permanent fix.</p>
+
+      <h2>Bug Fixes Worth Knowing About</h2>
+
+      <p>A few of the bug fixes in this release are worth calling out because they affect real production behavior, not edge cases:</p>
+
+      <ul>
+        <li><strong>Periodic work failing to reschedule after uncaught exceptions</strong> — if your <code>PeriodicWorkRequest</code> threw an unexpected exception that wasn't caught inside <code>doWork()</code>, it wasn't being rescheduled. Fixed.</li>
+        <li><strong>Retried work failing to schedule with the OS</strong> — workers returning <code>Result.retry()</code> could silently fail to register with the system scheduler under certain conditions. Fixed.</li>
+        <li><strong>Background network requests failing on Android 15</strong> — a regression in how network constraint tracking worked on API 35. Fixed.</li>
+        <li><strong>Process crashes from missing ACCESS_NETWORK_STATE permission</strong> — the network constraint callback registration was throwing when the permission wasn't declared. Now handled gracefully with a security exception catch.</li>
+        <li><strong>ConcurrentModificationException in the execution listener dispatch</strong> — race condition under concurrent task completion. Fixed.</li>
+      </ul>
+
+      <p>The periodic rescheduling fix is the one I'd prioritize testing. If you ship any periodic workers — daily sync, cache refresh, analytics flush — set up a Macrobenchmark or manual test that throws inside <code>doWork()</code> on purpose and confirms the next period fires on schedule.</p>
+
+      <h2>What to Actually Do Today</h2>
+
+      <p>This is an alpha, so the standard rules apply: don't ship it to production as the primary version, but do evaluate it on a branch. Specifically:</p>
+
+      <ol>
+        <li><strong>Pull it into a debug build and add the <code>work-analytics</code> artifact.</code></strong> Wire <code>getFinishedWorkMetricsInfoFlow</code> into your existing logging pipeline and watch what comes back. The stop reason counts alone will likely teach you something about your workers that you didn't know before.</li>
+        <li><strong>Audit your CoroutineWorker subclasses</strong> for <code>Dispatchers.Default</code> compatibility. Any blocking call without <code>withContext(Dispatchers.IO)</code> is now a shared-pool concern. <code>grep</code> for blocking function calls inside <code>doWork()</code> implementations and fix them.</li>
+        <li><strong>Test your periodic workers under error conditions.</strong> The rescheduling fix is exactly the kind of thing that was always broken but never reliably caught in CI. A worker that throws on the first attempt and then never fires again is hard to notice until a user complains about stale data weeks later.</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Production timeline estimate:</strong> WorkManager's alpha-to-stable cadence has historically run several months. The metrics API surface is new enough that it'll likely see at least one beta cycle with API changes before stabilizing. I'd expect a stable 2.12.0 around Q1 2027, but the analytics artifact is stable enough to evaluate and build dashboards around today.</p>
+      </div>
+
+      <p>Background work observability has been a gap in the Android developer toolchain for a long time. The existing flow-based <code>WorkInfo</code> observation is fine for UI state, but it tells you almost nothing useful about <em>why</em> a job failed or how long it waited before the OS got around to running it. <code>WorkMetricsInfo</code> is the right abstraction for that — structured, filterable, retention-bounded, and composable with whatever analytics pipeline you already run. It's early and the API will change, but the direction is exactly right.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('workmanager-2-12-work-analytics-metrics-api');
+  </script>
+</body>
+</html>
