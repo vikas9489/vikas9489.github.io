@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AndroidX PDF 1.0.0-alpha19: Editable Forms, Public Annotations, and OCR Support — bytevikas</title>
+  <meta name="description" content="AndroidX PDF 1.0.0-alpha19 lands EditablePdfDocument for inline form filling, a new pdf-core module split, OcrProvider APIs for scanned documents, and autofill support. Time to retire that third-party PDF dependency." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#f9a8d4;--accent-dim:rgba(249,168,212,.08);--accent-border:rgba(249,168,212,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(249,168,212,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(249,168,212,.06);border:1px solid rgba(249,168,212,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(249,168,212,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">PDF</span>
+      <span class="post-date">Jul 20, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>AndroidX PDF 1.0.0-alpha19: Editable Forms, Public Annotations, and OCR — The Third-Party Killer Gets Serious</h1>
+
+    <div class="post-body">
+
+      <p>PDF support on Android has been a mess for years. The platform-level <code>PdfRenderer</code> class has existed since API 21, but it's strictly a reader — no editing, no annotations, no text extraction from scanned pages. So every app that needed anything beyond render-and-display ended up pulling in a third-party SDK: iText, MuPDF, PDFium bindings, or a heavyweight commercial library that added 10MB+ to the APK and came with licensing headaches.</p>
+
+      <p>The Jetpack PDF library, now at version 1.0.0-alpha19 (released July 1, 2026), is Google's long-overdue answer to this. And alpha19 specifically is the release where it stops being a viewer with aspirations and starts looking like something you could genuinely replace a third-party dependency with. Three meaningful capabilities landed in this drop: inline form filling via a public <code>EditablePdfDocument</code> API, image-based text recognition through <code>OcrProvider</code>, and the architectural split that makes the whole library composable — a dedicated <code>pdf-core</code> module that separates document models from the view layer.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">pdf-core</div>
+          <div class="announce-lbl">New module separating document model from UI</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Forms</div>
+          <div class="announce-lbl">Inline editable fields with autofill support</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">OCR</div>
+          <div class="announce-lbl">OcrProvider APIs for scanned document text</div>
+        </div>
+      </div>
+
+      <h2>The pdf-core Split: Architecture That Actually Scales</h2>
+
+      <p>Until alpha19, the Jetpack PDF library was effectively one artifact: <code>pdf-viewer-fragment</code>. If you wanted to work with a PDF document programmatically — read its structure, parse fields, process content — you were tied to the view layer too. That's a coupling problem. You don't want to depend on a Fragment and a full UI stack just to extract form field values or run text recognition on a server-side job.</p>
+
+      <p>Alpha19 introduces <code>pdf-core</code> as a separate artifact that houses the document models independently of any view code. The <code>PdfDocument</code> and related APIs live there now, and the <code>pdf-viewer-fragment</code> artifact depends on <code>pdf-core</code> rather than containing everything itself.</p>
+
+      <p>In practice, this means you can now add just <code>pdf-core</code> if your use case is document processing without a viewer:</p>
+
+      <pre><code>dependencies {
+    // View-layer PDF viewer (includes pdf-core transitively)
+    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha19")
+
+    // Or just the document model layer — no Fragment, no UI
+    implementation("androidx.pdf:pdf-core:1.0.0-alpha19")
+}</code></pre>
+
+      <p>This matters more than it might look. If you're building a background document processor — say, a receipts scanner that extracts totals from uploaded PDFs, or a contract parser that reads and validates form field values before ingestion — you previously had no good Jetpack option. You either carried the full viewer stack you didn't need, or you used a third-party library for the document model piece. Now there's a clean boundary.</p>
+
+      <h2>EditablePdfDocument: Inline Form Filling With Autofill</h2>
+
+      <p>This is the one that'll make the most immediate difference for apps that deal with business documents. <code>EditablePdfDocument</code> is a new interface extending <code>PdfDocument</code>, designed specifically for documents that contain fillable form fields. It's now public in alpha19, which means you can open a PDF, interact with its form fields in code, and apply changes — all within the standard Jetpack API surface.</p>
+
+      <p><code>EditablePdfViewerFragment</code> wires everything together for the interactive case. Drop it into a layout and your users get inline tapping and editing on text fields, checkboxes, radio buttons, and dropdowns — no WebView, no fullscreen PDF viewer SDK, no "hand this off to an external app" UX.</p>
+
+      <pre><code>// In your Fragment or Activity
+val pdfUri = /* your document URI */
+
+val viewerFragment = EditablePdfViewerFragment.newInstance(pdfUri)
+supportFragmentManager.beginTransaction()
+    .replace(R.id.pdf_container, viewerFragment)
+    .commit()
+
+// Access the document model once loaded
+viewerFragment.pdfDocumentLiveData.observe(this) { document ->
+    if (document is EditablePdfDocument) {
+        // Enumerate form fields
+        val fields = document.getFormFields()
+        fields.forEach { field ->
+            Log.d("PDF", "Field: ${field.name}, type: ${field.type}")
+        }
+    }
+}</code></pre>
+
+      <p>Autofill support is bundled in. The fragment hooks into the Android Autofill framework, so if a user has saved their name, address, or standard form data in their autofill provider, that data can be suggested for matching PDF form fields without you writing any autofill integration code. For apps in fintech, insurance, or anything involving regulatory PDFs — this is significant. The alternative was either building a custom bridge to the autofill API yourself, or pointing users toward "download this and fill it in Adobe."</p>
+
+      <div class="callout">
+        <p><strong>Field types supported:</strong> text inputs, dropdowns, checkboxes, and radio buttons. Multi-page form navigation works inline — no pagination UX to build yourself.</p>
+      </div>
+
+      <h2>AnnotationView and Public Annotation APIs</h2>
+
+      <p>Alpha19 makes <code>AnnotationView</code> and the annotation-related classes fully public. Previously these were internal or restricted, which meant you couldn't overlay custom annotation UI on top of the PDF viewer or read/write annotation data in a documented way. Now you can.</p>
+
+      <p><code>EditablePdfDocument</code> exposes the annotation model too, so reading existing annotations — highlights, comments, markup — is part of the same API surface as form field access. This is the foundation for review workflows: display a contract, let the user annotate sections, persist those annotations back to the document or to your own backend.</p>
+
+      <pre><code>// Reading existing annotations from a loaded document
+val annotations = (document as? EditablePdfDocument)
+    ?.getAnnotations(pageIndex = 0)
+    ?: emptyList()
+
+annotations.forEach { annotation ->
+    when (annotation.type) {
+        AnnotationType.HIGHLIGHT -> { /* ... */ }
+        AnnotationType.NOTE      -> { /* ... */ }
+        else -> { /* ... */ }
+    }
+}</code></pre>
+
+      <p>I've seen this pattern come up in Nodat's document handling — when users attach reference materials to notes, being able to extract highlighted sections or comments programmatically would have saved several workarounds we built on top of third-party libraries. The fact that this is now a first-class Jetpack API with documented stability expectations changes the calculus significantly.</p>
+
+      <h2>OcrProvider: Text from Scanned Documents</h2>
+
+      <p>Text-based PDFs (those generated digitally from Word, Google Docs, or a PDF export) already support text extraction through the existing layer model. The hard case has always been scanned documents — PDFs that are essentially a sequence of JPEG images of paper pages. There's no embedded text layer, so search, copy, and any kind of content processing fails silently.</p>
+
+      <p><code>OcrProvider</code> is the hook point for plugging in image-based text recognition. The API is deliberately provider-agnostic: you implement <code>OcrProvider</code> with whatever recognition engine you want — ML Kit's text recognition, Tesseract, or a cloud OCR service — and the PDF library calls it when text extraction is requested on a page with no embedded text layer.</p>
+
+      <pre><code>class MlKitOcrProvider : OcrProvider {
+    override suspend fun recognizeText(
+        pageImage: Bitmap,
+        pageIndex: Int
+    ): OcrResult {
+        val recognizer = TextRecognition.getClient(
+            TextRecognizerOptions.DEFAULT_OPTIONS
+        )
+        return suspendCancellableCoroutine { cont ->
+            recognizer.process(InputImage.fromBitmap(pageImage, 0))
+                .addOnSuccessListener { visionText ->
+                    cont.resume(OcrResult.success(visionText.text))
+                }
+                .addOnFailureListener { e ->
+                    cont.resume(OcrResult.failure(e))
+                }
+        }
+    }
+}
+
+// Register it when building the viewer
+val viewerFragment = PdfViewerFragment.newInstance(
+    uri = pdfUri,
+    ocrProvider = MlKitOcrProvider()
+)</code></pre>
+
+      <div class="callout-green">
+        <p>The OCR integration is fully coroutine-aware — <code>recognizeText</code> is a suspend function, so you can use ML Kit's task API, a Flow-based pipeline, or even a remote call without blocking the UI thread. The library handles page lifecycle and cancellation when the user scrolls past a page before recognition completes.</p>
+      </div>
+
+      <p>For Samachar, where users sometimes attach scanned news clippings as images embedded in documents, this kind of OCR hook would have replaced a custom ML Kit integration I wired up at the app layer. Having it as part of the PDF viewer's official API means it gets handled at the right abstraction level — the viewer knows the page dimensions, DPI, and render context in a way that app-level code has to approximate.</p>
+
+      <h2>Breaking Changes: Two Deprecations Finally Removed</h2>
+
+      <p>Alpha19 also cleans house on two APIs that have been deprecated for a while. If you're already on a recent alpha, you've likely migrated — but if you're picking up the library fresh, know these are gone:</p>
+
+      <ul>
+        <li><strong>Parameterless <code>onLoadDocumentSuccess()</code> in <code>PdfViewerFragment</code></strong> is removed. The replacement takes a <code>PdfDocument</code> parameter, which is the version you should have been using since it gives you access to the loaded document. The parameterless version was a convenience that obscured the document reference and made it harder to work with the document model programmatically.</li>
+        <li><strong><code>isLinearized</code> property on <code>PdfDocument</code></strong> is gone. Replace with <code>linearizationStatus</code>, introduced in alpha15, which returns a proper enum instead of a boolean. The boolean form was ambiguous for partial linearization states that show up with some authoring tools.</li>
+      </ul>
+
+      <pre><code>// Before (removed)
+override fun onLoadDocumentSuccess() {
+    // no document reference
+}
+
+// After
+override fun onLoadDocumentSuccess(document: PdfDocument) {
+    // document is available here
+    val isLinearized = document.linearizationStatus == LinearizationStatus.LINEARIZED
+}</code></pre>
+
+      <h2>Bug Fixes Worth Noting</h2>
+
+      <p>Two bugs that affected real user interactions were fixed alongside the API work:</p>
+
+      <p><strong>Horizontal scrolling at page edges</strong> was unreliable because the touch event interception logic wasn't accounting for scroll direction. On wide PDFs (landscape documents, spreadsheets) where users need to scroll horizontally within a page, the swipe gesture would sometimes get intercepted by the outer scroll container instead of the page-level scroll. Fixed in this release.</p>
+
+      <p><strong>Fast scroller visibility in accessibility mode</strong> was inconsistent — when accessibility services were active, the fast scroller would sometimes not appear. Since the fast scroller is a primary navigation mechanism for long documents, this was a meaningful accessibility regression. It's resolved in alpha19.</p>
+
+      <h2>Should You Adopt This Now?</h2>
+
+      <p>Split this into two decisions, same as any alpha library.</p>
+
+      <p>If you're currently pulling in a third-party PDF library solely for its viewer functionality — render pages, scroll through a multi-page document, basic zoom — the Jetpack PDF viewer has been usable since the early alphas, and alpha19 doesn't introduce any regressions there. Swapping a heavyweight SDK for the Jetpack viewer at this stage is a reasonable trade, especially given the APK size and licensing benefits.</p>
+
+      <p>If you need form filling, annotation access, or OCR, alpha19 is the first release where these APIs are genuinely public and usable. They're still alpha — meaning signatures could change before 1.0.0 stable — but the direction is clear and the architecture is now sound with the pdf-core split. I'd prototype the form filling and OCR integrations now, build against them internally, and be ready to ship when the library hits RC or stable.</p>
+
+      <div class="callout">
+        <p><strong>The one case I'd still wait:</strong> if your app relies on heavy commercial PDF features — digital signatures with certificate validation, complex layer management, PDF/A compliance — the Jetpack library isn't there yet. Stay with a dedicated SDK for those. For the 80% case of "display a PDF and let users fill in the form," alpha19 is a credible path.</p>
+      </div>
+
+      <p>The broader trajectory is what matters most here. Google is clearly building toward a comprehensive first-party PDF stack on Android — one that doesn't require every developer to solve the same licensing and integration problem independently. The pdf-core split in particular signals they're thinking about this as a platform-level capability, not just a viewer widget. That's the kind of investment you back as a developer who doesn't want to be on the wrong side of a platform transition two years from now.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('androidx-pdf-1-0-0-alpha19-edit-annotations-ocr');
+  </script>
+</body>
+</html>
