@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glance 1.3.0: Building Health-Aware Wear OS Widgets With Studio Previews — bytevikas</title>
+  <meta name="description" content="Glance 1.3.0 for Wear OS brings health data APIs, WearWidgetPreview for Android Studio, GlanceWearWidgetManager for active widget tracking, and a required annotation change that will break existing code." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#c4b5fd;--accent-dim:rgba(196,181,253,.1);--accent-border:rgba(196,181,253,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(196,181,253,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(196,181,253,.06);border:1px solid rgba(196,181,253,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-warn{
+      background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.2);
+      border-left:3px solid #fb923c;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fb923c;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(196,181,253,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Wear</span>
+      <span class="post-date">Jul 21, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Glance 1.3.0 for Wear OS: Health-Aware Widgets, Studio Previews, and a Required Annotation Change</h1>
+
+    <div class="post-body">
+
+      <p>Glance 1.3.0 has been iterating quietly — alpha01 in May, alpha02 on July 1 — but the feature set that's landed across those two drops is the most significant Wear OS update the library has shipped. Health data integration, a proper Android Studio preview composable, a new manager API for querying active widget instances, and interaction event support all arrived in the same cycle. There's also a breaking change you'll hit on upgrade that isn't loudly advertised in the changelog.</p>
+
+      <p>If you're building Wear OS apps with Glance, this post covers everything that changed and what you actually need to do about it. If you haven't looked at Glance for Wear yet, this is a reasonable moment to start — the API surface is stabilizing into something you can build against seriously.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">HealthData APIs for heart rate, steps, and more in widgets</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">WearWidgetPreview composable for Android Studio design-time rendering</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Breaking</div>
+          <div class="announce-lbl">@AssociateWithGlanceWearWidget now required on every GlanceWearWidgetService</div>
+        </div>
+      </div>
+
+      <h2>Health Data Integration: The Feature Wear Developers Have Actually Wanted</h2>
+
+      <p>The biggest addition in this cycle is the <code>androidx.glance.wear.health</code> package, which gives Wear widgets direct access to health sensor data. The primary type is <code>HealthData</code> — renamed from <code>DataType</code> in alpha02 — which exposes metrics like heart rate, step count, and calories burned as composable state that Glance can render and update automatically.</p>
+
+      <p>The API is designed to fail safely on hardware that doesn't support a given sensor. Before reading any metric, you check the corresponding <code>is*Available</code> variable:</p>
+
+      <pre><code>@Composable
+fun HealthWidget(healthData: HealthData) {
+    Column {
+        if (healthData.isHeartRateBpmAvailable) {
+            Text(
+                text = "${healthData.heartRateBpm} bpm",
+                style = TextStyle(fontSize = 16.sp)
+            )
+        } else {
+            Text(
+                text = "Heart rate unavailable",
+                style = TextStyle(fontSize = 14.sp)
+            )
+        }
+
+        if (healthData.isStepsAvailable) {
+            Text(text = "${healthData.steps} steps today")
+        }
+    }
+}</code></pre>
+
+      <p>This matters more than it might look. Wear OS runs on a wide range of hardware — from premium Galaxy Watch Ultra class devices down to budget watches with stripped sensor sets. If you just read <code>heartRateBpm</code> without checking <code>isHeartRateBpmAvailable</code>, you'll get a default or garbage value on devices where the sensor isn't present or hasn't been initialized yet. The availability guards make the fallback explicit at the call site rather than hidden behind a silent zero.</p>
+
+      <h3>What health metrics are available</h3>
+
+      <p>The <code>HealthData</code> type follows the same pattern for all exposed metrics. The release notes don't enumerate every available <code>is*Available</code> pairing yet — the APIs are marked experimental — but the pattern is consistent: every numeric metric has a corresponding availability flag. You can expect heart rate, step count, and calorie data at minimum; the full list will stabilize as the alpha progresses.</p>
+
+      <div class="callout">
+        <p><strong>Note on the rename:</strong> if you're coming from any code written against alpha01 that references <code>androidx.glance.wear.health.DataType</code>, it's now <code>HealthData</code>. The package path is the same, just the class name changed. Update imports and you're done.</p>
+      </div>
+
+      <h2>The Required Annotation Change That Will Break Your Build</h2>
+
+      <p>Alpha02 introduces <code>@AssociateWithGlanceWearWidget</code> as a mandatory annotation on every <code>GlanceWearWidgetService</code> subclass. If you already have a service that extends <code>GlanceWearWidgetService</code>, you must add this annotation before upgrading to 1.3.0-alpha02 or later.</p>
+
+      <pre><code>// Before (will fail at runtime in alpha02+)
+class MyWearWidgetService : GlanceWearWidgetService() {
+    override val widget = MyGlanceWearWidget()
+}
+
+// After (required)
+@AssociateWithGlanceWearWidget(MyGlanceWearWidget::class)
+class MyWearWidgetService : GlanceWearWidgetService() {
+    override val widget = MyGlanceWearWidget()
+}</code></pre>
+
+      <p>The annotation takes the KClass of your <code>GlanceWearWidget</code> implementation. Its purpose is to let the framework reverse-look up the widget class from the service class without having to instantiate the service first — useful for things like <code>GlanceWearWidgetManager</code>'s query APIs, which we'll get to next. The older implicit association via the <code>widget</code> override still exists for the actual rendering path, but the annotation is now also required.</p>
+
+      <div class="callout-warn">
+        <p><strong>This is a runtime failure, not a compile-time error</strong> if you forget the annotation. Your widget may appear to work during development on a device where the framework happens to warm up the service first, but fail in production under cold-start conditions. Don't skip the annotation and assume it'll be fine because nothing crashed immediately.</p>
+      </div>
+
+      <h2>WearWidgetPreview: Finally, Wear Widgets in the Design Preview</h2>
+
+      <p>The most useful developer experience change in this cycle is <code>WearWidgetPreview</code> — a new composable specifically for rendering Wear widget content at design time in Android Studio's preview panel. Before this, previewing a Glance Wear widget required deploying to an actual watch or emulator and triggering a widget update. That feedback loop is slow enough that most Wear widget iteration happens by feel rather than by sight.</p>
+
+      <pre><code>@Preview(
+    device = "id:wearos_small_round",
+    showBackground = true,
+    backgroundColor = 0xFF000000
+)
+@Composable
+fun MyWearWidgetPreview() {
+    WearWidgetPreview {
+        MyGlanceWearWidget().Content()
+    }
+}</code></pre>
+
+      <p><code>WearWidgetPreview</code> wraps your widget's composable content and handles the round-screen clipping, density, and font scaling that a real Wear OS device applies. You get an accurate representation of what the widget will actually look like without having to leave the IDE. Combined with the Android Studio Wear OS device shapes in the preview target selector, this is now genuinely usable for iterating on layout and typography.</p>
+
+      <p>It also handles the <code>LocalInspectionMode</code> propagation correctly — the 1.3.0-alpha02 changelog specifically notes a bug fix for <code>PendingIntentAction</code> that defers <code>PendingIntent</code> access in inspection mode to avoid crashing in a context where pending intents can't be created. Your widget code can check <code>LocalInspectionMode.current</code> to gate any real hardware access behind a preview-safe stub.</p>
+
+      <h2>GlanceWearWidgetManager: Knowing What's Actually Running on the Watch</h2>
+
+      <p>A persistent gap in the old Glance Wear API was the inability to query which widget instances were active at any given moment. If you wanted to trigger a data refresh across all instances of a widget, you had no reliable way to enumerate them without side-channel state you maintained yourself.</p>
+
+      <p><code>GlanceWearWidgetManager</code> fills that gap. It's the canonical way to get the list of active widget IDs for a given widget class, which you can then use with the updated <code>triggerUpdate(id)</code> and new <code>triggerUpdateAll()</code> APIs:</p>
+
+      <pre><code>class HealthDataRefreshWorker(
+    context: Context,
+    params: WorkerParameters
+) : CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result {
+        val manager = GlanceWearWidgetManager(applicationContext)
+        val activeIds = manager.getActiveWidgetIds(MyGlanceWearWidget::class)
+
+        activeIds.forEach { id ->
+            MyGlanceWearWidget().update(applicationContext, id)
+        }
+
+        return Result.success()
+    }
+}</code></pre>
+
+      <p>Or, if you want to update everything at once without enumerating IDs:</p>
+
+      <pre><code>// Trigger a recompose on all active instances of this widget class
+GlanceWearWidget.triggerUpdateAll(applicationContext, MyGlanceWearWidget::class)</code></pre>
+
+      <p>The practical use case is background data refresh. When your WorkManager job fetches new health data or a notification arrives that should change widget content, you now have a clean path to push that update to every active widget instance without maintaining your own instance registry. For Wear OS apps where widgets are often the primary UI surface — a watch face complication showing the current session's step count, for example — this changes what's practical to build.</p>
+
+      <div class="callout">
+        <p><strong>Note on IDs:</strong> the update API now takes a <code>WidgetInstanceId</code> type rather than a raw identifier. This was introduced in alpha01. If you have code calling the old update API with a raw value, you'll need to update it. The manager's query APIs return <code>WidgetInstanceId</code> instances, so the type flows naturally from query through to update.</p>
+      </div>
+
+      <h2>WearWidgetBrush: Image Backgrounds and Gradient Fills</h2>
+
+      <p>The alpha02 release added an <code>image</code> brush type to <code>WearWidgetBrush</code>, joining the vertical and horizontal gradient types that landed in alpha01. Combined, you can now set a Wear widget background to:</p>
+
+      <ul>
+        <li>A solid color (existing)</li>
+        <li>A vertical gradient between two colors (alpha01)</li>
+        <li>A horizontal gradient between two colors (alpha01)</li>
+        <li>A bitmap image (alpha02)</li>
+      </ul>
+
+      <pre><code>GlanceWearWidget(
+    content = { HealthWidget(healthData) },
+    params = WearWidgetParams(
+        brush = WearWidgetBrush.image(myBitmap),
+        containerType = CONTAINER_TYPE_TILE_COMPAT
+    )
+)</code></pre>
+
+      <p>The image brush makes it practical to build watch face-style widgets where the background is a rendered illustration or a dynamic chart rather than a flat color. For fitness or health apps, a circular progress arc rendered as a bitmap background with a numeric readout composable on top is now a reasonable design — and Glance handles the background caching, not your code.</p>
+
+      <h3>The container type rename you need to know</h3>
+
+      <p>While on the topic of <code>WearWidgetParams</code>: the constant <code>CONTAINER_TYPE_FULLSCREEN</code> was renamed to <code>CONTAINER_TYPE_TILE_COMPAT</code> in alpha01. If you're upgrading from pre-1.3.0, grep your codebase for the old name — the compiler won't tell you it's gone until you build.</p>
+
+      <h2>Interaction Events: Wear Widgets That React to Gestures</h2>
+
+      <p>Wear OS widgets have historically been read-only surfaces — tap to launch, but no in-widget interaction beyond that. Glance 1.3.0 adds <code>Interaction Events</code> to <code>GlanceWearWidget</code>, which opens the door to gestures and state changes within the widget surface itself.</p>
+
+      <p>The release notes mark this as a new capability on <code>GlanceWearWidget</code> without fully specifying the gesture vocabulary yet — this is alpha-track behavior that will likely expand before stabilization. The underlying infrastructure is there: the framework can now deliver interaction events to your widget and trigger a recompose in response, rather than only updating on background data pushes.</p>
+
+      <p>The practical implication is widgets that can toggle state — mark a workout complete, pause a timer, skip a song — without launching the full app. That's the kind of experience that makes Wear OS feel fast rather than just a notification surface.</p>
+
+      <h2>Remote Compose Improvements</h2>
+
+      <p>Remote Compose is the substrate that lets Glance widgets be rendered by a remote host process rather than your app process — used for Wear OS tiles and the health-aware widgets covered above. Two additions in 1.3.0 are worth knowing about if you're building anything on top of Remote Compose directly:</p>
+
+      <p><strong><code>captureRemoteDocument()</code></strong> is now a public Flow API, letting you observe the captured widget state as a Kotlin Flow rather than a one-shot snapshot. This is mainly useful for tooling and testing scenarios where you want to observe how widget content changes over time.</p>
+
+      <p><strong><code>RemoteInt</code> compare operators</strong> are now exposed, which sounds minor but matters when you're doing conditional rendering inside a Remote Compose tree: you can now write comparisons like <code>remoteSteps > remoteGoal</code> without boxing to platform types.</p>
+
+      <h2>What This Looks Like in Practice: A Health Widget for Samachar</h2>
+
+      <p>To make this concrete, consider a reading time tracker widget for a news app — not a health app, but the same pattern applies. You want a Wear widget that shows today's reading streak and updates when the user completes an article. With the full 1.3.0 feature set, the architecture is clean:</p>
+
+      <ol>
+        <li><strong>GlanceWearWidget</strong> renders the streak count using a composable that reads from DataStore.</li>
+        <li><strong>@AssociateWithGlanceWearWidget</strong> on the service wires the class association.</li>
+        <li>When an article is marked read in the phone app, a WorkManager job calls <code>triggerUpdateAll()</code> — no instance ID management needed.</li>
+        <li><strong>WearWidgetPreview</strong> lets you iterate on the circular layout without deploying to a watch every time.</li>
+        <li>A gradient <strong>WearWidgetBrush</strong> gives the widget visual depth that flat colors can't match.</li>
+      </ol>
+
+      <p>The pieces that were missing before — the update trigger, the preview, the brush variety — were real friction points that pushed Wear widget development into the "only if we have time" bucket. 1.3.0 removes most of that friction.</p>
+
+      <h2>Should You Upgrade Now?</h2>
+
+      <p>If you're already shipping a Glance Wear widget, the minimum change is adding <code>@AssociateWithGlanceWearWidget</code> before you upgrade to alpha02. Do that first, verify nothing breaks, then adopt the new APIs incrementally. The health data and manager APIs are experimental but stable enough to build against in a feature branch — just don't ship them as the load-bearing core of a production widget without hedging on the API shape potentially changing before stable.</p>
+
+      <p>If you haven't started Wear widget development yet, 1.3.0 is the right moment to start. The API surface is coherent, the tooling story with <code>WearWidgetPreview</code> is usable, and health data integration is available in a way that wasn't there six months ago. Wear OS's market presence has grown steadily, and widgets are increasingly the primary surface users interact with — not the secondary "nice to have" they were at Wear OS 2.0 launch.</p>
+
+      <p>The stable release is still a few alpha cycles away, but the direction is clear and the breaking changes so far have been renames rather than architectural pivots. Start building now, keep an eye on the alpha changelog, and you'll be in good shape when 1.3.0 hits stable.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('glance-1-3-0-wear-health-widget-preview');
+  </script>
+</body>
+</html>
