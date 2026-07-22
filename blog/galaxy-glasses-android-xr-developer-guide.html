@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samsung Galaxy Glasses: What Android Developers Need to Know About Building for the First Consumer Android XR Device — bytevikas</title>
+  <meta name="description" content="Samsung announced Galaxy Glasses at Unpacked today — the first consumer Android XR product. Phone-tethered, display-free, Gemini Live API as the app model. Here's what it means to build for them." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a3e635;--accent-dim:rgba(163,230,53,.1);--accent-border:rgba(163,230,53,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(163,230,53,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#fbbf24;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(163,230,53,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">XR</span>
+      <span class="post-date">Jul 22, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Samsung Galaxy Glasses Are Real: What Android Developers Need to Build for the First Consumer Android XR Device</h1>
+
+    <div class="post-body">
+
+      <p>Samsung just announced Galaxy Glasses at Unpacked in London — and this one is different from the usual "coming soon" XR hardware tease. These ship this fall, they run Android XR with Gemini built in, and they're the first consumer product where everything you've been reading about in the Jetpack XR SDK has an actual device behind it. If you build Android apps and haven't thought seriously about this platform yet, today is a good day to start.</p>
+
+      <p>I've already covered the Jetpack XR SDK reaching <a href="jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html">beta01 with its breaking changes</a> and <a href="android-xr-developer-preview-4-jetpack-xr-sdk.html">Developer Preview 4 of the ARCore layer</a>. This post is different: it's about what the Galaxy Glasses hardware actually constrains and enables, and what that means for how you think about building for this platform — especially when the 2026 device has no display.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">12MP</div>
+          <div class="announce-lbl">Camera sensor, plus speakers and microphones</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">~50g</div>
+          <div class="announce-lbl">Target weight — light enough to actually wear all day</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Fall</div>
+          <div class="announce-lbl">2026 availability, select markets</div>
+        </div>
+      </div>
+
+      <h2>The Hardware Story: Phone-Tethered, No Display, Gemini as the Interface</h2>
+
+      <p>The 2026 Galaxy Glasses are audio-only. There is no display, no waveguide, no AR overlay. The UI is Gemini — it talks to you through bone-conduction speakers, it hears you through the microphones, and the 12MP camera gives it something to look at. All the actual processing runs on your paired phone. The glasses themselves run a Snapdragon AR1 class chip that's essentially a radio and sensor bus — it doesn't do inference locally.</p>
+
+      <p>That phone-tethered constraint is the most important developer detail. Everything your app does runs on the user's Android phone, proxied to the glasses frame via Bluetooth. The glasses aren't a compute platform; they're a sensory input/output peripheral. The comparison that makes more sense than a headset is a smartwatch with a better camera and no screen.</p>
+
+      <p>A second model — currently in Samsung's roadmap for 2027 — does add a micro-LED display and will be where spatial UI patterns from the Jetpack XR SDK's scene and panel APIs become genuinely relevant. For this year, though, display-era thinking doesn't apply.</p>
+
+      <div class="callout">
+        <p><strong>Design partners:</strong> The 2026 glasses were designed with Gentle Monster and Warby Parker, which is a meaningful signal that Samsung is targeting everyday wearers, not early-adopter tech enthusiasts. That changes who you're building for.</p>
+      </div>
+
+      <h2>One Codebase, Three Form Factors — At Runtime, Not Compile Time</h2>
+
+      <p>Here's the thing the Android XR SDK documentation makes clear but doesn't always emphasize enough: you're not building a "glasses app" or a "headset app." You're building an Android XR app that expresses different capability tiers depending on what the runtime tells it about the connected device.</p>
+
+      <p>The same codebase is intended to run on:</p>
+      <ul>
+        <li>A full XR headset (Galaxy XR, Google's own headset when it ships)</li>
+        <li>Display glasses — the 2027 Galaxy Glasses model, AR spatial panels, the works</li>
+        <li>Audio-only glasses — the 2026 Galaxy Glasses, where you have camera, mics, and speakers but no display</li>
+      </ul>
+
+      <p>The SDK surfaces capabilities at runtime through the session API rather than requiring you to branch in your manifest or maintain separate codepaths. You query what's available — does this device have a display? Can it render a spatial panel? Is the Gemini Live API available? — and scale your experience accordingly. On a headset you build a scene. On audio glasses you build a conversational agent that lives inside Gemini.</p>
+
+      <p>This is the same principle as responsive layout on Compose, just applied to an entirely different dimension of device capability. The discipline is the same: don't hardcode assumptions about the device, query the runtime, and express the appropriate experience for what's actually there.</p>
+
+      <h2>The Actual App Model for Audio-Only Glasses: Gemini Live API</h2>
+
+      <p>If there's no display, what does your app actually do on Galaxy Glasses? The answer is: your app provides context and capabilities that Gemini uses when the user talks to it through the glasses.</p>
+
+      <p>The primary integration path is the <strong>Gemini Live API</strong>, surfaced through Firebase AI Logic. Unlike a standard generate request — prompt in, text out — the Live API maintains a persistent bidirectional session that handles both audio input and output natively. You don't wire up ASR separately, you don't call TTS separately, you don't manage turn-taking. The session handles it.</p>
+
+      <pre><code>// Initialize a live model via Firebase AI Logic
+val firebaseAI = Firebase.ai(backend = GenerativeBackend.googleAI())
+val model = firebaseAI.liveModel(
+    modelName = "gemini-2.0-flash-live-001",
+    generationConfig = liveGenerationConfig {
+        responseModality = ResponseModality.AUDIO
+    }
+)
+
+// Start a session — this is the persistent connection
+val session = model.connect()
+
+// Send audio input (from glasses mic, captured on the phone)
+session.sendAudio(audioBytes)
+
+// Receive audio output (played back through glasses speakers)
+session.receiveAudio { audioChunk ->
+    audioPlayer.play(audioChunk)
+}</code></pre>
+
+      <p>The glasses microphone captures audio and the phone processes it, sends it to Gemini via the Live API, gets audio back, and plays it through the glasses speakers. From the user's perspective they asked Gemini a question and got an answer through their glasses. From the developer's perspective they set up a LiveSession and wired the audio I/O.</p>
+
+      <h3>FunctionDeclaration: how your app's logic surfaces to Gemini</h3>
+
+      <p>The more interesting part is what you give Gemini to work with. The Live API supports function calling — you declare the capabilities your app exposes, Gemini calls them on the user's behalf when relevant, and the results come back into the conversation.</p>
+
+      <pre><code>val searchNotes = FunctionDeclaration(
+    name = "searchNotes",
+    description = "Search the user's saved notes by keyword",
+    parameters = Schema.obj {
+        put("query", Schema.string("The search term"))
+    }
+)
+
+val session = model.connect(
+    requestOverride = liveConnectConfig {
+        tools = listOf(Tool(functionDeclarations = listOf(searchNotes)))
+    }
+)
+
+// Handle Gemini calling your function
+session.receive { message ->
+    message.toolCall?.functionCalls?.forEach { call ->
+        if (call.name == "searchNotes") {
+            val query = call.args?.get("query")?.asText()
+            val results = notesRepo.search(query ?: "")
+            session.sendToolResponse(call.id, results.toJson())
+        }
+    }
+}</code></pre>
+
+      <p>This is the same pattern as <a href="appfunctions-android-mcp-ai-agents.html">AppFunctions</a> but at the session level rather than the system level. Your notes app exposes <code>searchNotes</code>, your navigation app exposes <code>getDirections</code>, your media app exposes <code>playArtist</code>. Gemini calls whichever one makes sense based on what the user said. The user doesn't know or care which app handled it — they just got an answer through their glasses.</p>
+
+      <h2>The Camera: More Context, Not a Camera App</h2>
+
+      <p>The 12MP camera on Galaxy Glasses is primarily there to give Gemini visual context, not to let users take photos (though it can do that too). Real-time translation, object identification, reading signs or menus, identifying plants or landmarks — these are all Gemini vision tasks that happen because the camera feed is available as part of the Live API session.</p>
+
+      <p>From a developer perspective, passing camera frames into the Live session is straightforward:</p>
+
+      <pre><code>// Send a camera frame for Gemini to analyze
+session.sendImage(
+    imageBitmap = cameraFrame,
+    mimeType = "image/jpeg"
+)
+
+// Or send inline in text with context
+session.sendText(
+    "What does the text in this image say?",
+    inlineData = listOf(InlineData(cameraFrame, "image/jpeg"))
+)</code></pre>
+
+      <p>This is the same Firebase AI Logic multimodal API you'd use for a standard generate call, just running inside a live session. If you've already integrated Gemini's vision capabilities in your phone app, the glasses version is mostly a question of routing the right image source.</p>
+
+      <div class="callout-amber">
+        <p><strong>Privacy note:</strong> The Galaxy Glasses camera has a hardware LED indicator that lights when recording — non-bypassable. Your app will not receive camera frames silently; the user always knows when the camera is active. Design your UX to work with that expectation, not around it.</p>
+      </div>
+
+      <h2>What Should You Actually Build — or Not Build — Right Now?</h2>
+
+      <p>Five years building Android apps across Nodat, Musist, Samachar, and HailUp has made me pretty allergic to shipping for a platform that doesn't exist yet. Galaxy Glasses changed that calculus: they're real hardware, with real software, shipping this fall. But "build for it now" and "ship for it now" are different things.</p>
+
+      <h3>Things worth building now</h3>
+
+      <ul>
+        <li><strong>Gemini Live API integration on your existing app.</strong> If your app has data that's useful in conversational form — notes, tasks, media playback, navigation, shopping lists — declare it as FunctionDeclarations. This benefits your phone app through assistant integration today and shows up on Galaxy Glasses automatically when the user's phone is paired.</li>
+        <li><strong>Audio UX for your app's core actions.</strong> Think through what your app's top 5–10 user actions would sound like as Gemini responses. "You have 3 unread high-priority notes" is different from a visual badge count. The discipline of designing for no display is useful even if you never ship a glasses-specific experience.</li>
+        <li><strong>AppFunctions declarations.</strong> The overlap between AppFunctions (system-level AI agent surface) and Gemini Live function calling is intentional and convergent. What you expose via <code>@AppFunction</code> shows up in both contexts. Do it once, get both.</li>
+      </ul>
+
+      <h3>Things to wait on</h3>
+
+      <ul>
+        <li><strong>Spatial UI (panels, scenes, 3D objects).</strong> The 2026 device has no display. None of the SpatialPanel, SpatialGltfModel, or scene APIs from the XR SDK do anything on this hardware. Wait for the 2027 display model before building screen-based spatial UI.</li>
+        <li><strong>Glasses-specific companion apps.</strong> Samsung will have a companion app. Trying to build a parallel companion before the hardware is in developer hands — with real APIs, real latency numbers, and real hardware constraints — is mostly a waste of time. Get an actual device first.</li>
+        <li><strong>Hardcoded audio-only assumptions.</strong> The XR platform will have display devices. Build with the capability-query pattern from the start so your code doesn't rot the moment a display device exists.</li>
+      </ul>
+
+      <h2>The Bigger Picture</h2>
+
+      <p>Galaxy Glasses matter for a reason that goes beyond the device itself: they're the moment the Android XR platform stops being hypothetical. The SDK reaching beta01, the emulator improvements, the ARCore stable APIs, the Jetpack Compose for XR components — those were all preparing for a device that had no shipping date. Now it has one.</p>
+
+      <p>For the developer who's been watching this space: the window to get comfortable with the Gemini Live API, function calling patterns, and the XR capability model before consumer hardware ships is roughly now until fall. That's not a lot of time, but it's enough to understand the programming model, prototype something real in your app's domain, and not be starting from zero when users with Galaxy Glasses ask why your app doesn't do anything interesting on their new glasses.</p>
+
+      <p>The iPhone moment this isn't — audio-only AI glasses are a genuinely new interaction model that will take time to find its killer use cases. But the platform is real, the SDK is beta, the hardware is shipping, and the developers who understand it six months from now will be the ones who were playing with it six months ago. The foundation work is done. There's no excuse for not knowing how this platform works anymore.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('galaxy-glasses-android-xr-developer-guide');
+  </script>
+</body>
+</html>
