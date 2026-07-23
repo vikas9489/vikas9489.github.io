@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Play Catalog Access Is Live: What Third-Party App Stores Mean for Android Developers — bytevikas</title>
+  <meta name="description" content="As of July 22, 2026, third-party US Android app stores can list and distribute your Play Store apps by default. Here's what the Play Catalog Access Program means for developers, what the billing story actually is, and whether you should opt out." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a855f7;--accent-dim:rgba(168,85,247,.1);--accent-border:rgba(168,85,247,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(168,85,247,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body a{color:var(--accent);text-decoration:none;}
+    .post-body a:hover{text-decoration:underline;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#22c55e;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .fee-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:15px;}
+    .fee-table th{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--card-border);}
+    .fee-table td{padding:12px 16px;color:#c0cdd8;border-bottom:1px solid rgba(255,255,255,.04);}
+    .fee-table tr:last-child td{border-bottom:none;}
+    .fee-table .highlight{color:white;font-weight:600;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+      .fee-table{font-size:13px;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(168,85,247,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Store</span>
+      <span class="post-date">Jul 23, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Google Play Catalog Access Is Live: What Third-Party App Stores Mean for Android Developers</h1>
+
+    <div class="post-body">
+
+      <p>Yesterday, July 22, 2026, something changed in how Android app distribution works for the first time in the platform's history. Third-party US Android app stores can now access and list every app in the Google Play catalog — including yours — by default. If you didn't explicitly opt out before that date, your app's name, icon, screenshots, and description are already available for rival stores to display to US users.</p>
+
+      <p>This isn't a quiet API change. It's the most significant structural shift to the Android distribution ecosystem since the Play Store launched. It stems from the multi-year Epic v. Google antitrust case, and it puts a concrete decision in front of every developer: do nothing and stay opted in, or go to Play Console and change a setting. Here's what you actually need to know before making that call.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Jul 22</div>
+          <div class="announce-lbl">Play Catalog Access went live for US third-party stores</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Opt-In</div>
+          <div class="announce-lbl">Developer default — you're already enrolled unless you opted out</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">U.S. Only</div>
+          <div class="announce-lbl">Initial geographic scope; global settlement extends through June 2032</div>
+        </div>
+      </div>
+
+      <h2>What Play Catalog Access Actually Is</h2>
+
+      <p>The Play Catalog Access Program lets approved third-party Android app stores in the US display your app's Play Store listing — metadata, screenshots, ratings — and offer it to their users. The critical detail that gets buried in the headline coverage: <strong>downloads still flow through Google Play</strong>. When a user finds your app on a competing store and taps install, the actual download is handled by Play on the same technical terms as a direct install from Google's own app.</p>
+
+      <p>This means catalog interoperability without infrastructure independence. Rival stores get discovery and listing rights; Google retains the download pipe. Your app's binary doesn't go to a new server, no new signing is required, and no new distribution certificate is involved. From an Android developer's perspective, the install experience on the user's device is identical to a Play Store install — because it is one.</p>
+
+      <p>The billing story follows from this. Because downloads go through Play, Google's standard service fees apply to purchases made through catalog-access stores, identical to what would apply on a direct Play Store download. Catalog Access doesn't add an extra commission layer, but it also doesn't reduce what you pay. Third-party stores get distribution reach; you get broader visibility; Google gets its cut regardless of which storefront the user discovers your app on.</p>
+
+      <div class="callout">
+        <p><strong>On billing fees:</strong> Catalog Access is separate from the service fee restructuring that took effect June 30, 2026. I covered that in detail in the <a href="google-play-billing-choice-lower-fees-2026.html">billing choice post</a>. The short version: 10% on your first $1M in annual revenue, tiered above that, with an additional 5% only when using Google Play Billing specifically. Catalog Access doesn't change any of those numbers — it's a distribution mechanism, not a payment one.</p>
+      </div>
+
+      <h2>The Background: Why This Is Happening Now</h2>
+
+      <p>To understand what this program is, you need to understand where it came from. The Epic Games v. Google lawsuit argued that Google illegally maintained a monopoly over Android app distribution through a combination of Play Store exclusivity deals and policies that made sideloading unreasonably difficult. A court order eventually required Google to open catalog access to third-party US stores — the first court-mandated catalog interoperability ever imposed on a major US mobile platform.</p>
+
+      <p>Then in March 2026, Google and Epic jointly converted that US injunction into a global settlement agreement running through June 2032. The settlement preserved the catalog access requirement and added the global billing fee restructuring. Both companies then withdrew the formal injunction modification request — which is why you might have seen "Epic and Google withdraw settlement" headlines in mid-July that actually meant the opposite of what the headline implied.</p>
+
+      <p>The practical timeline for developers: Google sent notifications on June 22, 2026, informing developers that app listings would start flowing to qualifying stores on July 22 unless they actively opted out. That window has now closed. If you were watching your inbox in late June and took no action, you're in.</p>
+
+      <h2>What Third-Party Stores Need to Qualify</h2>
+
+      <p>Not just any app can stand up a store and start pulling your listing. Third-party stores that want catalog access must go through Google's approval process and pay a $5,000 onboarding security-review fee. After that, they pay another $5,000 annually to maintain access. They must also be registered as US-targeting stores and cannot distribute apps to users outside the country through this mechanism.</p>
+
+      <p>This cost structure matters for understanding who will actually participate. The $10,000 per year cost (first year combined) is negligible for a well-funded store with significant user reach, but it filters out hobbyist or low-volume distributors. The stores showing up in this program are going to be established players with existing userbases — not random web-scraped mirrors of your listing.</p>
+
+      <p>One important policy nuance: third-party stores are not governed by Google Play's content policies. They can have their own rules — or fewer rules. Whether that's a feature or a concern depends entirely on what you're distributing and to whom.</p>
+
+      <h2>Your Three Options in Play Console</h2>
+
+      <p>Google's implementation gives you three settings, accessible at <strong>Play Console → Settings → Catalog Settings</strong>:</p>
+
+      <ul>
+        <li><strong>All enrolled stores</strong> — your listing is available to every store that qualifies under the program. This is the current default if you took no action before July 22.</li>
+        <li><strong>Per-store management</strong> — you review and approve individual stores. You get to say yes to Amazon's store and no to something you haven't heard of. More control, more maintenance overhead.</li>
+        <li><strong>Opt out entirely</strong> — your listing is not made available to any third-party catalog-access store. You remain Play-only in the US market.</li>
+      </ul>
+
+      <p>Critically, the setting is reversible at any time. Opting out now doesn't lock you out permanently, and opting in now doesn't commit you to infinite distribution. This is a living setting you can change as the ecosystem develops and you learn which stores are gaining traction.</p>
+
+      <div class="callout-amber">
+        <p><strong>Action item:</strong> Open Play Console and navigate to Settings → Catalog Settings right now if you haven't already. Even if you're fine with the default opt-in, you should at least be aware of your current setting rather than discovering your app listed somewhere unfamiliar through a user review.</p>
+      </div>
+
+      <h2>Should You Opt In or Out? The Honest Trade-offs</h2>
+
+      <p>I've been thinking about this from the perspective of the apps I work on — Nodat, Musist, Samachar — and the honest answer is that it depends heavily on what kind of app you're shipping.</p>
+
+      <h3>The case for staying opted in</h3>
+
+      <p>More distribution surfaces with no additional developer work is, in theory, a straightforward win. If a qualifying store has genuine user reach in the US, your listing appearing there is free incremental discoverability. Downloads still go through Play, so you don't have to worry about your binary or signing. And since service fees apply regardless, there's no financial leakage you'd otherwise be losing by being present on multiple surfaces.</p>
+
+      <p>For apps targeting a broad consumer audience — productivity tools, utilities, entertainment apps — the argument for staying in is simple: wider top-of-funnel at no technical cost. You're not giving anything up that Google wouldn't take anyway on a direct Play install.</p>
+
+      <h3>The case for opting out</h3>
+
+      <p>The content policy differences are the real wildcard. If your app's user experience depends heavily on being surrounded by a curated, family-safe environment — a kids' education app, a corporate tool distributed in a managed Play context — finding your listing on a store with different content policies could create context mismatches you don't want. A user who installed your education app from a store that also hosts content inappropriate for children is a support problem you didn't anticipate.</p>
+
+      <p>For apps with specific regional, age, or compliance restrictions, the per-store management option is worth the overhead. You get to evaluate each enrolled store individually rather than blanket accepting or blanket refusing.</p>
+
+      <p>There's also a brand consideration that's easy to underweight. Your Play Store listing includes context — ratings, reviews, editorial badges — that a third-party store might not display correctly or completely. A store that shows your app's screenshots but strips the "Editors' Choice" badge or doesn't surface your 4.7-star rating is presenting your product with less signal than Play would. That's not catastrophic, but it's worth knowing.</p>
+
+      <h2>What Actually Changes in Your App</h2>
+
+      <p>Nothing in your APK or AAB changes. Nothing in your signing key changes. Nothing in how you configure Play Console delivery rules, release tracks, or store listings changes — all of that is still managed exactly as before. The Catalog Access setting only controls whether your listing metadata is available to third-party stores. The binary, the deployment pipeline, the rollout strategy — all unchanged.</p>
+
+      <p>If you're using Play Feature Delivery, Dynamic Modules, or any install-time configuration that depends on Play-specific APIs, those still work because the download itself goes through Play regardless of which storefront surfaces the listing. A user who finds your app on a rival store and taps install gets the exact same install-time behavior as a user who found you directly on Play.</p>
+
+      <h2>The Bigger Picture</h2>
+
+      <p>Whether this actually reshapes Android distribution in any meaningful way depends entirely on whether qualifying third-party stores build userbases substantial enough to matter. The $5,000/year barrier ensures some quality floor; it doesn't guarantee that any particular store achieves the kind of scale where being listed or not listed there makes a measurable difference to your install volume.</p>
+
+      <p>What has changed structurally is that the regulatory and legal framework now exists for credible alternatives to compete on discovery. That's a different thing than those alternatives actually existing today. The more interesting story will be six to twelve months from now, when we see which stores actually enrolled, what their DAU numbers look like, and whether any of them build features — recommendations, editorial curation, developer-friendly revenue splits on premium apps — that Play doesn't offer.</p>
+
+      <p>For now, the practical takeaway is narrower: check your Catalog Settings, make a deliberate choice rather than letting the default apply by accident, and keep an eye on Play Console's new catalog reporting metrics as they roll out. The distribution landscape just got more complicated. Whether it got better depends on who shows up to fill the space.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('google-play-catalog-access-third-party-stores');
+  </script>
+</body>
+</html>
