@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kotlin 2.4.20 Beta2: Sealed Classes Map to Swift Enums, Incremental klib Ships by Default — bytevikas</title>
+  <meta name="description" content="Kotlin 2.4.20-Beta2 lands sealed class Swift export for exhaustive enum switching, incremental klib compilation on by default, four new collection utility functions, and an experimental compiler native image. Here's what it means for your KMP project today." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#fbbf24;--accent-dim:rgba(251,191,36,.1);--accent-border:rgba(251,191,36,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(251,191,36,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(251,191,36,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Kotlin</span>
+      <span class="post-date">Jul 26, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>Kotlin 2.4.20 Beta2: Sealed Classes Map to Swift Enums, Incremental klib Ships by Default</h1>
+
+    <div class="post-body">
+
+      <p>Kotlin 2.4.20-Beta2 dropped quietly in the EAP channel this week, and if you're running any KMP code that touches iOS, there are two things in here that will materially change how you work. Sealed class export to Swift enums finally makes exhaustive pattern matching across the Kotlin–Swift boundary possible without workarounds. And incremental klib compilation — which has been sitting behind an opt-in flag for a while — is now on by default, which means faster iterative builds for Kotlin/Native targets at zero configuration cost.</p>
+
+      <p>This is a .20 minor release on top of 2.4.0 stable, so there's no dramatic pitch to make. But the sealed-class story specifically has been one of the more requested KMP improvements, and the implementation here is clean enough that it's worth understanding before it lands in stable.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Beta2</div>
+          <div class="announce-lbl">Current EAP release in the 2.4.20 series</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Default</div>
+          <div class="announce-lbl">Incremental klib compilation, no opt-in needed</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">4</div>
+          <div class="announce-lbl">New collection utility functions in stdlib</div>
+        </div>
+      </div>
+
+      <h2>1. Sealed Classes Export as Swift Enums</h2>
+
+      <p>The problem before this: when Kotlin sealed classes crossed into Swift via the existing Swift Export mechanism, the iOS side saw a flat class hierarchy with no exhaustive matching. You could check types manually, but there was no way for the Swift compiler to tell you that you'd missed a case — the whole point of sealed types was lost at the boundary.</p>
+
+      <p>2.4.20-Beta2 changes the generated output. Sealed classes and sealed interfaces now map to Swift enums, with each subtype becoming a case. The Kotlin runtime generates a <code>.sealedType()</code> method on each sealed value that returns the enum case, and Swift's <code>switch</code> can exhaustively match it without a default branch.</p>
+
+      <p>Here's a concrete example that shows why this matters. Take a standard result type sealed hierarchy:</p>
+
+      <pre><code>// Kotlin — shared module
+sealed interface ApiResult
+class Success(val data: String) : ApiResult
+class Failure(val code: Int, val message: String) : ApiResult
+class Loading : ApiResult
+
+fun fetchUserProfile(): ApiResult = Success("Vikas")</code></pre>
+
+      <p>On the Swift side before this change, you'd be writing ugly <code>is</code> checks or using <code>as?</code> casts, with no compiler enforcement that you handled every case. With 2.4.20 Swift Export, the generated Swift lets you write:</p>
+
+      <pre><code>// Swift — iOS app
+let result = fetchUserProfile()
+
+let message = switch result.sealedType() {
+case let .success(type):
+    "Got data: \(type.value.data)"
+case let .failure(type):
+    "Error \(type.value.code): \(type.value.message)"
+case .loading:
+    "Fetching..."
+}
+// Compiler errors if you miss a case — no `default` needed</code></pre>
+
+      <p>This is a meaningful ergonomics improvement for any KMP architecture that uses sealed classes as the return type from shared business logic — which is basically every production KMP codebase. The standard pattern of having a shared <code>UiState</code> sealed hierarchy in the domain layer and observing it on both Android (via <code>when</code>) and iOS (via <code>switch</code>) now has the same safety guarantees on both sides.</p>
+
+      <h3>What this doesn't cover yet</h3>
+
+      <p>The exhaustive switch works for direct sealed subtypes. Nested sealed hierarchies and sealed classes with generic type parameters have limitations in the current Beta2 — check the Kotlin EAP docs for the exact edge cases before relying on this in a production KMP module. For simple one-level sealed hierarchies, it works cleanly.</p>
+
+      <h2>2. Cross-Language Inheritance: Swift Implementing Kotlin Interfaces</h2>
+
+      <p>The companion feature in the same Beta2 drop: the "reverse import" pattern where a Swift class implements a Kotlin interface and passes itself back to Kotlin code. This unlocks a pattern that's been painful for years in KMP — using a platform-native Swift library to provide an implementation of a shared interface without wrapping everything in a bridge adapter.</p>
+
+      <pre><code>// Kotlin — shared module
+interface Analytics {
+    fun track(event: String, properties: Map&lt;String, String&gt;)
+}
+
+fun initializeApp(analytics: Analytics) { /* ... */ }</code></pre>
+
+      <pre><code>// Swift — iOS app, using platform-native Mixpanel SDK directly
+class MixpanelAnalytics: KotlinBase &amp; Analytics {
+    func track(event: String, properties: [String: String]) {
+        Mixpanel.mainInstance().track(event: event, properties: properties)
+    }
+}
+
+initializeApp(analytics: MixpanelAnalytics())</code></pre>
+
+      <p>Before this, the workaround was either a Kotlin expect/actual declaration (which still required a Kotlin wrapper on the iOS side) or a manual adapter class that translated between Kotlin interfaces and Swift protocols. Neither is wrong exactly, but the new direct inheritance feels like how it should have worked from the start.</p>
+
+      <div class="callout">
+        <p><strong>Practical impact:</strong> this is most useful when the platform library you want to use on iOS has no Kotlin/JVM equivalent — analytics SDKs, device-specific security APIs, ARKit/RealityKit integrations. You define the contract in Kotlin, implement it in Swift using the native SDK directly, and pass it through. No adaptation layer.</p>
+      </div>
+
+      <h2>3. Incremental klib Compilation Is Now the Default</h2>
+
+      <p>If you've been building Kotlin/Native targets — meaning any KMP code that compiles to iOS, macOS, or tvOS — you've probably noticed that Kotlin/Native debug builds are slower than the equivalent JVM compilation. A big chunk of that overhead comes from recompiling klib artifacts from scratch on every change, even when only a small part of the module changed.</p>
+
+      <p>Incremental klib compilation was introduced as an opt-in feature in an earlier 2.4.x release. Beta2 makes it the default. You don't change anything — it just kicks in. The compiler tracks which parts of a klib have changed and only recompiles those sections, leaving the rest of the artifact intact.</p>
+
+      <p>The JetBrains team reports meaningful reductions in incremental build times for Kotlin/Native targets. Clean builds may be slightly slower (the compiler does more bookkeeping upfront), but the incremental path — which is what you hit on every code change during development — is significantly faster.</p>
+
+      <div class="callout-green">
+        <p>If you need to disable it for any reason — say, you're hitting a correctness bug with the incremental logic — add <code>kotlin.incremental.native=false</code> to your <code>gradle.properties</code>. But the expectation is that this is stable enough to be on by default for the 2.4.20 final release.</p>
+      </div>
+
+      <h2>4. Four New Collection Functions in stdlib</h2>
+
+      <p>These are small but genuinely handy. The stdlib gains four new extension functions for collections, sequences, and arrays. All four are experimental in Beta2, requiring <code>@OptIn(ExperimentalStdlibApi::class)</code>.</p>
+
+      <ul>
+        <li><strong><code>Collection.allDistinct()</code></strong> — returns <code>true</code> if all elements are unique by equality</li>
+        <li><strong><code>Collection.allDistinctBy(selector)</code></strong> — unique by a projected property</li>
+        <li><strong><code>Collection.allEqual()</code></strong> — returns <code>true</code> if all elements are the same value</li>
+        <li><strong><code>Collection.allEqualBy(selector)</code></strong> — equal by a projected property</li>
+      </ul>
+
+      <p>The practical use cases I reach for immediately: validating that a list of items has no duplicate IDs (<code>items.allDistinctBy { it.id }</code>), checking that a group of responses all have the same status, or asserting uniqueness constraints before persisting to Room. You could build these with <code>distinctBy().size == size</code> or <code>toSet().size</code> combinations, but having named functions makes the intent readable in a way that the manual version doesn't.</p>
+
+      <pre><code>@OptIn(ExperimentalStdlibApi::class)
+fun validatePlaylistItems(items: List&lt;MediaItem&gt;): Boolean {
+    // Ensure no duplicate media IDs before adding to ExoPlayer playlist
+    return items.allDistinctBy { it.mediaId }
+}
+
+fun isConsistentSyncBatch(events: List&lt;SyncEvent&gt;): Boolean {
+    // All events in a batch should target the same userId
+    return events.allEqualBy { it.userId }
+}</code></pre>
+
+      <h2>5. Kotlin Compiler Native Image (Experimental)</h2>
+
+      <p>This one is worth knowing about even if you won't use it immediately. JetBrains is distributing an experimental build of <code>kotlinc</code> as a GraalVM native image — a self-contained binary that doesn't require a JVM to start. The startup time improvement over the JVM-based compiler is significant, which matters most for CI environments that pay the JVM cold-start cost on every invocation and for editor tooling that runs the compiler frequently.</p>
+
+      <p>The native image bundles the Serialization, Compose compiler, All-open, no-arg, SAM with receiver, Assignment, Lombok, and Power-assert plugins. For most Android/KMP codebases, that's the full plugin set you'd need. It's available as a download from the v2.4.20-Beta2 GitHub release tag.</p>
+
+      <p>This is explicitly experimental — don't swap it into your production build pipeline yet. But for local development on CI-heavy workflows, it's worth benchmarking.</p>
+
+      <h2>Other Changes Worth Noting</h2>
+
+      <p><strong>StackTraceRecoverable interface</strong> lands in <code>kotlin.coroutines</code>. If you have custom exception types that you pass through coroutine boundaries, implementing <code>StackTraceRecoverable&lt;T&gt;</code> and providing a <code>copyForStackTraceRecovery()</code> method gives <code>kotlinx.coroutines</code> a way to preserve the stack trace across suspension points. This is experimental and JVM-only for now, but useful for custom exception hierarchies in complex async flows.</p>
+
+      <p><strong>Kotlin/JS suspend lambda export</strong> adds <code>-Xsuspend-lambda-exporting</code> to export suspend lambdas as JavaScript <code>async</code> functions — useful if you have a KMP module targeting both Android and a web frontend via Kotlin/JS.</p>
+
+      <p><strong>Kotlin/Wasm now supports Wasmtime</strong> as a standalone runtime via <code>wasmtime()</code> in the Kotlin DSL. This is relevant for server-side Wasm use cases more than mobile, but it's a good sign for the Kotlin/Wasm ecosystem maturing.</p>
+
+      <h2>Should You Adopt This Now?</h2>
+
+      <p>Split it into three decisions.</p>
+
+      <p><strong>Incremental klib compilation:</strong> you get this for free just by staying on Kotlin 2.4.x and upgrading to 2.4.20 when it goes stable. No API changes, no configuration. Run it.</p>
+
+      <p><strong>Sealed class Swift Export and cross-language inheritance:</strong> if you have a KMP module targeting iOS, prototype these in Beta2 now. They're the kind of ergonomic improvements that fundamentally change how you structure shared code — sealed return types from shared use cases, platform implementations of shared interfaces. The sooner you have a feel for the edge cases, the smoother the stable adoption will be. Don't ship them to production on Beta2, but build something real with them.</p>
+
+      <p><strong>New stdlib functions and StackTraceRecoverable:</strong> these require <code>@OptIn</code> in Beta2, which the stable release will likely remove. Fine to use in new code if you're targeting internal tooling. For shipped app code, wait for stable.</p>
+
+      <p>The through-line across this release is KMP interop becoming less of a "Kotlin devs writing Android-flavored Swift" problem and more of an actual bidirectional type system. Sealed types preserving their safety guarantees across the boundary, Swift implementing Kotlin interfaces directly — these are the mechanical changes that make KMP feel like a genuine multi-platform architecture rather than a shared business logic hack. That's a slow shift, but 2.4.20 is a meaningful step in it.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('kotlin-2-4-20-beta2-swift-export-sealed-classes-klib');
+  </script>
+</body>
+</html>
