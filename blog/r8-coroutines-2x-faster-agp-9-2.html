@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R8 Makes Kotlin Coroutines 2x Faster in AGP 9.2: Zero Code Changes Required — bytevikas</title>
+  <meta name="description" content="AGP 9.2.0 ships an R8 optimization that rewrites AtomicReferenceFieldUpdater into direct Unsafe calls, cutting coroutine overhead by half and improving Compose's Modifier.clickable by 2x — automatically." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#60a5fa;--accent-dim:rgba(96,165,250,.1);--accent-border:rgba(96,165,250,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(96,165,250,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(96,165,250,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Performance</span>
+      <span class="post-date">Jul 28, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>R8 Makes Kotlin Coroutines 2x Faster in AGP 9.2 — and You Don't Change a Single Line</h1>
+
+    <div class="post-body">
+
+      <p>There's a certain category of performance win that I love: the kind where a toolchain improvement lands, your benchmarks quietly get better, and you did absolutely nothing to earn it. AGP 9.2.0 shipped one of those last week. The Android team published the deep dive on July 27, and if you're running coroutines — which means if you're using any modern Jetpack library, any Compose screen with a <code>LaunchedEffect</code>, or really any app written in the last three years — this matters to you.</p>
+
+      <p>The short version: R8 now rewrites <code>Atomic*FieldUpdater</code> calls into direct <code>Unsafe</code> operations at compile time, eliminating the reflective overhead those updaters carry. <code>kotlinx.coroutines</code> uses <code>AtomicReferenceFieldUpdater</code> internally for every single coroutine lifecycle transition — start, suspend, resume, cancel, complete. Which means that 2x improvement on raw atomic ops translates directly into 2x on coroutine launch and cancel. And in Compose, where <code>LaunchedEffect</code> fires constantly inside <code>Modifier.clickable</code>, that 2x shows up in your actual UI benchmark traces.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">2x</div>
+          <div class="announce-lbl">Coroutine launch & cancel speedup</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">50.7 ns</div>
+          <div class="announce-lbl">atomicfu compareAndSet after optimization (was 135 ns)</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">AGP 9.2+</div>
+          <div class="announce-lbl">Fires automatically, no opt-in</div>
+        </div>
+      </div>
+
+      <h2>Why Coroutines Were Slower Than They Needed to Be</h2>
+
+      <p>To understand what R8 fixed, you need to know what <code>AtomicReferenceFieldUpdater</code> is and why it exists. In Java, if you want lock-free access to a volatile field — the classic pattern for concurrent data structures — you have two options. You can use an <code>AtomicReference</code> wrapper object, which allocates heap memory per field. Or you can use <code>AtomicReferenceFieldUpdater</code>, which operates on the volatile field directly, avoiding the allocation.</p>
+
+      <p>Coroutine implementations need lock-free tree structures for parent-child relationships — that's how structured concurrency works. Every scope knows its children, every child knows its parent, and cancelling a parent cascades down the tree atomically. The obvious choice for this is <code>AtomicReferenceFieldUpdater</code>: no allocations, correct semantics. The <code>kotlinx.atomicfu</code> library, which <code>kotlinx.coroutines</code> uses internally, wraps this in an idiomatic Kotlin API.</p>
+
+      <p>The hidden cost: every <code>AtomicReferenceFieldUpdater</code> operation involves reflective field lookups. The JVM's JIT compiler can warm these up over time, but on Android — where AOT compilation means code runs cold more often than on server JVMs — the overhead is consistent and measurable. The R8 team built a Pixel 5 benchmark on API 33 and found <code>kotlinx.atomicfu.compareAndSet()</code> running at <strong>135 ns</strong>, versus <strong>50.7 ns</strong> for an equivalent <code>AtomicReference.compareAndSet()</code>. That's 2.7x slower, for every atomic state transition in every coroutine.</p>
+
+      <h2>The Three-Step Optimization</h2>
+
+      <p>R8's fix is elegant because it doesn't change the semantics of the code — it changes the mechanism at compile time, after R8 can prove the transformation is safe. Three things happen to every <code>Atomic*FieldUpdater</code> that passes static analysis:</p>
+
+      <h3>Step 1: Field offset instrumentation</h3>
+
+      <p>R8 introduces a companion <code>long</code> field that captures the field's memory offset using <code>Unsafe.objectFieldOffset()</code>. This offset calculation happens once at class loading time, not on every atomic operation:</p>
+
+      <pre><code>// R8 synthesizes this alongside the original class
+static final long updater$offset =
+    SyntheticUnsafe.UNSAFE.objectFieldOffset(
+        Example.class.getDeclaredField("data")
+    );</code></pre>
+
+      <h3>Step 2: Call site replacement</h3>
+
+      <p>At every point where the updater was used, R8 replaces the reflective call with a direct <code>Unsafe</code> intrinsic. The JVM knows exactly how to optimize these at the lowest level — no reflection machinery in the hot path:</p>
+
+      <pre><code>// Original call site:
+updater.compareAndSet(holder, expectedValue, newValue);
+
+// After R8 optimization:
+SyntheticUnsafe.UNSAFE.compareAndSwapObject(
+    holder, Example.updater$offset, expectedValue, newValue
+);</code></pre>
+
+      <p>The transformation fires when R8 can statically prove three things: the updater value traces back to an instrumented field, the holder is compatible with the originally-declared holder type, and the new value is type-compatible. Null-checks are inserted unless R8 can statically rule out null. If any site doesn't meet the bar, R8 leaves it alone — the optimization is conservative.</p>
+
+      <h3>Step 3: Dead code cleanup</h3>
+
+      <p>If every call site was successfully optimized, R8 removes the original updater field and its <code>newUpdater()</code> initialization entirely. If no sites were optimized, R8 removes just the new offset field it introduced. Either way, the class ends up smaller or the same size — never larger.</p>
+
+      <div class="callout">
+        <p><strong>All three field updater types are covered:</strong> <code>AtomicReferenceFieldUpdater</code>, <code>AtomicIntegerFieldUpdater</code>, and <code>AtomicLongFieldUpdater</code>. If your own code uses any of these patterns (common in lock-free queues, custom concurrent data structures), you benefit too — not just coroutines.</p>
+      </div>
+
+      <h2>The Compose Story: 80% of Modifier.clickable Was Coroutine Overhead</h2>
+
+      <p>This is the number that genuinely surprised me. The R8 team profiled <code>Modifier.clickable</code> — one of the most commonly composed modifiers in any Compose app — and found that <strong>80% of its execution time</strong> was consumed by launching and cancelling coroutines internally. <code>Modifier.clickable</code> uses <code>InteractionSource</code> to track press state, and <code>InteractionSource</code> updates fire through coroutines on every touch event.</p>
+
+      <p>What that means in practice: every compose benchmark measuring <code>LaunchedEffect</code> creation and cancellation showed a 2x improvement after AGP 9.2.0. Not 10%, not a rounding error — half the time, gone. For feed UIs like Samachar's news scroll where every visible item has at least one clickable, this is free frame budget back on every touch frame.</p>
+
+      <p>If you've been blaming your interaction latency on Compose overhead and spending time tuning <code>remember</code> placement and recomposition scopes — profile again after the AGP bump. Some of what you were measuring was atomic field updater overhead, not composition overhead.</p>
+
+      <h2>API 36 Bonus: ART Does It Again at the VM Level</h2>
+
+      <p>On API 36+ devices with a recent ART VM build, the Android Runtime team has implemented a parallel optimization at the VM level. ART detects the same <code>Unsafe</code> intrinsic pattern at runtime and applies ~15% additional acceleration on top of what R8 already did at compile time. You don't need to do anything differently — if a user's device is on API 36, they get the R8 optimization from your compile step plus the ART optimization from the platform.</p>
+
+      <p>This is the model the Android performance team has been pushing toward for a few releases: toolchain and platform improvements that compound rather than require developer action. The <a href="startup-time-optimization.html">Baseline Profiles story</a> is similar — you set it up once, the runtime does progressively more with it.</p>
+
+      <h2>What kotlinx.atomicfu Actually Is</h2>
+
+      <p>If you haven't worked on coroutines internals, <code>kotlinx.atomicfu</code> might be unfamiliar. It's a JetBrains library that provides a Kotlin-idiomatic wrapper around platform atomic operations — <code>atomic()</code> instead of <code>AtomicReference()</code>, with clean property access syntax rather than <code>get()</code>/<code>set()</code> verbosity.</p>
+
+      <p>The library ships a Kotlin compiler plugin that can inline <code>atomic</code> declarations directly into volatile fields, eliminating the wrapper object allocation. So <code>kotlinx.coroutines</code> uses <code>atomicfu</code> with the plugin to get: no allocation from the atomic wrapper, plus <code>AtomicReferenceFieldUpdater</code> semantics under the hood. After the R8 optimization, it also gets: direct <code>Unsafe</code> in the hot path. Three layered optimizations, one library.</p>
+
+      <pre><code>// What kotlinx.coroutines does internally (simplified):
+internal class ChildHandle(
+    private val parent: Job
+) : JobNode() {
+    // atomicfu tracks this field lock-free, no allocation
+    private val _child = atomic&lt;Job?&gt;(null)
+
+    // Every cancel() → atomic CAS → was AtomicReferenceFieldUpdater → now Unsafe
+    fun trySet(child: Job) = _child.compareAndSet(null, child)
+}</code></pre>
+
+      <h2>Should You Actually Update to AGP 9.2.0?</h2>
+
+      <p>The short answer is yes, if you haven't already. AGP 9.2.0 is the current stable alongside AGP 9.3.0 (which shipped last week and adds standalone R8 config analysis and keep-rules-in-source-sets). Both are safe production upgrades for most projects.</p>
+
+      <p>A few things to check before bumping:</p>
+
+      <ul>
+        <li><strong>Kotlin version ≥ 2.0.0</strong> — AGP 9.2.0 expects modern Kotlin. If you're on 1.9.x, that's the bigger lift.</li>
+        <li><strong>Gradle 8.10+</strong> — check your <code>gradle-wrapper.properties</code>.</li>
+        <li><strong>Run your Macrobenchmark suite</strong> — or add one if you don't have it. The improvements are real enough that you want a baseline to compare against so you can quantify the gain on your own hardware.</li>
+        <li><strong>R8 full mode</strong> — if you're still on R8 compatibility mode for any reason, you'll get less benefit. Full mode is the default for release builds; make sure your debug build isn't pulling in compatibility settings that block optimizations.</li>
+      </ul>
+
+      <div class="callout-green">
+        <p>If you want to use R8 directly without AGP (say, for faster CI iteration), you can grab R8 9.2.0+ as a standalone tool: <code>com.android.tools:r8:9.2.x</code> from the Google Maven repository. The same optimization fires when R8 processes your DEX output, regardless of whether AGP orchestrates the build.</p>
+      </div>
+
+      <h2>Verifying the Improvement in Your App</h2>
+
+      <p>Don't take my word for the 2x number — measure it in your own app. If you have a Macrobenchmark target, add a test that repeatedly creates and cancels coroutines in a scenario that matches your app's hot path. The simplest signal is frame timing on your most interactive screens: anything with dense lists of clickable items, swipeable cards, or frequent <code>LaunchedEffect</code> firings.</p>
+
+      <p>For Musist specifically, the audio progress ticker and the playlist interaction model both sit on a dense layer of coroutines. For Samachar's infinite scroll feed, every visible item's interaction handling runs through <code>InteractionSource</code> coroutines. Running a scroll benchmark before and after the AGP bump is the fastest way to see whether the 2x on raw ops translates proportionally in your particular composition tree.</p>
+
+      <p>The broader pattern here is worth naming: the Android toolchain is now doing the kind of optimization work that used to require developer attention. Baseline Profiles, R8 full mode, AGP's incremental build improvements, now this — each of these is a system-level change that gives you performance for free as long as you stay current with the toolchain. The cost of upgrading AGP has never been lower (the AGP Upgrade Assistant handles most of it), and the compounding benefit of staying on recent versions has never been higher.</p>
+
+      <p>Two years ago I'd have told you to profile your atomics manually, consider replacing <code>AtomicReferenceFieldUpdater</code> with <code>VarHandle</code> on API 26+ for better performance, and accept that coroutine overhead was a fixed cost. Now I'd say: update to AGP 9.2.0, re-run your benchmarks, and spend the time you saved on something that isn't the toolchain.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('r8-coroutines-2x-faster-agp-9-2');
+  </script>
+</body>
+</html>
