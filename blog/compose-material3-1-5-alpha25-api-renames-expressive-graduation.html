@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose Material3 1.5.0-alpha25: The Expressive API Cleans House — bytevikas</title>
+  <meta name="description" content="Alpha25 lands six API renames and two deprecations as M3 Expressive hardens toward stable. Here's what breaks, what moves, and what alpha24's new material3-ripple library actually gives you." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ff6b6b;--accent-dim:rgba(255,107,107,.1);--accent-border:rgba(255,107,107,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,107,107,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,107,107,.4);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Design</span>
+      <span class="post-date">Jul 31, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Compose Material3 1.5.0-alpha25: The Expressive API Cleans House</h1>
+
+    <div class="post-body">
+
+      <p>Material3 1.5.0-alpha25 landed on July 29 and it's the messiest release in a good way. The team is clearly hardening the Expressive component suite ahead of a stable milestone — and that means a round of renames, deprecations, and API surface cleanup that will affect anyone who's been tracking the alpha series. Six things got renamed or restructured; two of them are binary-compatible, two are straight deprecations with clear replacements, and one is a deletion with no migration path.</p>
+
+      <p>I'm bundling in the alpha24 changes (July 15) as well, because they never got a proper write-up and one of them — a brand new <code>material3-ripple</code> artifact — is more significant than the version bump implies. If you're on a Material3 alpha already, this post is the migration checklist you're going to want before your next upgrade.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">6+</div>
+          <div class="announce-lbl">API renames and deprecations in alpha25</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Stable</div>
+          <div class="announce-lbl">BasicAlertDialog graduates out of Experimental</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">material3-ripple artifact with inset focus rings</div>
+        </div>
+      </div>
+
+      <h2>trailingIcon Is Now trailingContent in DropdownMenuItem</h2>
+
+      <p>The rename that's most likely to show up in compiler errors: <code>trailingIcon</code> has been renamed to <code>trailingContent</code> across all three <code>DropdownMenuItem</code> overloads — the standard one plus the shape and checked/selected variants. The <code>MenuItemColors</code> type also picks up the same rename in its new constructor overload.</p>
+
+      <p>The good news: this is binary-compatible. The old parameter name still exists at the bytecode level, so existing compiled code keeps running. But source won't compile cleanly once you take the alpha25 artifact — the compiler will warn about the deprecated overload. The fix is purely mechanical:</p>
+
+      <pre><code>// Before
+DropdownMenuItem(
+    text = { Text("Export") },
+    trailingIcon = { Icon(Icons.Default.Share, contentDescription = null) },
+    onClick = { /* ... */ }
+)
+
+// After
+DropdownMenuItem(
+    text = { Text("Export") },
+    trailingContent = { Icon(Icons.Default.Share, contentDescription = null) },
+    onClick = { /* ... */ }
+)</code></pre>
+
+      <p>The rename signals intent: the slot is more general than just an icon. You could put a badge, a count chip, or a toggle in there, and "trailingContent" conveys that better. In Nodat, I have a couple of dropdown menus where the trailing slot holds a count badge rather than an icon — the new name makes more semantic sense for that use case.</p>
+
+      <h2>TonalToggleButton Is Now FilledTonalToggleButton</h2>
+
+      <p>This one's a straight rename with no migration path other than updating callsites. <code>TonalToggleButton</code> is deprecated in alpha25 and the replacement is <code>FilledTonalToggleButton</code>, which matches the naming convention already used for <code>FilledTonalButton</code> in the non-toggle family. The parameters are identical.</p>
+
+      <p>Two related changes ship alongside the rename: <code>OutlinedToggleButton</code> now animates its border stroke when toggling state, and <code>ToggleButtonDefaults.shapes</code> is deprecated in favor of a new <code>ToggleButtonDefaults.shapesFor(checked)</code> function. The <code>shapesFor</code> variant is cleaner — it takes the current checked state and returns the right <code>Shape</code> rather than making you pull the pair apart yourself.</p>
+
+      <pre><code>// Before
+TonalToggleButton(
+    checked = isEnabled,
+    onCheckedChange = { isEnabled = it }
+) {
+    Text("Auto")
+}
+
+// After
+FilledTonalToggleButton(
+    checked = isEnabled,
+    onCheckedChange = { isEnabled = it }
+) {
+    Text("Auto")
+}
+
+// shapes DSL: before
+val shape = if (checked) ToggleButtonDefaults.shapes.pressedShape
+            else ToggleButtonDefaults.shapes.shape
+
+// after
+val shape = ToggleButtonDefaults.shapesFor(checked)</code></pre>
+
+      <h2>SplitButtonLayout Is Deprecated — Use SplitButton</h2>
+
+      <p>This is the deprecation most likely to catch teams by surprise. <code>SplitButtonLayout</code> was introduced relatively recently as part of the Expressive push, and it's already being replaced by a higher-level <code>SplitButton</code> composable. The team decided the layout primitive was too low-level to be the recommended entry point — most callsites were manually constructing the same structure anyway.</p>
+
+      <p><code>SplitButton</code> takes a leading action content and a trailing dropdown trigger and wires up the interaction model for you. If you were using <code>SplitButtonLayout</code> with custom leading/trailing slots you'll need to evaluate whether <code>SplitButton</code>'s slot contract covers your use case, but for the common case — a primary button paired with a dropdown arrow — the migration is straightforward.</p>
+
+      <div class="callout">
+        <p><strong>Check your dependency graph:</strong> if any library you depend on has public APIs that expose <code>SplitButtonLayout</code>, you'll need to wait for those to update before upgrading. The deprecation is source-only in alpha25, but the plan is removal in a future release.</p>
+      </div>
+
+      <h2>ButtonGroupScope Is Now a sealed interface</h2>
+
+      <p><code>ButtonGroupScope</code> — the receiver for child composables inside a <code>ButtonGroup</code> — was previously an open interface. Alpha25 changes it to a <code>sealed interface</code>. If you've been implementing it directly (to, say, provide a test double or a custom scope), that won't compile anymore. The sealed nature is intentional: the library owns all implementations, and the API contract is through the composables it provides rather than through external conformances.</p>
+
+      <p>In practice, most apps don't implement <code>ButtonGroupScope</code> directly — you consume it implicitly in the trailing lambda. But if you've been doing anything creative with it in custom layout wrappers or test code, this is the change to watch for.</p>
+
+      <p>The <code>Modifier.animateWidth</code> function also got restructured in the same release: it's now two overloads rather than one, letting you omit the <code>compressionLimit</code> parameter entirely, and the parameter type changed from <code>PaddingValues</code> to <code>Dp</code> — so calls that pass a <code>PaddingValues</code> to <code>compressionLimit</code> will need updating too.</p>
+
+      <h2>SliderState Drops Its DraggableState Conformance</h2>
+
+      <p>This is the change most likely to silently affect custom slider implementations. <code>SliderState</code> no longer publicly implements <code>DraggableState</code>. If you were casting a <code>SliderState</code> to <code>DraggableState</code> to wire it into a custom drag gesture or a combined gesture handler, that cast is now a runtime crash.</p>
+
+      <p>The right fix depends on what you were doing with it. If you were tracking drag deltas to implement a secondary gesture on top of the slider, <code>SliderState</code> still exposes the value and drag callbacks you need — you just have to work through its own API surface rather than the generic <code>DraggableState</code> interface.</p>
+
+      <p>The <code>Saver</code> API also changes: the 2-parameter <code>SliderState.Saver</code> and <code>RangeSliderState.Saver</code> are deprecated in favor of new overloads that take <code>steps</code> explicitly. This makes the restored state more predictable when the number of steps is non-default — a subtle correctness fix for anyone saving/restoring slider state across process death.</p>
+
+      <pre><code>// Before (deprecated)
+val saver = SliderState.Saver
+
+// After (explicit steps)
+val saver = SliderState.Saver(steps = 0)</code></pre>
+
+      <h2>ComponentOverride APIs Are Gone</h2>
+
+      <p>The <code>ComponentOverride</code> APIs introduced in an earlier alpha are removed in alpha25, with no deprecation period. This was an experimental mechanism for overriding component implementations at a theme level, and the team decided the design wasn't right before it could graduate. If you were using it — and it was genuinely obscure, so most people weren't — you'll need to remove those references entirely. There's no announced replacement yet.</p>
+
+      <div class="callout-green">
+        <p>BasicAlertDialog graduated from Experimental to stable in alpha25, removing the <code>@ExperimentalMaterial3Api</code> requirement. If you added <code>@OptIn</code> solely for that composable, the annotation is now unnecessary (though harmless).</p>
+      </div>
+
+      <h2>What Alpha24 Actually Shipped (And Why material3-ripple Matters)</h2>
+
+      <p>Alpha24 landed July 15 and contained two things worth covering properly. The first is the new <code>material3-ripple</code> artifact. The second is a new scroll variant for the expressive <code>TimePicker</code>.</p>
+
+      <h3>The material3-ripple artifact</h3>
+
+      <p>The standard Material3 ripple uses an opacity-based approach to indicate focus — when a component receives keyboard or accessibility focus, the ripple overlay changes opacity. The new <code>material3-ripple</code> library switches this to an <strong>inset focus ring</strong> model: focus is shown as a separate ring drawn inside the component bounds, not as an opacity change on the ripple itself.</p>
+
+      <p>This matters for a few reasons. Inset focus rings are more visible on dark backgrounds (a known issue with the opacity approach on surfaces close to black). They're also the pattern used in Material Design's own web implementations, so there's now design consistency across platforms. And they're more accessible — the ring is a distinct visual affordance rather than a subtle opacity shift that users with certain visual impairments can miss.</p>
+
+      <pre><code>// If you're already on Material3, no action needed —
+// the new ripple behavior integrates automatically via the theme.
+
+// If you want the inset ring behavior WITHOUT depending on material3:
+dependencies {
+    implementation("androidx.compose.material3:material3-ripple:1.5.0-alpha24")
+}
+
+// Then use MaterialRippleTheme or the ripple() function from this artifact
+// to apply inset focus rings to your own design system components.</code></pre>
+
+      <p>For most apps that already depend on <code>material3</code>, this is a free improvement — the theme automatically picks up the new ripple. The separate <code>material3-ripple</code> artifact exists for teams running their own design system on top of Compose UI primitives who want inset focus rings without taking the full Material3 dependency.</p>
+
+      <h3>Expressive TimePicker: Scroll Variant</h3>
+
+      <p>The Expressive design system's <code>TimePicker</code> now ships with a scroll variant alongside the existing dial and input variants. The scroll variant presents hours and minutes as independently scrollable columns — the pattern most users recognize from native iOS time pickers and from clock pickers in many modern apps.</p>
+
+      <p>In Musist, where I have a custom alarm-style timer that I built from scratch because nothing in Material3 previously covered it cleanly, this is the component I would have used. The scroll variant handles edge cases (looping, snap-to-minute, focus and accessibility) that are non-trivial to implement correctly from scratch.</p>
+
+      <p>It's still marked experimental in alpha24, but the design is stable enough to prototype with. If you have a time-input screen in your app, it's worth a look.</p>
+
+      <h2>The SearchBar Stable Graduation</h2>
+
+      <p>Also in alpha24: the slot-based <code>SearchBar</code> API and <code>SearchBarState</code> are promoted to stable, and the older <code>SearchBar</code>/<code>DockedSearchBar</code> overloads that took <code>expanded</code>/<code>onExpandedChange</code> parameters are deprecated. If you're still on the <code>expanded</code>-based API, the migration is a state hoisting refactor — move the expanded state into a <code>SearchBarState</code> obtained via <code>rememberSearchBarState()</code> and let the composable manage the transitions internally.</p>
+
+      <pre><code>// Before (deprecated)
+var expanded by remember { mutableStateOf(false) }
+SearchBar(
+    query = query,
+    onQueryChange = { query = it },
+    onSearch = { /* ... */ },
+    active = expanded,
+    onActiveChange = { expanded = it }
+) {
+    /* suggestions */
+}
+
+// After
+val searchBarState = rememberSearchBarState()
+SearchBar(
+    inputField = {
+        SearchBarDefaults.InputField(
+            searchBarState = searchBarState,
+            query = query,
+            onQueryChange = { query = it },
+            onSearch = { /* ... */ },
+        )
+    },
+    state = searchBarState,
+) {
+    /* suggestions */
+}</code></pre>
+
+      <p>The slot-based API is more verbose up front but pays off when you need to customize the input field — add a leading icon, swap in a custom chip, or run query transformations before they hit the search handler. The old API collapsed all of that into parameters that quickly became unwieldy.</p>
+
+      <h2>What to Actually Do With All of This</h2>
+
+      <p>If you're on a pinned stable Material3 version and none of these changes affect your build today, that's fine. But if you're tracking the alpha series — maybe because you want Expressive components before they hit stable — here's how I'd approach the upgrade to alpha25:</p>
+
+      <ul>
+        <li><strong>Run the build first.</strong> The compiler will surface everything: <code>trailingIcon</code> → <code>trailingContent</code> in menus, <code>TonalToggleButton</code> → <code>FilledTonalToggleButton</code>, and any <code>SplitButtonLayout</code> callsites will get deprecation warnings.</li>
+        <li><strong>Search for <code>ComponentOverride</code> explicitly.</strong> The compiler won't catch a removed API the same way it catches a deprecated one — it'll be an unresolved reference. Fix those before anything else.</li>
+        <li><strong>Audit <code>DraggableState</code> casts.</strong> If you have any custom gesture code that casts <code>SliderState</code> to <code>DraggableState</code>, that's a runtime crash waiting to happen. The compiler won't catch it since the interface exists — only the conformance was removed.</li>
+        <li><strong>Remove stale <code>@OptIn(ExperimentalMaterial3Api::class)</code> on <code>BasicAlertDialog</code></strong> now that it's stable — it's a minor cleanup but sets good habits for tracking which Experimental APIs you actually depend on.</li>
+      </ul>
+
+      <p>The pattern across alpha24 and alpha25 taken together is clear: Material3's Expressive APIs are converging. The renames and deprecations aren't churn for its own sake — they're the team standardizing naming conventions (<code>trailingContent</code> over icon-specific names, <code>FilledTonal</code> prefix consistency) and removing high-level layout primitives in favor of proper component APIs. A stable 1.5.0 release that ships these conventions as the baseline is within sight. The question for your team is whether you want to absorb the churn now, before the GA flood of tutorials and code generators cements the old names, or wait and do a bigger migration in one shot when stable arrives.</p>
+
+      <p>I'd lean toward absorbing the renames now if you're already on any 1.5.0 alpha. They're mostly find-and-replace, and getting aligned with the final naming before stable means your code won't read as legacy the moment 1.5.0 ships.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-material3-1-5-alpha25-api-renames-expressive-graduation');
+  </script>
+</body>
+</html>
