@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android 17's Security Hardening: The Behavior Changes That Will Break Your Production App — bytevikas</title>
+  <meta name="description" content="Android 17 ships seven security and privacy behavior changes beyond the ones that got their own blog posts. ACCESS_LOCAL_NETWORK, banned static-final reflection, enforced ECH and Certificate Transparency, stricter native DCL — here's what breaks and how to fix it." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#f43f5e;--accent-dim:rgba(244,63,94,.1);--accent-border:rgba(244,63,94,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(244,63,94,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#fbbf24;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(244,63,94,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Security</span>
+      <span class="post-date">Aug 1, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Android 17's Security Hardening: The Behavior Changes That Will Break Your Production App</h1>
+
+    <div class="post-body">
+
+      <p>There are three different Android 17 blog posts on this site already. One covers config-change restarts, background audio hardening, and the large-screen adaptivity deadline. Another covers the new APIs — Handoff, Contact Picker, PQC signing. A third covers the Eclipsa HDR video story. None of them touch what I'm writing about today, because this particular cluster of changes didn't get its own I/O session or a flashy post. They showed up in the behavior change docs, and they're the ones that are quietly going to cause production incidents for apps that haven't tested against API 37.</p>
+
+      <p>Seven changes. All security- or privacy-motivated. Several of them will silently break things that have worked fine for years — reflection patterns, LAN networking, native library loading, TLS assumptions. Let me go through each one with enough depth to actually tell you what to do about it.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">7</div>
+          <div class="announce-lbl">Security behavior changes in this post</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">API 37</div>
+          <div class="announce-lbl">Target SDK where most of these bite</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">New</div>
+          <div class="announce-lbl">ACCESS_LOCAL_NETWORK permission required</div>
+        </div>
+      </div>
+
+      <h2>1. ACCESS_LOCAL_NETWORK: The New Runtime Permission for LAN</h2>
+
+      <p>This is the one most likely to cause visible regressions in production for a broad swath of apps. Android 17 introduces a new runtime permission, <code>ACCESS_LOCAL_NETWORK</code>, that you must hold before your app can discover or connect to devices on the local network — smart home devices, Chromecast receivers, network printers, Bluetooth LE peripherals advertised over LAN, anything you reach via direct socket on the same Wi-Fi subnet.</p>
+
+      <p>The permission lives under the <code>NEARBY_DEVICES</code> permission group, so it joins <code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code>, and <code>UWB_RANGING</code> there. It was optional in Android 16 for early testing; on API 37+ it is mandatory.</p>
+
+      <pre><code>&lt;!-- AndroidManifest.xml --&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" /&gt;</code></pre>
+
+      <p>Declaring the manifest entry is not enough. You need to go through the standard runtime permission request flow, and users can revoke it at any time:</p>
+
+      <pre><code>// Check before any local network operation
+if (ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_LOCAL_NETWORK
+    ) != PackageManager.PERMISSION_GRANTED
+) {
+    ActivityCompat.requestPermissions(
+        activity,
+        arrayOf(Manifest.permission.ACCESS_LOCAL_NETWORK),
+        REQUEST_CODE_LOCAL_NETWORK
+    )
+    return
+}
+
+// Permission granted — safe to open socket or start discovery
+val socket = Socket("192.168.1.10", 8080)
+</code></pre>
+
+      <p>The apps that will feel this immediately: anything doing multicast DNS (mDNS) for service discovery, anything casting to a local device, any direct TCP/UDP socket to an IP in the 192.168.x.x range, and any app using NSD Manager or a similar discovery API without the system UI mediating the connection. HailUp, for example — its local streaming mode that connects directly to a device on the same subnet — would need this permission on Android 17 before it can even open a socket.</p>
+
+      <div class="callout">
+        <p><strong>Check your dependencies too.</strong> If you use a casting SDK, a smart home SDK, or a P2P file-transfer library, check whether the SDK itself declares and requests this permission. If it doesn't, the connection will silently fail or throw a <code>SecurityException</code> on API 37+ without any obvious log indicating why.</p>
+      </div>
+
+      <p>There's an alternative for apps that connect to devices the user explicitly picks: the system now provides a mediated device picker that doesn't require the permission. For use cases where the user taps a Chromecast icon and the system picker appears, you can avoid the permission entirely. But for apps that enumerate the network themselves — a smart home app that scans for lights, an audio app that lists receivers — there's no way around it.</p>
+
+      <h2>2. Static Final Fields Are Now Unmodifiable via Reflection</h2>
+
+      <p>Modifying <code>static final</code> fields through reflection has always been undefined behavior in Java, but it worked on Android for long enough that a non-trivial number of libraries and testing patterns rely on it. Android 17 closes that door permanently for apps targeting API 37+.</p>
+
+      <p>Attempting to call <code>field.set(null, newValue)</code> on a static final field now throws <code>IllegalAccessException</code>. Attempting to do the same through JNI — <code>SetStaticLongField()</code> on a final field — causes a crash rather than throwing.</p>
+
+      <pre><code>// This crashes on API 37+ targeting
+val field = SomeClass::class.java.getDeclaredField("STATIC_FINAL_CONSTANT")
+field.isAccessible = true
+field.set(null, newValue) // IllegalAccessException on API 37+
+</code></pre>
+
+      <p>The places I've seen this pattern most often in the wild: mock injection in unit tests (swapping a singleton registered as a final field), SDK initialization tricks where a library modifies its own configuration field after the class is loaded, and a handful of "inject a logger" patterns where a final logger field gets replaced with a test double.</p>
+
+      <p>The fix depends on where the pattern lives. In test code, switch to proper dependency injection — if you're using Hilt and you're on Hilt 1.4.0 stable, the ViewModel factory changes make this cleaner than it used to be. In production code, any pattern that requires mutating a final field at runtime is architecturally broken and should be refactored rather than worked around. In third-party SDKs, file a bug and test against API 37 now so you find out before your users do.</p>
+
+      <h2>3. ECH and Certificate Transparency: TLS Gets Stricter by Default</h2>
+
+      <p>Two TLS changes shipped in this release, and they interact in ways worth understanding together.</p>
+
+      <p><strong>Encrypted Client Hello (ECH)</strong> is now enabled by default. ECH encrypts the Server Name Indication (SNI) field in the TLS handshake — the field that previously leaked which hostname you were connecting to even on HTTPS connections. For most apps, this is completely transparent. If the server supports ECH, the platform uses it. If it doesn't, the platform falls back to ECH GREASE (sending a fake encrypted extension) and completes the standard handshake.</p>
+
+      <p>Where this can cause problems: network inspection tools and proxies that rely on reading the SNI in plaintext, corporate MDM solutions that filter traffic by hostname via SNI, and any backend infrastructure doing TLS termination with strict SNI matching that rejects the ECH extension. If you're seeing unexpected connection failures on API 37 that you can't reproduce with certificate pinning disabled, ECH interaction with your backend or proxy layer is the first thing to investigate.</p>
+
+      <p>You can control ECH behavior per-domain via the Network Security Configuration:</p>
+
+      <pre><code>&lt;!-- network_security_config.xml --&gt;
+&lt;network-security-config&gt;
+  &lt;domain-config cleartextTrafficPermitted="false"&gt;
+    &lt;domain includeSubdomains="true"&gt;api.example.com&lt;/domain&gt;
+    &lt;domain-encryption echEnabled="false" /&gt;
+  &lt;/domain-config&gt;
+&lt;/network-security-config&gt;</code></pre>
+
+      <p><strong>Certificate Transparency (CT)</strong> enforcement is the second change. CT was opt-in in Android 16; in Android 17 it is enforced by default for all TLS connections. CT requires that the server's certificate be logged to a publicly auditable log before the platform will accept it. This is standard for certificates issued by major CAs since 2018, but you can run into failures with:</p>
+
+      <ul>
+        <li>Self-signed certificates in internal tooling or staging environments</li>
+        <li>Older certificates from certain CAs that weren't CT-logging everything before it became standard</li>
+        <li>Certificates issued by private CAs used in enterprise environments</li>
+      </ul>
+
+      <p>For internal/staging environments, add the certificate authority to your debug Network Security Config. For production, verify your cert is CT-logged by checking it with Google's Transparency Report or a similar tool — if your CA issued it in the last few years, it almost certainly is, but worth confirming before you target API 37.</p>
+
+      <h2>4. Native Dynamic Code Loading: Libraries Must Be Read-Only</h2>
+
+      <p>If your app or any of its native dependencies loads a shared library at runtime via <code>System.load()</code> or the JNI equivalent, that library now must be located on a read-only filesystem path. If it's writable — loaded from the app's cache directory, from a path downloaded at runtime, from an extracted directory that isn't marked read-only — the system throws <code>UnsatisfiedLinkError</code>.</p>
+
+      <p>This change targets a real attack vector: an attacker gains write access to the directory where your app's dynamically-loaded .so lives, replaces it with malicious code, and your app loads it on next startup. Making read-only paths the only acceptable source for runtime-loaded native code closes that substitution window.</p>
+
+      <div class="callout-amber">
+        <p><strong>If you're doing this at all, stop.</strong> The Android security team's recommendation is to avoid dynamic native code loading entirely. Load .so files from the APK's native library directory (set up by the installer as read-only) rather than extracting them to writable storage at runtime. This also simplifies Play Store compliance — the store has been flagging apps that download native code for separate review for a few years now.</p>
+      </div>
+
+      <p>The common pattern this breaks: some plugin architectures and "hot patching" systems that download native libraries over the network and load them without going through an update. If that's in your dependency tree, not just your own code, run <code>adb shell logcat | grep UnsatisfiedLinkError</code> against an API 37 device with your full production build to find offenders.</p>
+
+      <h2>5. Contacts Provider 2: PII Columns Removed from the Data View</h2>
+
+      <p>Three columns that used to be available when querying <code>ContactsContract.Data</code> are gone on API 37+: <code>ACCOUNT_NAME</code>, <code>ACCOUNT_TYPE</code>, and <code>ACCOUNT_TYPE_AND_DATA_SET</code>. Queries that select these columns return null; projections that rely on them won't crash but won't return data.</p>
+
+      <p>These columns exist on <code>ContactsContract.RawContacts</code> and are still accessible there. If your app reads account information alongside contact data, you need to join on <code>RAW_CONTACT_ID</code>:</p>
+
+      <pre><code>// Old pattern (returns null for account columns on API 37+)
+val cursor = contentResolver.query(
+    ContactsContract.Data.CONTENT_URI,
+    arrayOf(
+        ContactsContract.Data.DISPLAY_NAME,
+        ContactsContract.Data.ACCOUNT_NAME,  // null on API 37+
+        ContactsContract.Data.ACCOUNT_TYPE   // null on API 37+
+    ),
+    null, null, null
+)
+
+// New pattern: query RawContacts directly for account info
+val rawCursor = contentResolver.query(
+    ContactsContract.RawContacts.CONTENT_URI,
+    arrayOf(
+        ContactsContract.RawContacts._ID,
+        ContactsContract.RawContacts.ACCOUNT_NAME,
+        ContactsContract.RawContacts.ACCOUNT_TYPE
+    ),
+    "${ContactsContract.RawContacts.CONTACT_ID} = ?",
+    arrayOf(contactId.toString()),
+    null
+)</code></pre>
+
+      <p>This matters most for apps that display "synced from Google" or "synced from Exchange" labels next to a contact, or that use account type to decide whether to show a contact at all. If you're not showing account information in your UI, you probably don't query these columns and this doesn't affect you.</p>
+
+      <h2>6. Activity Background Launch Restrictions Extend to IntentSender</h2>
+
+      <p>Background Activity Launch (BAL) restrictions have tightened with every major Android release for the past several years. The Android 17 version extends those restrictions to <code>IntentSender</code>. If your app sends a <code>PendingIntent</code> that another app or the system uses to launch an Activity, and that launch happens while your app is in the background, it now needs to use the granular BAL control flags rather than the old blanket <code>MODE_BACKGROUND_ACTIVITY_START_ALLOWED</code>.</p>
+
+      <pre><code>// Old approach (deprecated, restricted on API 37+)
+val options = ActivityOptions.makeBasic()
+options.pendingIntentBackgroundActivityStartMode =
+    MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+
+// New approach: use fine-grained control
+val options = ActivityOptions.makeBasic()
+options.pendingIntentBackgroundActivityStartMode =
+    MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE
+</code></pre>
+
+      <p>The <code>ALLOW_IF_VISIBLE</code> mode allows the launch only if your app is currently visible to the user — either in the foreground or recently visible. Other modes give you finer control if your specific use case needs it. The intent is to prevent notification-driven Activity launches that hijack the user's screen from apps that have no visible context.</p>
+
+      <p>This typically affects notification action intents and any system-service callbacks that launch your Activity. Test these flows explicitly on API 37: tap your notification action with your app in background, trigger your alarm/reminder flow, tap a widget that opens a specific screen — anywhere you use a <code>PendingIntent</code> to start an Activity.</p>
+
+      <h2>7. Bluetooth RFCOMM Sockets: EOF Instead of IOException</h2>
+
+      <p>This is the smallest change in the list, but it's a classic "works fine for ten years then breaks on the new OS" issue. When a Bluetooth RFCOMM socket closes — either because the remote device disconnected or the connection was terminated — <code>InputStream.read()</code> now returns <code>-1</code> to signal end-of-stream, conforming to the standard Java IO contract. Previously it threw <code>IOException</code>.</p>
+
+      <pre><code>// Pattern that breaks on Android 17 if socket closes cleanly
+try {
+    val buffer = ByteArray(1024)
+    while (true) {
+        val bytes = inputStream.read(buffer) // used to throw IOException on disconnect
+        processData(buffer, bytes)
+    }
+} catch (e: IOException) {
+    handleDisconnect() // no longer triggered by clean close on API 37+
+}
+
+// Correct pattern that handles both old and new behavior
+val buffer = ByteArray(1024)
+var bytes: Int
+while (inputStream.read(buffer).also { bytes = it } != -1) {
+    processData(buffer, bytes)
+}
+handleDisconnect() // reached when read() returns -1
+</code></pre>
+
+      <p>If you ship an app that talks to Bluetooth hardware — a fitness device, a payment terminal, a custom IoT peripheral — test the clean disconnect path on Android 17. Unclean disconnects (power off, signal loss) still produce <code>IOException</code>. It's only a clean socket close that now returns <code>-1</code> instead.</p>
+
+      <h2>How to Audit Your App Before Targeting API 37</h2>
+
+      <p>The uncomfortable reality is that several of these changes — particularly the reflection ban and the Contacts Provider PII removal — can come from third-party SDKs you don't control. A systematic audit matters more than just scanning your own code.</p>
+
+      <ul>
+        <li><strong>Install a API 37 emulator image</strong> and run your full app with <code>targetSdkVersion 37</code> in a debug build. Don't wait for the final production bump — the earlier you find breakage the cheaper it is.</li>
+        <li><strong>Enable strict mode for reflection</strong> in debug builds: <code>StrictMode.setVmPolicy(VmPolicy.Builder().detectAll().penaltyLog().build())</code> will surface reflective access violations before they become crashes.</li>
+        <li><strong>Check each SDK in your dependency tree</strong> against its changelog for API 37 compatibility notes. Casting SDKs (Google Cast, Airplay bridges), smart home SDKs, and any SDK that claims to support "plugin loading" or "hot updates" are the highest-risk categories.</li>
+        <li><strong>Test every flow that touches local networking</strong> — explicitly request <code>ACCESS_LOCAL_NETWORK</code> and verify the permission is in your manifest before those tests, or you'll get misleading results.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>On production timing:</strong> Most of these changes bite when <code>targetSdkVersion</code> reaches 37, not on install. You have until Google mandates API 37 targeting for Play Store updates to fix them — but Google's track record suggests the deadline for new apps will arrive faster than you expect it to.</p>
+      </div>
+
+      <p>The pattern across all seven of these changes is the same story Android tells every major release: behaviors that were technically always incorrect are having their loopholes closed, and the platform is moving toward a model where the security properties are guaranteed rather than advisory. The apps that test early against new APIs find a refactoring task. The apps that don't find a production incident. Five years of shipping Android apps has convinced me the gap between those two outcomes is almost always just whether you set up a CI lane against preview builds, which takes a few hours to do once.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-17-security-behavior-changes');
+  </script>
+</body>
+</html>
