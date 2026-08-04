@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jetpack Navigation 2.10 Beta: KMP on 9 Platforms, Richer Predictive Back, and Maintenance Mode — bytevikas</title>
+  <meta name="description" content="Navigation 2.10.0-beta01 lands multiplatform support for Desktop, macOS, iOS, WASM, and more; NavBackStackEntryInfo for custom predictive back animations; and a clear signal that this library track is heading into maintenance mode. Here's what it means for your production app." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#f97316;--accent-dim:rgba(249,115,22,.1);--accent-border:rgba(249,115,22,.25);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(249,115,22,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-blue{
+      background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);
+      border-left:3px solid #3b82f6;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-blue p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-blue strong{color:#60a5fa;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(249,115,22,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Nav</span>
+      <span class="post-date">Aug 4, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Jetpack Navigation 2.10 Beta: KMP on 9 Platforms, Richer Predictive Back, and the Maintenance Mode Signal</h1>
+
+    <div class="post-body">
+
+      <p>Navigation 2.10.0-beta01 dropped on July 29, and it carries a few things worth paying attention to regardless of whether you're still building with the classic Navigation library or have already migrated to Navigation3. The headline is multiplatform support — navigation-common, navigation-runtime, and navigation-testing now compile for Desktop, Linux, macOS, iOS, JavaScript, WASM, tvOS, and watchOS alongside Android. That's significant for KMP projects that share business logic and want navigation primitives to travel with it.</p>
+
+      <p>But the more interesting signal is what this release says about the library's trajectory. Navigation 2.x is heading toward maintenance mode — the same place the Views toolkit landed last week. You're not going to get new features here; you're going to get stability, KMP breadth, and critical bug fixes. If you're starting a new screen from scratch, the answer is increasingly obvious. If you're maintaining an existing app with hundreds of navigation destinations, this release is actually good news: a stable, battle-hardened library with a clear support horizon.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">9</div>
+          <div class="announce-lbl">Platforms supported (Android, Desktop, Linux, macOS, iOS, JS, WASM, tvOS, watchOS)</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">API 23</div>
+          <div class="announce-lbl">New minimum SDK (raised from API 21)</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Beta</div>
+          <div class="announce-lbl">Approaching stable — no planned feature additions after 2.10</div>
+        </div>
+      </div>
+
+      <h2>The KMP Story: What Actually Changes</h2>
+
+      <p>KMP support in Navigation 2.10 isn't cosmetic. Three core modules now publish artifacts for every major non-Android target: <code>navigation-common</code>, <code>navigation-runtime</code>, and <code>navigation-testing</code>. If you maintain a shared module in a KMP project — say, a viewmodel layer that drives screen transitions — you can now depend on navigation-common from that module directly rather than putting Android-specific navigation logic behind an expect/actual boundary.</p>
+
+      <p>Two new common APIs make this concrete. First, <code>NavController.handleDeepLink(request: NavDeepLinkRequest)</code> replaces the Android-only overload that took a platform <code>Intent</code>. This function now lives in the common source set, so deep link handling logic is portable across targets without any platform bridging. Second, <code>NavUri</code> is a new platform-agnostic URI type that replaces <code>android.net.Uri</code> in navigation APIs — the Android-specific class that made it impossible to share deep link construction code between Android and non-Android targets.</p>
+
+      <pre><code>// Before 2.10 (Android only)
+val request = NavDeepLinkRequest.Builder
+    .fromUri(Uri.parse("myapp://product/42"))
+    .build()
+navController.handleDeepLink(intent)
+
+// With 2.10 (common, works on all KMP targets)
+val uri = NavUri("myapp://product/42")
+val request = NavDeepLinkRequest.Builder
+    .fromUri(uri)
+    .build()
+navController.handleDeepLink(request)</code></pre>
+
+      <p>For a pure Android app this doesn't change anything today — you can still use <code>android.net.Uri</code> on Android and Navigation will accept it. But if you're on a KMP project sharing a module between Android and iOS, or building a Compose Multiplatform app targeting Desktop, this is the piece that was missing before.</p>
+
+      <div class="callout">
+        <p><strong>Worth knowing:</strong> the fragment-based navigator artifacts (<code>navigation-fragment</code>, <code>navigation-ui</code>) are Android-only and aren't getting KMP targets. KMP support is in the common runtime layer only. If your navigation graph is Fragment-based, this update doesn't give you multiplatform reach — it's aimed at Compose Multiplatform and shared viewmodel patterns.</p>
+      </div>
+
+      <h2>NavBackStackEntryInfo — Predictive Back Gets Smarter</h2>
+
+      <p>The other notable addition in beta01 is <code>NavBackStackEntryInfo</code>, a new class that exposes back stack snapshots during navigation events. Before this, if you wanted to implement a custom predictive back animation in a NavHost-based app, you were working with limited context about what was actually on the back stack at the moment the gesture fired. The animation had to be generic because the gesture handler couldn't see the full picture.</p>
+
+      <p><code>NavBackStackEntryInfo</code> changes that. The lambda params for <code>predictivePopEnterTransition</code> and <code>predictivePopExitTransition</code> now receive entry info, so you can branch your animation based on what destination is being revealed:</p>
+
+      <pre><code>NavHost(
+    navController = navController,
+    startDestination = Home,
+    predictivePopEnterTransition = { backStackEntryInfo ->
+        // Slide from left for standard destinations,
+        // scale-in for modal-style screens
+        when (backStackEntryInfo.destination.route) {
+            "modal_detail" -> scaleIn(initialScale = 0.92f) + fadeIn()
+            else -> slideInHorizontally { -it / 3 } + fadeIn()
+        }
+    },
+    predictivePopExitTransition = { backStackEntryInfo ->
+        when (backStackEntryInfo.destination.route) {
+            "modal_detail" -> scaleOut(targetScale = 1.08f) + fadeOut()
+            else -> slideOutHorizontally { it / 3 } + fadeOut()
+        }
+    }
+) {
+    composable<Home> { HomeScreen() }
+    composable<ProductDetail> { ProductDetailScreen() }
+    composable("modal_detail") { ModalDetailScreen() }
+}</code></pre>
+
+      <p>This is particularly useful if you've mixed navigation patterns — some destinations that behave like full-screen replacements and others that feel more like sheets or dialogs but live in the back stack. The gesture can now drive visually distinct transitions per destination pair instead of a one-size-fits-all animation. I've been doing a version of this manually by wrapping NavHost with custom back gesture handling, and it's genuinely messy. Having it as a first-class API is cleaner.</p>
+
+      <h3>What predictive pop transitions actually mean for users</h3>
+
+      <p>Android's predictive back gesture gives users a live preview of where swiping back will take them before they commit to the gesture. If your <code>predictivePopEnterTransition</code> is set, that preview is driven by your animation instead of the system default, and it scrubs in real-time as the user drags. The richer the <code>NavBackStackEntryInfo</code> you can read, the more contextually accurate that preview is — users see the right animation for the specific destination they're returning to, not a generic one.</p>
+
+      <p>In Nodat, where we navigate between a main feed, post detail, and a profile overlay, these three destinations genuinely deserve different back animations. Before this API I had to accept either a single global transition or a lot of boilerplate state-tracking outside NavHost. This is cleaner either way.</p>
+
+      <h2>Min SDK Bump: API 21 → API 23</h2>
+
+      <p>Navigation 2.10 raises the minimum supported SDK from API 21 (Android 5.0) to API 23 (Android 6.0), aligning with the broader AndroidX library consolidation that happened across most Jetpack libraries earlier this year.</p>
+
+      <p>In practice, this almost certainly doesn't affect you. API 23 has had north of 99% device coverage in the Play Console for several years. The only scenario where this is a blocker is if you're maintaining an app with a hard requirement to run on Android 5.x — niche industrial or enterprise hardware, some regional markets with very old device stacks. If you're in that situation, staying on Navigation 2.9.x (current stable is 2.9.8) is the right call; Google will continue publishing critical bug fixes to the 2.9 line.</p>
+
+      <h2>The Deep Link Security Fix Worth Knowing About</h2>
+
+      <p>Alpha06 (July 1) also landed a security-adjacent fix that beta01 carries forward: <code>handleDeepLink</code> now validates that the incoming deep link matches a known destination before processing it. Previously, a malformed or unexpected deep link could be partially processed even if no destination matched it. The fix ensures only recognized deep links — ones that match a registered deep link pattern in your nav graph — are handled at all. Unrecognized deep links are now dropped silently.</p>
+
+      <div class="callout-blue">
+        <p><strong>If you handle deep links from external sources</strong> (push notifications, web redirects, app-to-app links), this tightens the behavior in your favor. Attackers probing your deep link surface no longer get even partial handling on unknown paths. No action needed from you — just awareness that the behavior changed.</p>
+      </div>
+
+      <h2>Where Navigation 2.x Is Headed: The Maintenance Mode Signal</h2>
+
+      <p>Here's the honest take. Navigation 2.10 is probably the last feature release for this library track. The documentation already describes Navigation 2.x as being in maintenance mode, meaning only critical bug fixes from here. No new navigation patterns, no new transition APIs, no new deep link features beyond what's already there.</p>
+
+      <p>This mirrors what happened with Views last week. It's not an emergency — both libraries will remain fully supported for years — but the message is clear: Google has made its architectural bet on Navigation3 and Compose, and new investment is going there.</p>
+
+      <p>For an app like Samachar, which I built entirely on the classic Navigation library with a Fragment-based UI, this means I have a choice to make over the next year or two: migrate incrementally to Compose + Navigation3, or accept that the navigation layer is "done" and treat it like a stable dependency I don't have to think about much. Both are legitimate choices. Navigation 2.10 is stable, well-understood, and will keep working. The cost is you're not getting new capabilities, and the tooling investment is going elsewhere.</p>
+
+      <h3>Navigation 2.10 vs. Navigation3: the practical decision tree</h3>
+
+      <ul>
+        <li><strong>Greenfield Compose app:</strong> Navigation3. It's already at 1.1.4 stable, has type-safe destinations, developer-controlled back stack, and full Scene support. This is where active investment is going.</li>
+        <li><strong>Existing Fragment/View app:</strong> Navigation 2.10 for now. Migrating all your Fragment destinations to Compose just to get Navigation3 isn't worth the churn unless you're already on a Compose migration path.</li>
+        <li><strong>Mixed Compose/Fragment app:</strong> Depends on how far into Compose you are. If you're past 50% Compose coverage, building new screens on Navigation3 and letting old Fragment destinations stay on 2.x is a reasonable stepping-stone pattern.</li>
+        <li><strong>KMP shared module:</strong> Navigation 2.10 if you want navigation primitives in common code today. Navigation3 has KMP support in its own alpha roadmap, but it's not there yet for shared business-logic layers.</li>
+      </ul>
+
+      <h2>Upgrading to 2.10.0-beta01</h2>
+
+      <p>The API surface from 2.9.x is largely stable. The two changes that require code edits are the <code>NavUri</code> type (if you're explicitly passing <code>android.net.Uri</code> into navigation APIs in shared code) and the min SDK bump (if you're on API 21).</p>
+
+      <pre><code>// build.gradle.kts
+dependencies {
+    val navVersion = "2.10.0-beta01"
+
+    // Compose-based navigation
+    implementation("androidx.navigation:navigation-compose:$navVersion")
+
+    // Fragment-based navigation
+    implementation("androidx.navigation:navigation-fragment:$navVersion")
+    implementation("androidx.navigation:navigation-ui:$navVersion")
+
+    // Testing
+    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
+}
+
+// Serialization plugin needed for type-safe routes
+plugins {
+    kotlin("plugin.serialization") version "2.0.21"
+}</code></pre>
+
+      <p>Beta status means API stability is locked — the team isn't planning breaking changes before the stable release. Running it in production is low-risk for most apps. That said, this is still technically pre-stable, so if you're in a context where any pre-stable dependency is a policy violation (some enterprise environments), wait for the stable release, which should follow relatively quickly given beta01 is the first beta.</p>
+
+      <p>The bottom line: Navigation 2.10.0-beta01 is a good release that honest about its scope. KMP support lands where it matters (common runtime, not Android-specific navigators), predictive back gets a proper API, and the security posture tightens. It's not a reason to defer a Navigation3 migration if you were already planning one — but it's not a reason to panic if you weren't. Your existing Navigation 2.x graphs will work, and work well, for a long time to come.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('navigation-2-10-kmp-predictive-back-maintenance-mode');
+  </script>
+</body>
+</html>
