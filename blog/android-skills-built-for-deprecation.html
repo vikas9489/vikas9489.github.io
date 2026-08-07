@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Skills: Why Google Built an AI Knowledge Layer Designed to Disappear — bytevikas</title>
+  <meta name="description" content="Google's official Android Skills arrived in April and the first deep-dive post on how they work just landed. The philosophy: every skill you install today should eventually make itself obsolete as models improve." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ffe066;--accent-dim:rgba(255,224,102,.1);--accent-border:rgba(255,224,102,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,224,102,.05) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body a{color:var(--accent);text-decoration:none;}
+    .post-body a:hover{text-decoration:underline;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(255,224,102,.06);border:1px solid rgba(255,224,102,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,224,102,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Skills</span>
+      <span class="post-date">Aug 7, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Android Skills: Why Google Built an AI Knowledge Layer Designed to Disappear</h1>
+
+    <div class="post-body">
+
+      <p>When Google shipped official Android Skills in April, the initial reaction from most developers was pragmatic curiosity: another tool to help AI assistants write better Android code, fine, I'll install a few. But the philosophy behind how those skills were built — and more importantly, <em>why</em> so few of them exist — is the more interesting story. Jose Alcérreca's post yesterday on the Android Developers Blog finally laid that philosophy out directly.</p>
+
+      <p>The short version: every skill Google ships is designed to make itself obsolete. They call it "built for deprecation," and it's a specific engineering stance that I find a lot more thoughtful than the "install everything" approach most people default to.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">~20</div>
+          <div class="announce-lbl">Official skills released as of publication</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">100–200</div>
+          <div class="announce-lbl">Baseline tokens per installed skill</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Deprecated</div>
+          <div class="announce-lbl">When the base model catches up</div>
+        </div>
+      </div>
+
+      <h2>What Android Skills Actually Are</h2>
+
+      <p>An Android Skill is a knowledge injection module — a structured document that gets prepended to an LLM's context when you invoke it, bridging the gap between what a general-purpose model knows and what it needs to know for a specific, fast-moving corner of Android development. Each installed skill costs 100–200 tokens of baseline context just by existing, and can expand to thousands when activated. That cost is real, which is why selection matters more than accumulation.</p>
+
+      <p>The key insight is that skills only add value where verifiable knowledge gaps exist. State-of-the-art models already have a solid understanding of Kotlin fundamentals, basic Compose, and well-documented Android APIs. Installing a "Kotlin basics" or "RecyclerView" skill doesn't help a frontier model — it just wastes tokens. The official Android Skills target the narrow domains where even SOTA models reliably hallucinate or lag behind: AGP 9, Navigation 3, advanced Camera APIs, and Perfetto SQL query syntax. These are areas where the documentation is recent, the APIs are in flux, and the training data cutoffs simply haven't caught up yet.</p>
+
+      <h2>Evals Are to Skills What Integration Tests Are to Code</h2>
+
+      <p>The part of Alcérreca's post that landed hardest for me was the evaluation framework. Before any official skill ships, it has to pass a structured eval — a test that verifies the skill actually closes the knowledge gap it claims to close. The eval must <em>fail without the skill active and pass with it</em>. No eval pass, no ship.</p>
+
+      <p>Here's what a representative eval looks like for a Wear OS skill:</p>
+
+      <pre><code>timeout_s: 1200
+category_ids:
+  - wear
+prompt: "Add a horizontal pager to MainActivity.kt..."
+commands:
+  build:
+    - ./gradlew assembleDebug
+acceptance_criteria:
+  project_builds: true
+  llm_diff_judge:
+    - Must use `HorizontalPagerScaffold`
+    - Each page should use `AnimatedPage`</code></pre>
+
+      <p>The criteria are concrete: the project must build, and an LLM judge must verify the generated diff uses the modern API (not the deprecated one the model would fall back to without the skill). Testing runs against Gemini Flash, then validates compatibility with Gemini Pro and other agents. If the base model already passes without the skill, the skill doesn't ship — period.</p>
+
+      <div class="callout">
+        <p><strong>Why this matters for your own skill collection:</strong> most community skills have no equivalent eval. They were written by hand, not tested, and not verified against what the model already knows. Installing them might help, might do nothing, or might actively confuse the model with redundant or subtly wrong guidance.</p>
+      </div>
+
+      <h2>The Android Knowledge Base Should Be Your First Stop</h2>
+
+      <p>Before you reach for individual skills, the post argues that the <strong>Android Knowledge Base</strong> is a better default tool for most situations. It's available directly in Android Studio (no configuration needed) and for other agents, you install the Android CLI to access its <code>docs</code> command. The Knowledge Base gives the model real-time access to official Android documentation — which means a model that <em>asks the docs</em> will outperform one holding a stale skill for the same topic.</p>
+
+      <p>The recommended setup for AGENTS.md:</p>
+
+      <pre><code>Always consult the official Android documentation
+when dealing with Android APIs</code></pre>
+
+      <p>Simple instruction, measurable impact. When a model is prompted to query documentation before generating code, it catches deprecated APIs, wrong parameter names, and version-specific behavior changes that a pre-written skill might not cover if it was authored before the most recent API update. The skill system and the Knowledge Base aren't competitors — they cover different gaps — but the Knowledge Base should come first in your toolchain.</p>
+
+      <h2>When Skills Actually Add Value</h2>
+
+      <p>Given all this, when <em>should</em> you install skills? Alcérreca lays out four specific scenarios where even capable models underperform without skill augmentation:</p>
+
+      <p><strong>Vague prompts.</strong> When you type "add animations to this screen," a skill for Compose animation patterns steers the model toward the correct modern API instead of generating syntactically correct but outdated code. The prompt is ambiguous; the skill clarifies intent.</p>
+
+      <p><strong>Smaller or cheaper models.</strong> If you're running Gemma 4 locally or using a smaller/faster model to keep costs down, skills can meaningfully bridge the knowledge gap that comes with fewer parameters. What a frontier model knows implicitly, a smaller model needs explicit guidance for.</p>
+
+      <p><strong>Legacy code refactoring.</strong> LLMs strongly prefer consistency. If your codebase uses a pre-Compose navigation approach throughout, the model will generate more code in that same style by default — it's imitating what it sees. A skill that explicitly flags modernization targets can break this pattern. Think of it as a "reviewer agent" mode with specific opinions.</p>
+
+      <p><strong>Custom architecture deviations.</strong> If your team built something that doesn't match the canonical Google architecture — say, a non-standard module graph, a custom DI approach, or a bespoke lifecycle hook pattern — a skill is how you encode that context. The model defaults to what Google documented; the skill overrides it with what your team actually built.</p>
+
+      <p>None of these are the "I want better Android code generally" use case. That's exactly the situation where skills don't help and a model querying the Knowledge Base does.</p>
+
+      <h2>Why Only ~20 Official Skills Exist</h2>
+
+      <p>The small official catalogue is intentional, not an oversight. The skills team audits what SOTA models already know before creating anything new. If the base model handles the topic well, no skill ships — the token cost isn't worth it. The current official set is deliberately narrow: AGP 9 migration nuances (covered in the blog post <a href="agp-9-migration-guide.html">I wrote earlier</a>), Navigation 3's new API surface (again, <a href="navigation3-stable-compose-first-navigation.html">already covered here</a>), advanced Camera APIs, and Perfetto SQL syntax. These are all legitimately hard, fast-moving, or under-documented topics where even a frontier model reliably reaches for outdated patterns.</p>
+
+      <div class="callout-green">
+        <p>Pull requests are disabled on the official skills repository — not because of quality gates, but because the evaluation framework depends on internal Google infrastructure that can't be open-sourced. Without the ability to re-run evals on proposed changes, accepting PRs would mean shipping untested skills. File issues instead if you find a gap or bug.</p>
+      </div>
+
+      <h2>Community Skills: Where to Look (and What to Avoid)</h2>
+
+      <p>The three community skill collections Alcérreca calls out as reputable are from Chris Banes (Compose and Kotlin skills), Ivan Morguillo (Compose project auditing), and Jaewoong Eum (testing and performance skills). All three are written by engineers who actively ship Android code, focused on domains they know well, and — importantly — are not auto-generated.</p>
+
+      <p>The anti-pattern to avoid: repositories with dozens or hundreds of auto-generated skills covering broad software engineering topics. Most of these are web-development focused, poorly targeted, and untested. "General software engineering best practices" as a skill category is basically useless for Android — the model already knows general patterns; what it lacks is Android-specific depth. Installing generic skills doesn't add depth, it adds noise and eats tokens.</p>
+
+      <h2>The "Built for Deprecation" Strategy</h2>
+
+      <p>Here's the framing I keep coming back to. Alcérreca paraphrases Andrej Karpathy: <em>skills of today will be in the models of tomorrow</em>. Google's approach is to treat the skill layer as a temporary scaffolding — a way to inject knowledge that model training hasn't caught up with yet. When a new model releases, the skills team re-runs all evals. If the model now passes without the skill active, the skill enters a deprecation window (kept around for a few months to let teams adjust) and then gets retired.</p>
+
+      <p>This is the opposite of the "install everything and never uninstall" approach. Skills accumulate token overhead as a fixed cost even when inactive. A skill that the base model has already absorbed doesn't help your generation quality — it just reduces the effective context window available for your actual code.</p>
+
+      <p>I find the explicit deprecation cadence refreshing. Most tooling accumulates. Dependencies, libraries, config, skill files — all of it tends toward growth, never reduction. The Android Skills team has built the exit path into the system from day one, which is the right call when the ground truth (model capability) is changing as fast as it is right now.</p>
+
+      <h2>What This Means for How I Work</h2>
+
+      <p>My current approach after reading this: I'm running a small audit of the skills I have installed. Anything covering stable Kotlin fundamentals, core Compose patterns, or well-documented APIs that are more than a year old — those are coming out. The base model knows this. I'm keeping AGP 9 skills (the defaults flipped, the Variant API removal, and the R8 repackaging behavior are genuinely non-obvious and recent enough to matter) and anything touching Navigation 3's newer alpha surface.</p>
+
+      <p>For apps like Nodat and Musist where the architecture is fairly standard Clean Architecture over Hilt, the model handles the structural code well without skill augmentation. Where I actually get value is on the performance measurement side — Macrobenchmark and Perfetto SQL syntax are exactly the kind of "narrow, technical, recently evolved" domain the skills were built for.</p>
+
+      <p>The post also made me think more carefully about the Knowledge Base. I'd been treating "install a skill" and "the model knows the API" as equivalent moves, but they're not. A skill is a static snapshot; the Knowledge Base is a live query against current docs. For anything that's shipped a new stable version in the last three months, the Knowledge Base wins. For team-specific patterns and conventions that don't exist in any documentation, a custom skill is the right tool.</p>
+
+      <h2>The Bigger Picture</h2>
+
+      <p>Android Skills are ultimately a bet that the period where models need curated knowledge injection is finite. Google is explicitly engineering for a future where the skills become unnecessary — not because AI coding assistants become less important, but because the models get good enough that specific guidance documents are redundant. That's a reasonable bet. Frontier model capability on Android-specific tasks has improved substantially over the past year.</p>
+
+      <p>The practical takeaway: install selectively, prefer the Knowledge Base for live documentation queries, audit your existing installs against what current models already know, and don't treat skill accumulation as a quality signal. The goal is better code generation, not a longer skill list. If the official team is building for deprecation, maybe your approach to the tool should be too.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-skills-built-for-deprecation');
+  </script>
+</body>
+</html>
