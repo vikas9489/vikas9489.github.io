@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media3 1.11.0 Stable: OggMuxer, Chapter Metadata, and the Production Upgrade Checklist — bytevikas</title>
+  <meta name="description" content="Media3 1.11.0 graduated to stable on August 5, 2026. Beyond what alpha01 and beta01 shipped, stable adds OggMuxer and WavMuxer for audio output, MP4 chapter extraction, enablePerStreamMediaProgression() for startup latency, and HLS Content Steering. Here's the complete migration guide." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#0ea5e9;--accent-dim:rgba(14,165,233,.1);--accent-border:rgba(14,165,233,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(14,165,233,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-amber{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-amber p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-amber strong{color:#22c55e;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    .migration-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:15px;}
+    .migration-table th{text-align:left;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--card-border);}
+    .migration-table td{padding:12px 14px;color:#c0cdd8;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;}
+    .migration-table td code{font-size:13px;}
+    .tag-removed{color:#f87171;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;text-transform:uppercase;}
+    .tag-moved{color:#fbbf24;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;text-transform:uppercase;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+      .migration-table{font-size:13px;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(14,165,233,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Media</span>
+      <span class="post-date">Aug 8, 2026</span>
+      <span class="read-time">10 min read</span>
+    </div>
+
+    <h1>Media3 1.11.0 Stable: OggMuxer, Chapter Metadata, and the Production Upgrade Checklist</h1>
+
+    <div class="post-body">
+
+      <p>Media3 1.11.0 graduated to stable on August 5, 2026. I covered the alpha01 milestone back when PlayerPool and the Compose player suite landed, and beta01 when HLS track selection priorities and DASH CDN fallback arrived. Stable is a different kind of post — it's the one where you actually decide whether to ship the upgrade, and that decision needs a clear picture of what's genuinely new in stable (beyond what I already wrote) and what will break in your existing code.</p>
+
+      <p>Short version: the upgrade is worth doing, and there's less breakage than the long changelog suggests. But there are a handful of renamed and relocated classes that will cause compilation failures if you don't catch them first.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Aug 5</div>
+          <div class="announce-lbl">Stable release date</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">OGG + WAV</div>
+          <div class="announce-lbl">New audio muxer output formats</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">5+</div>
+          <div class="announce-lbl">API removals to check before upgrading</div>
+        </div>
+      </div>
+
+      <h2>What's New in Stable Beyond Alpha and Beta</h2>
+
+      <p>If you read the alpha01 and beta01 posts, you already know about PlayerPool, the Compose player UI suite, dynamic scheduling as default, Format.selectionPriority from HLS SCORE, DASH multi-Location CDN fallback, and the Cast MediaRouteButtonState additions. Those all graduated to stable unchanged. Here's what didn't get coverage yet.</p>
+
+      <h3>OggMuxer and WavMuxer — Media3 Can Now Write Audio</h3>
+
+      <p>Media3 has always been about playing and processing media. Muxing — writing encoded audio or video into a container — has historically meant reaching for a separate library or building around <code>MediaMuxer</code> directly. Stable 1.11.0 ships two new muxers that change that equation for audio recording use cases.</p>
+
+      <p><strong>OggMuxer</strong> writes OPUS or VORBIS audio streams into an OGG container. <strong>WavMuxer</strong> writes integer and floating-point PCM audio into WAV files. Both follow the same muxer contract as the existing <code>Mp4Muxer</code> and <code>FragmentedMp4Muxer</code>, so if you've integrated those, the API is familiar:</p>
+
+      <pre><code>// Recording OPUS audio to OGG
+val muxer = OggMuxer(outputStream)
+val trackIndex = muxer.addTrack(
+    MediaFormat.createAudioFormat(MimeTypes.AUDIO_OPUS, sampleRate, channelCount)
+)
+muxer.writeSampleData(trackIndex, encodedBuffer, bufferInfo)
+muxer.release()
+
+// Writing raw PCM to WAV (e.g., from AudioRecord)
+val muxer = WavMuxer(outputStream)
+val trackIndex = muxer.addTrack(
+    MediaFormat.createAudioFormat(MimeTypes.AUDIO_RAW, 44100, 2)
+)
+muxer.writeSampleData(trackIndex, pcmBuffer, bufferInfo)
+muxer.release()</code></pre>
+
+      <p>In Musist, I've been writing recorded audio clips to a temporary file using <code>MediaMuxer</code> with <code>OutputFormat.MUXER_OUTPUT_MPEG_4</code> because MP4 was the only practical option without a custom wrapper. For apps that need OGG output — podcast recording, game audio capture, anything targeting a pipeline that expects Ogg Vorbis — <code>OggMuxer</code> removes that workaround entirely. The WAV path is even more useful for apps that hand off audio to post-processing pipelines where PCM is expected rather than compressed.</p>
+
+      <h3>MP4 Chapter Metadata Extraction</h3>
+
+      <p>Media3 can now extract chapter metadata from MP4 files in both Nero and QuickTime chapter formats. The chapters surface through <code>MediaMetadata</code> and are accessible from <code>Player.currentMediaItem.mediaMetadata</code> after the item loads.</p>
+
+      <p>This sounds like a niche feature, but it's surprisingly relevant for podcast apps, audiobook players, and long-form video content. Any MP4 that was created with chapter markers — which includes a large fraction of podcasts converted from MP3-with-chapters and most video exports from tools like DaVinci Resolve or Final Cut Pro — now exposes those chapters without you doing any custom extraction logic. For HailUp, which plays user-uploaded content including long recordings, this opens up the possibility of a chapter-skip UI without requiring uploaders to provide a separate chapter manifest.</p>
+
+      <pre><code>// Chapters arrive in MediaMetadata after item loads
+player.addListener(object : Player.Listener {
+    override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+        val chapters = mediaMetadata.extras?.getParcelableArrayList&lt;Chapter&gt;("chapters")
+        // render chapter list or seek bar markers
+    }
+})</code></pre>
+
+      <h3>enablePerStreamMediaProgression() — Reducing Cold-Start Between Playlist Items</h3>
+
+      <p>This is marked <code>@ExperimentalApi</code>, but it addresses a real problem worth knowing about. When a playlist transitions between items, ExoPlayer has always had a small but perceptible pause as it sets up the next stream — even when preloading is enabled. The underlying issue is that stream progression (the transition from one item's metadata phase to another's buffering phase) has latency baked in by design for correctness reasons.</p>
+
+      <p><code>ExoPlayer.Builder.enablePerStreamMediaProgression()</code> opts into a new scheduling path that reduces this inter-item gap, at the cost of slightly higher complexity in edge cases around mid-transition seeks. Google describes it as "reduces startup latency between playlist items" without quantifying by how much, which is the honest answer — it's workload-dependent.</p>
+
+      <pre><code>val player = ExoPlayer.Builder(context)
+    .setMediaSourceFactory(
+        DefaultMediaSourceFactory(context).setDataSourceFactory(dataSourceFactory)
+    )
+    .enablePerStreamMediaProgression()  // @ExperimentalApi
+    .build()</code></pre>
+
+      <p>In a vertical feed like Samachar's, where the playlist is essentially infinite and every item transition is a cold start for the viewer, this is worth experimenting with. Enable it behind a feature flag, run a Macrobenchmark measuring time-from-swipe-to-first-frame, and compare. If you're not on a playlist-heavy architecture, skip it for now.</p>
+
+      <h3>HLS Content Steering and Pathway Cloning</h3>
+
+      <p>Content Steering is an HLS spec extension that lets a steering server dynamically redirect a player from one CDN pathway to another during playback — without interrupting the stream. Pathway Cloning extends this by allowing a server to describe new pathways derived from existing ones rather than having to enumerate every CDN option upfront in the manifest.</p>
+
+      <p>Media3 1.11.0 implements both. If your HLS infrastructure uses a steering server (common in large-scale live streaming, e.g., sports events), you get automatic pathway switching based on server-side decisions: geographic routing, CDN load balancing, or CDN failure fallback. Zero client code changes required — the player reads the <code>EXT-X-CONTENT-STEERING</code> tag from the manifest and handles the steering protocol internally.</p>
+
+      <p>For Nodat's live room features this would have been relevant — we ended up building a manual CDN fallback that watches for HTTP 5xx errors and swaps the source URL. Content Steering automates exactly that, but driven by the server rather than client-side error detection.</p>
+
+      <h3>New Compose Player State Composables</h3>
+
+      <p>The alpha01 Compose player suite (MiniController, PlayerDefaults, ErrorState) now comes with two additional state holders that make it easier to wire up metadata-driven UIs without writing your own <code>collectAsState</code> loops.</p>
+
+      <p><strong><code>CurrentMediaItemState</code></strong> and <code>rememberCurrentMediaItemState</code> expose the current item's metadata, artwork, and title as observable Compose state — useful for now-playing displays, lock screen controls, and notification-style overlays that need to stay in sync with the player without boilerplate.</p>
+
+      <p><strong><code>PlaylistState</code></strong> and <code>rememberPlaylistState</code> expose the full playlist as Compose state, with current-item highlighting already computed. This is the composable-native equivalent of the listener pattern most teams have been writing manually since Media3 launched its Compose UI artifacts.</p>
+
+      <pre><code>@Composable
+fun NowPlayingBar(player: Player) {
+    val currentItem by rememberCurrentMediaItemState(player)
+    val playlist by rememberPlaylistState(player)
+
+    Column {
+        Text(currentItem.mediaMetadata.title ?: "")
+        Text("${playlist.currentItemIndex + 1} / ${playlist.mediaItems.size}")
+        LinearProgressIndicator(progress = { currentItem.durationProgress })
+    }
+}</code></pre>
+
+      <h2>IAMF Audio and Channel Mask Support</h2>
+
+      <p><code>Mp4Muxer</code> and <code>FragmentedMp4Muxer</code> now support IAMF (Immersive Audio Model and Formats) — the open standard for object-based spatial audio adopted by the MPEG group. If your pipeline produces IAMF-encoded audio (relevant for XR and VR content, where spatial audio is table stakes), you can now mux it directly into MP4 containers without format conversion.</p>
+
+      <p>On the playback side, <code>Format.channelMask</code> explicitly exposes the audio channel mask rather than relying on callers to infer it from channel count. If you've written code that converts between channel count and Android's <code>AudioFormat.CHANNEL_OUT_*</code> constants manually, <code>Util.getAudioTrackChannelConfig(Format)</code> now handles that conversion safely and consistently.</p>
+
+      <h2>The Migration Checklist</h2>
+
+      <p>These are the changes that will cause your build to fail or your runtime to behave differently after bumping to 1.11.0. Go through them before you submit the upgrade to code review.</p>
+
+      <table class="migration-table">
+        <thead>
+          <tr>
+            <th>Old API</th>
+            <th>New API</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>androidx.media3.exoplayer.MetadataRetriever</code></td>
+            <td><code>androidx.media3.inspector.MetadataRetriever</code></td>
+            <td><span class="tag-moved">Moved</span></td>
+          </tr>
+          <tr>
+            <td><code>androidx.media3.exoplayer.MediaExtractorCompat</code></td>
+            <td><code>androidx.media3.inspector.MediaExtractorCompat</code></td>
+            <td><span class="tag-moved">Moved</span></td>
+          </tr>
+          <tr>
+            <td><code>DummyTrackOutput</code></td>
+            <td><code>DiscardingTrackOutput</code></td>
+            <td><span class="tag-moved">Renamed</span></td>
+          </tr>
+          <tr>
+            <td><code>DummyExtractorOutput</code></td>
+            <td><code>NoOpExtractorOutput</code></td>
+            <td><span class="tag-moved">Renamed</span></td>
+          </tr>
+          <tr>
+            <td><code>C.generateAudioSessionIdV21()</code></td>
+            <td><code>Util.generateAudioSessionId(context)</code></td>
+            <td><span class="tag-removed">Removed</span></td>
+          </tr>
+          <tr>
+            <td><code>Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA</code></td>
+            <td>Not replaced — remove usages</td>
+            <td><span class="tag-removed">Removed</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>The two package moves (MetadataRetriever and MediaExtractorCompat into <code>media3-inspector</code>) will cause import-level compile errors if your code references them directly. Add the <code>media3-inspector</code> artifact to your dependencies if you use either class:</p>
+
+      <pre><code>dependencies {
+    val media3Version = "1.11.0"
+    implementation("androidx.media3:media3-exoplayer:$media3Version")
+    implementation("androidx.media3:media3-exoplayer-hls:$media3Version")
+    implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
+    implementation("androidx.media3:media3-ui-compose:$media3Version")
+    implementation("androidx.media3:media3-session:$media3Version")
+    implementation("androidx.media3:media3-datasource-ktor:$media3Version")  // if using Ktor
+    implementation("androidx.media3:media3-inspector:$media3Version")         // if using MetadataRetriever
+}</code></pre>
+
+      <div class="callout">
+        <p><strong>Kotlin version bump:</strong> 1.11.0 upgrades its internal Kotlin dependency from 2.0.20 to 2.2.0. If your project pins Kotlin at 2.0.x via the kotlin-gradle-plugin, you should align with 2.2.x for a clean build. The K2 compiler is stable in 2.2.0 and brings meaningful compile-time improvements — there's no good reason to stay on 2.0.x at this point.</p>
+      </div>
+
+      <h3>MediaSession Threading Gets Stricter</h3>
+
+      <p>The release notes call out stricter threading requirements for <code>MediaSession</code>. Specifically, <code>onConnect</code> default behavior now gives untrusted controllers read-only access by default rather than the previous more permissive stance. If your session was relying on the old default to allow untrusted controllers to issue playback commands (which was a footgun, not a feature), you'll need to explicitly override <code>MediaSession.Callback.onConnect()</code> and grant the capabilities you actually want.</p>
+
+      <p>The new <code>MediaSession.Callback.onConnectAsync()</code> is worth adopting at the same time — it lets you do asynchronous work (permission checks, analytics initialization) during connection without blocking the calling thread.</p>
+
+      <pre><code>class MySessionCallback : MediaSession.Callback {
+    override fun onConnectAsync(
+        session: MediaSession,
+        controller: MediaSession.ControllerInfo
+    ): ListenableFuture&lt;SessionResult&gt; {
+        return Futures.immediateFuture(
+            if (controller.isTrusted) {
+                SessionResult(SessionResult.RESULT_SUCCESS)
+            } else {
+                // grant read-only access
+                SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED)
+            }
+        )
+    }
+}</code></pre>
+
+      <h2>Should You Upgrade Now?</h2>
+
+      <p>Yes, with one caveat: run through the migration table above before you touch your version catalog. The compile-time changes are mechanical — import updates and dependency additions — and they'll surface immediately as build failures rather than hiding until runtime. An hour of careful find-and-replace is all it takes.</p>
+
+      <div class="callout-amber">
+        <p><strong>For media-heavy apps like Musist or HailUp:</strong> the dynamic scheduling default (from alpha01), the DASH CDN fallback (from beta01), and the session threading improvements alone are worth the upgrade. The new muxer support and chapter metadata are things you'll build on in future features, not something you need to integrate immediately.</p>
+      </div>
+
+      <p>The two things I'd defer: <code>enablePerStreamMediaProgression()</code> is still experimental, so keep it behind a flag until Google promotes it. And the new Compose player state composables (<code>CurrentMediaItemState</code>, <code>PlaylistState</code>) are stable API, but if you've already built custom state holders for your player UI, there's no urgency to migrate — the new composables are the better long-term home, but they're not a breaking replacement for what you have.</p>
+
+      <p>Media3 has earned production trust at this point. 1.11.0 stable isn't a risky upgrade — it's the consolidation of several months of careful alpha and beta work. Bump the version, fix the imports, run your existing tests, and ship it.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('media3-1-11-0-stable-muxers-chapter-metadata');
+  </script>
+</body>
+</html>
