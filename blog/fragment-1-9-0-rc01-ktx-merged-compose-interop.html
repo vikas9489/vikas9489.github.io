@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fragment 1.9.0-rc01: fragment-ktx Merged, Compose maxLifecycle, and the Maintenance Mode Reality Check — bytevikas</title>
+  <meta name="description" content="Fragment 1.9.0 is at RC01. Three things worth knowing: fragment-ktx is gone (merged into the main artifact by Jake Wharton), AndroidFragment gets a maxLifecycle param for Compose pagers, and Fragment officially enters maintenance mode." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#51cf66;--accent-dim:rgba(81,207,102,.1);--accent-border:rgba(81,207,102,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(81,207,102,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(81,207,102,.06);border:1px solid rgba(81,207,102,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-warn{
+      background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.2);
+      border-left:3px solid #fb923c;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fb923c;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(81,207,102,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Fragment</span>
+      <span class="post-date">Aug 9, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Fragment 1.9.0-rc01: fragment-ktx Merged, Compose maxLifecycle, and the Maintenance Mode Reality Check</h1>
+
+    <div class="post-body">
+
+      <p>Fragment 1.9.0 is sitting at RC01 right now, and while "release candidate for a library in maintenance mode" is not exactly a headline that gets hearts racing, there are three concrete changes in this release that affect how you work day to day — even if you've already migrated most screens to Compose. Because the reality is that Fragment doesn't just quietly die when you switch toolkits. It's embedded in how Activity hosts its UI, how Navigation handles back stacks, and how every <code>AndroidFragment</code> composable works inside your Compose screens. Which means changes here have downstream effects whether you're thinking about them or not.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Merged</div>
+          <div class="announce-lbl">fragment-ktx absorbed into fragment — one artifact now</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">maxLifecycle</div>
+          <div class="announce-lbl">New AndroidFragment param for Compose pager/tab control</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">RC01</div>
+          <div class="announce-lbl">Stable approaching — maintenance mode from here</div>
+        </div>
+      </div>
+
+      <h2>1. fragment-ktx Is Gone — In a Good Way</h2>
+
+      <p>The most impactful change landed in alpha01 back in June, contributed by Jake Wharton: the <code>fragment-ktx</code> artifact has been merged into the main <code>fragment</code> artifact. Every Kotlin extension that used to live in <code>fragment-ktx</code> — <code>viewModels()</code>, <code>activityViewModels()</code>, <code>by viewModels { factory }</code>, the <code>fragmentManager</code> extension properties, all of it — is now part of the base dependency.</p>
+
+      <p>In practical terms, if you were already depending on <code>fragment-ktx</code>, nothing breaks. The old artifact still exists as an empty compatibility shim, so your existing <code>build.gradle.kts</code> keeps compiling without errors. But you can simplify your dependency block:</p>
+
+      <pre><code>// Before
+implementation("androidx.fragment:fragment-ktx:1.8.x")
+
+// After (1.9.0+)
+implementation("androidx.fragment:fragment:1.9.0-rc01")
+// fragment-ktx is now redundant — the artifact is empty</code></pre>
+
+      <p>This matters more than it looks. Historically, "use the KTX variant" was advice you had to give new Android developers who just copy-pasted a Java-era tutorial and then wondered why their Kotlin delegate syntax didn't compile. That distinction goes away in 1.9. There's one artifact. If you're writing Kotlin (you are), it has everything.</p>
+
+      <p>If your project has both <code>fragment</code> and <code>fragment-ktx</code> in your dependency tree, you'll see Gradle deduplicate to the higher version. The merge also means one fewer artifact to keep in sync when updating — a small quality-of-life win across a codebase with many modules.</p>
+
+      <div class="callout">
+        <p><strong>Migration action:</strong> On 1.9.0+, you can remove <code>fragment-ktx</code> from your build files without any code changes. The APIs are still there, just in the base artifact. Run <code>./gradlew :app:dependencies</code> to confirm <code>fragment-ktx</code> resolves as an empty POM after the upgrade.</p>
+      </div>
+
+      <h2>2. ContextAware on Fragment — Small API, Useful Pattern</h2>
+
+      <p>Also in alpha01: Fragment now implements the <code>ContextAware</code> interface, which means you can attach a context-available listener directly on a Fragment instance without subclassing or lifecycle observation boilerplate.</p>
+
+      <pre><code>val fragment = MyFragment()
+
+fragment.addOnContextAvailableListener { context ->
+    // Runs as soon as the Fragment is attached to a host
+    // Safe to resolve Context-dependent resources here
+}
+
+parentFragmentManager.commit {
+    add(R.id.container, fragment)
+}</code></pre>
+
+      <p>The practical use case is initialization code that needs a <code>Context</code> but shouldn't run until the Fragment is actually attached — think setting up a <code>NotificationManager</code>, resolving a system service, or wiring up something from the application DI graph that needs application context to resolve. Before this, the cleanest option was overriding <code>onAttach()</code>. The listener pattern is cleaner when you're configuring a Fragment from outside its own class, which happens more than you'd think in coordinator patterns.</p>
+
+      <h2>3. maxLifecycle for AndroidFragment — The Compose Pager Fix</h2>
+
+      <p>This is the change most likely to directly affect you if you're in a hybrid Compose + Fragment codebase, and it came in alpha02 in July. The <code>AndroidFragment</code> composable — the bridge that lets you embed a legacy <code>Fragment</code> inside a Compose screen — now takes an optional <code>maxLifecycle</code> parameter.</p>
+
+      <pre><code>@Composable
+fun MyPagerScreen() {
+    HorizontalPager(state = pagerState) { page ->
+        when (page) {
+            0 -> AndroidFragment(
+                clazz = DashboardFragment::class,
+                maxLifecycle = Lifecycle.State.STARTED
+            )
+            1 -> AndroidFragment(
+                clazz = AnalyticsFragment::class,
+                maxLifecycle = Lifecycle.State.STARTED
+            )
+        }
+    }
+}</code></pre>
+
+      <p>Here's why this matters. Fragment lifecycle and Compose's pager-driven visibility don't naturally agree on when a Fragment is "in front of the user." In a <code>HorizontalPager</code>, the page at index 0 and the page at index 1 can both be composed simultaneously — one is on screen, the other is in the prefetch window. Without <code>maxLifecycle</code>, both Fragments would receive <code>onResume()</code>, which means both are "started" from the Fragment's perspective even when one is actually offscreen. That's a recipe for:</p>
+
+      <ul>
+        <li>Analytics events firing for invisible screens</li>
+        <li>Video players auto-starting while the user is on a different tab</li>
+        <li>Background polling or sensor subscriptions running unnecessarily</li>
+        <li>Camera or location resources held by an offscreen Fragment</li>
+      </ul>
+
+      <p>Setting <code>maxLifecycle = Lifecycle.State.STARTED</code> caps the Fragment's lifecycle at <code>STARTED</code> for all pages that aren't currently visible. Only the currently selected page gets promoted to <code>RESUMED</code>. The Fragment still exists and is composed, but it won't receive <code>onResume()</code> until it's actually in front of the user.</p>
+
+      <p>I've seen this exact bug in apps that use <code>HorizontalPager</code> for a tab-style navigation layout with legacy Fragment screens embedded per tab. The Musist library screen uses a tab pager to switch between albums, artists, and playlists — and if I'd embedded Fragments there instead of pure Compose, this is precisely the lifecycle leak I'd have had. The fix is one parameter now. It used to require manual <code>setMaxLifecycle()</code> calls through the FragmentManager, which is easy to get wrong under configuration changes.</p>
+
+      <div class="callout">
+        <p><strong>Rule of thumb:</strong> If you're embedding Fragments inside a <code>HorizontalPager</code>, <code>TabRow</code>, or any container where multiple Fragments can be composed simultaneously, always set <code>maxLifecycle = Lifecycle.State.STARTED</code> on the offscreen ones. The Compose runtime will promote to <code>RESUMED</code> when the user navigates to that page.</p>
+      </div>
+
+      <h2>4. System Tracing for Fragment Lifecycle Events</h2>
+
+      <p>Fragment 1.9.0-alpha02 also wired Fragment's own lifecycle transitions into <a href="jetpack-tracing-2-0-in-process-perfetto.html">Jetpack Tracing 2.0</a>. What this means concretely: if you have Tracing 2.0 in your dependency graph and capture a Perfetto trace during development, Fragment's lifecycle events — <code>onCreate</code>, <code>onCreateView</code>, <code>onViewCreated</code>, <code>onStart</code>, <code>onResume</code>, and their counterparts — now appear as labeled slices in the System Trace view.</p>
+
+      <p>This is not a capability you had before. Historically, you'd see the work being done inside these methods (Binder calls, measure/layout passes) but you'd have to correlate them back to Fragment lifecycle timing manually. Now the Fragment name and lifecycle event show up directly in the trace, which makes it substantially easier to answer questions like "why is this Activity's first visible frame slow" when the answer is "because <code>HeavyFragment.onViewCreated</code> is doing too much synchronous work."</p>
+
+      <p>For Nodat, where startup time was something I spent serious effort on (60% cold start reduction, as covered in <a href="startup-time-optimization.html">this post</a>), having Fragment lifecycle events annotated in the trace would have made attribution significantly faster. The optimization work was the same either way, but finding the bottleneck is the hard part — and annotated traces make that discovery meaningfully cheaper.</p>
+
+      <h2>5. RC01 Fix: FragmentScenario and FragmentContainerView</h2>
+
+      <p>The rc01 release is a focused bug fix: when using <code>FragmentScenario.launchInContainer()</code> in tests, the Fragment under test is now correctly placed inside a <code>FragmentContainerView</code> host instead of a generic <code>View</code>. This matters because <code>FragmentContainerView</code> is the recommended host for production Fragment transactions, and its behavior around back stack animations and predictive back is different from a plain <code>ViewGroup</code>. Tests written against a generic container could miss animation-related bugs that only surface when running against the real host type.</p>
+
+      <p>If you use <code>FragmentScenario</code> in your test suite — which you should if you're still writing Fragment tests — this is a quiet correctness fix that makes your test environment more representative of production. No action needed on your end beyond upgrading.</p>
+
+      <h2>The Maintenance Mode Signal — What It Actually Means</h2>
+
+      <p>Fragment 1.9.0 is officially in maintenance mode. The release notes say it plainly: critical fixes only, no new features planned. Google recommends Jetpack Compose for building Android UIs going forward.</p>
+
+      <p>This is the same trajectory Navigation 2.x is on — and it's worth understanding what it does and doesn't mean for your codebase.</p>
+
+      <p><strong>What it doesn't mean:</strong> Fragment is not deprecated, not being removed, and not broken. It will continue to work exactly as it does today for the foreseeable future. The Android platform itself is built around the Activity/Fragment model. Navigation 3 runs on top of Compose but Fragments still power backstack management internally in many app patterns. The library will receive security and crash fixes. Your apps that use Fragments will not break.</p>
+
+      <p><strong>What it does mean:</strong> New feature investment is going into Compose and Navigation3. If there's a Fragment capability you're waiting on — something that would require a new API — that API is probably not coming. The surface area is frozen at this point.</p>
+
+      <div class="callout-warn">
+        <p><strong>Practical guidance:</strong> For greenfield features and new screens, build in Compose. For existing Fragment-based screens, migrate when you touch them for other reasons — not as a dedicated migration effort with no other goal. Maintenance mode means the rate of change goes to near zero, which is actually a stable target for hybrid codebases in transition.</p>
+      </div>
+
+      <p>The pattern I've settled on across my own apps: anything that gets touched for a bug fix or feature addition gets migrated to Compose at the same time, since the rewrite cost is low when you're already in the file. Screens that haven't been touched in over a year are treated as stable Fragment screens with no urgency to move them. OnlyArabs, which I started fully in Jetpack Compose, has zero Fragment screens and that's clearly the direction new apps should take — but Musist has several Fragment screens that are working fine and not worth touching just to achieve architectural purity.</p>
+
+      <h2>Upgrade Checklist</h2>
+
+      <p>Here's what to do when you update to Fragment 1.9.0:</p>
+
+      <ol>
+        <li><strong>Remove <code>fragment-ktx</code></strong> from your dependency declarations. It's an empty artifact now — you're carrying dead weight if it's still there explicitly.</li>
+        <li><strong>Audit <code>AndroidFragment</code> usages</strong> inside pagers or tab containers. Add <code>maxLifecycle = Lifecycle.State.STARTED</code> to non-visible tabs to prevent lifecycle leaks.</li>
+        <li><strong>Add Jetpack Tracing 2.0</strong> to your debug build configuration if you haven't already. Fragment lifecycle events in Perfetto traces are now available for free — you don't want to miss that in your next performance investigation.</li>
+        <li><strong>Update test dependencies</strong>: bump <code>fragment-testing</code> to 1.9.0-rc01 alongside the main artifact so <code>FragmentScenario</code> picks up the container fix.</li>
+      </ol>
+
+      <p>Fragment 1.9.0 is not a release that demands urgent attention. But it's a solid, focused release that resolves real sharp edges in the Fragment/Compose interop story — and the maintenance mode announcement is a useful signal for planning your migration timeline. The library is stable, well-understood, and not going anywhere. The question is just whether you're building new things on it, and the answer to that should increasingly be no.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('fragment-1-9-0-rc01-ktx-merged-compose-interop');
+  </script>
+</body>
+</html>
