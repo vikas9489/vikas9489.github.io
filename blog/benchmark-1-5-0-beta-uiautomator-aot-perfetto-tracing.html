@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmark 1.5.0 Beta: UiAutomator 2.4, AOT Defaults, and In-Process Trace Merging — bytevikas</title>
+  <meta name="description" content="Benchmark 1.5.0-beta01 landed July 29. The full alpha cycle brought UiAutomator 2.4 into MacrobenchmarkScope, flipped requireAot to true by default, moved TraceProcessor to benchmark-common, and now lets PerfettoCapture merge in-process Tracing 2.0 traces. Here's the complete picture." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#5c7cfa;--accent-dim:rgba(92,124,250,.1);--accent-border:rgba(92,124,250,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(92,124,250,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(92,124,250,.06);border:1px solid rgba(92,124,250,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-green strong{color:#22c55e;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(92,124,250,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Testing</span>
+      <span class="post-date">Aug 10, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>Benchmark 1.5.0 Beta: UiAutomator 2.4, Safer AOT Defaults, and In-Process Trace Merging</h1>
+
+    <div class="post-body">
+
+      <p>Benchmark 1.5.0-beta01 landed on July 29 alongside the rest of the large AndroidX drop that week. If you track the benchmark library the way most developers track media or compose — only when something breaks — you might have missed that the alpha cycle leading up to this beta was quietly substantial. Seven alphas over eight months, each fixing a real paper cut or unlocking something that wasn't possible before.</p>
+
+      <p>I've been using Macrobenchmark since the 1.2 days, and it's been foundational for tracking the startup wins I documented in the <a href="startup-time-optimization.html">60% cold start reduction post</a>. The 1.5 cycle is the most consequential upgrade since the library graduated to stable. Here's the full picture across every meaningful change.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">UiAutomator 2.4</div>
+          <div class="announce-lbl">Ergonomic <code>onElement { }</code> replaces <code>findObject()</code> chains</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">AOT Default</div>
+          <div class="announce-lbl"><code>requireAot = true</code> enforced, preventing warm-JIT measurement</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Tracing 2.0</div>
+          <div class="announce-lbl">In-process traces merged into Macrobenchmark Perfetto sessions</div>
+        </div>
+      </div>
+
+      <h2>1. UiAutomator 2.4 Changes How You Write Benchmark Tests</h2>
+
+      <p>The most immediately visible change from the alpha01 (December 2025) work is that <code>MacrobenchmarkScope</code> now extends <code>UiAutomatorTestScope</code>. In practice, this means you can call UiAutomator 2.4's modern <code>onElement { }</code> APIs directly inside your <code>measureRepeated</code> blocks without going through <code>device.findObject()</code> boilerplate.</p>
+
+      <p>Before 1.5.0, a typical interaction block to tap the compose button in Nodat's quick-note flow looked like this:</p>
+
+      <pre><code>benchmarkRule.measureRepeated(
+    packageName = "com.nodat.app",
+    metrics = listOf(FrameTimingMetric()),
+    iterations = 10,
+    setupBlock = {
+        pressHome()
+        startActivityAndWait()
+    }
+) {
+    val fab = device.findObject(By.res("com.nodat.app:id/fab_compose"))
+    fab.click()
+    device.waitForIdle()
+}</code></pre>
+
+      <p>With 1.5.0 and UiAutomator 2.4's scope integration:</p>
+
+      <pre><code>benchmarkRule.measureRepeated(
+    packageName = "com.nodat.app",
+    metrics = listOf(FrameTimingMetric()),
+    iterations = 10,
+    setupBlock = {
+        pressHome()
+        startActivityAndWait()
+    }
+) {
+    onElement { hasContentDescription("New note") }.click()
+    waitForIdle()
+}</code></pre>
+
+      <p>The ergonomic difference is real. <code>onElement { }</code> with a semantic predicate is more resilient to resource ID changes — content descriptions and roles survive refactors better than resource IDs, and the lambda style composes better with <code>hasTestTag()</code> for Compose hierarchies. The <code>startActivity</code> wait behavior also changed to wait for a new window rather than a fixed idle state, which makes cold-start benchmarks more reliable on slower emulators and lower-end CI devices.</p>
+
+      <h3>Black Hole APIs stabilized</h3>
+
+      <p>Also in alpha01: the <code>BlackHole</code> APIs in <code>androidx.benchmark</code> are now stable. If you're writing microbenchmarks for pure computation — sorting, parsing, transform functions — <code>BlackHole.consume()</code> is your escape hatch for preventing dead code elimination from skewing results. Stable means you can depend on it without the experimental suppression annotation.</p>
+
+      <h2>2. requireAot = true by Default — The Pitfall It Prevents</h2>
+
+      <p>This change (alpha07, July 1) is the one I wish had happened in 1.2. The benchmark Gradle plugin now sets <code>androidx.benchmark.requireAot</code> to <code>true</code> by default when using AGP 8.4+. This means the benchmark run will fail fast if the measured app isn't AOT-compiled — rather than silently running against a JIT-warm process and reporting optimistic numbers that disappear in production.</p>
+
+      <p>The subtle gotcha this prevents: if you run your benchmark immediately after building without explicitly forcing compilation, ART might be running the first few iterations against interpreted or JIT-compiled code. The numbers look stable across iterations — JIT warms up fast — but they're systematically 15-30% better than what a real cold-launched production install would show. It's not a benchmark bug you'd catch by looking at variance; the numbers are just quietly wrong.</p>
+
+      <div class="callout">
+        <p><strong>What requireAot = true actually does:</strong> before the benchmark starts, it checks that the target package's dex code has AOT-compiled artifacts present. If the compilation step was skipped — common in local development where you're iterating fast — the run aborts with a clear error message rather than proceeding with potentially misleading data. You can override it back to <code>false</code> in your <code>testInstrumentationRunnerArguments</code> block if you have a genuine reason to measure JIT behavior, but the default now protects you from the common mistake.</p>
+      </div>
+
+      <p>The same alpha also updated the TraceProcessor implementation to Perfetto v56.0 and extended the Perfetto kill timeout from 5 seconds to 30 seconds. The longer timeout matters on CI runners — particularly the more constrained ones where Perfetto capture sessions would occasionally fail with a cryptic kill error that had nothing to do with the test itself.</p>
+
+      <h2>3. TraceProcessor Moves to benchmark-common</h2>
+
+      <p>Also in alpha07, <code>TraceProcessor.runServer</code> and its extension APIs moved from <code>androidx.benchmark:benchmark-macro</code> to <code>androidx.benchmark:benchmark-common</code>, and into the <code>androidx.benchmark</code> package rather than the macro-only subpackage.</p>
+
+      <p>The reason this matters: <code>benchmark-common</code> is the dependency that microbenchmark modules pull in. Previously, if you wanted to analyze a Perfetto trace in a microbenchmark test — say, to verify that a specific trace section appears a certain number of times during a tight computation loop — you had to pull in the heavier <code>benchmark-macro</code> artifact just to get <code>TraceProcessor</code>. Now you don't.</p>
+
+      <pre><code>// In a microbenchmark test (benchmark-common dependency only)
+@Test
+fun countCacheHits() = benchmarkRule.measureRepeated {
+    runWithTimingDisabled {
+        TraceProcessor.runServer {
+            val query = """
+                SELECT count(*) as hits
+                FROM slice
+                WHERE name = 'CacheStrategy#hit'
+            """.trimIndent()
+            val result = loadPerfettoTrace(perfettoTrace) {
+                query(query).toList()
+            }
+            check(result.first()["hits"] as Long > 0) {
+                "Expected cache hits but found none"
+            }
+        }
+    }
+}</code></pre>
+
+      <p>It's a dependency hygiene improvement more than a new capability, but if you've been keeping macro and micro benchmark modules separate to control build graph size, this matters.</p>
+
+      <h2>4. KMP Baseline Profile Support (alpha02)</h2>
+
+      <p>Alpha02 (January 2026) added partial Baseline Profile generation support for Kotlin Multiplatform Library modules. This is specifically for KMP libraries that compile to Android — your shared network or data layer in a KMP project can now produce and consume Baseline Profiles using the <code>baselineProfile</code> extension on the KMP variant.</p>
+
+      <pre><code>// In a KMP library module
+plugins {
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
+    id("androidx.baselineprofile.consumer")
+}
+
+baselineProfile {
+    variants {
+        androidMain {
+            from(project(":benchmark"))
+        }
+    }
+}</code></pre>
+
+      <p>For pure Android apps this doesn't change anything — Baseline Profile generation worked fine before. But if you're maintaining a KMP library consumed by an Android app, you can now generate profiles that actually improve startup and scroll jank for the shared code path, not just the Android-specific code around it.</p>
+
+      <h2>5. In-Process Trace Merging with Tracing 2.0 (beta01)</h2>
+
+      <p>The beta01 feature is the most architecturally interesting one, and it closes a gap that's existed since Jetpack Tracing 2.0 shipped. The new capability: <code>PerfettoCapture</code> and <code>PerfettoTraceRule</code> can now capture in-process Tracing 2.0 trace events and merge them into the same Perfetto trace file that Macrobenchmark produces.</p>
+
+      <p>Here's what this unlocks. Before beta01, if you instrumented your code with Tracing 2.0's <code>Tracer.trace()</code> calls — custom slice events, counter tracks, metadata-tagged events — those traces lived in separate files from your Macrobenchmark output. Correlating them required manual tooling: open the macro trace in Perfetto UI, open the in-process trace separately, try to line them up by timestamp. For complex startup paths with multiple initialization phases, this was genuinely painful.</p>
+
+      <pre><code>// Define your in-process trace events (Tracing 2.0)
+class DatabaseInitializer(private val tracer: Tracer) {
+
+    fun initialize() {
+        tracer.trace(category = "startup", name = "db-init") {
+            tracer.trace(category = "startup", name = "db-schema-migrate") {
+                runMigrations()
+            }
+            tracer.trace(category = "startup", name = "db-warm-cache") {
+                prewarmQueryCache()
+            }
+        }
+    }
+}
+
+// In your Macrobenchmark test — beta01
+@get:Rule
+val traceRule = PerfettoTraceRule(
+    enableAppTagging = true,
+    // merges in-process Tracing 2.0 events into the macro trace
+)
+
+@Test
+fun startupWithDbInitTrace() {
+    benchmarkRule.measureRepeated(
+        packageName = "com.nodat.app",
+        metrics = listOf(StartupTimingMetric()),
+        compilationMode = CompilationMode.Full(),
+        startupMode = StartupMode.COLD,
+        iterations = 5,
+    ) {
+        startActivityAndWait()
+    }
+}</code></pre>
+
+      <p>With beta01, the <code>PerfettoCapture</code> merge target is the same Macrobenchmark output file. Open one trace in Perfetto UI and you see both your system-level startup timeline (activity launch, binder calls, frame timing) and your application-level custom slices (db-init, schema-migrate, cache-warm) on the same timeline. Correlation becomes trivial — scroll horizontally, see what your code was doing at the exact moment the first frame drew.</p>
+
+      <div class="callout-green">
+        <p><strong>Practical impact:</strong> this is what makes the Tracing 2.0 investment pay off in benchmarks. The tracer calls in your production code aren't just for Android Studio's real-time profiler anymore — they're now first-class data in your benchmark output. If your cold start regresses by 80ms between releases, you can open the merged trace and immediately see which custom slice stretched, without writing any additional diagnostics code.</p>
+      </div>
+
+      <h2>ArtMetric and the AGP 9.1 Repackaging Fix</h2>
+
+      <p>Two alphas (alpha04 and alpha05) fixed <code>ArtMetric</code> to handle top-level packages, specifically in projects using AGP 9.1+ or R8's <code>-repackageclasses</code> option. This matters for anyone measuring class-load counts as part of startup benchmarks — <code>artClassLoad*</code> measurements would silently report zero for classes in repackaged namespaces, making it look like your startup wasn't loading anything when in fact R8 had just moved everything to a flat package structure.</p>
+
+      <p>If you're on AGP 9.1+ and use <code>ArtMetric</code>, upgrade to at least alpha04 before trusting your class-load numbers.</p>
+
+      <h2>Upgrading and Migration</h2>
+
+      <p>Bump the Benchmark BOM to <code>1.5.0-beta01</code>:</p>
+
+      <pre><code>// libs.versions.toml
+[versions]
+benchmark = "1.5.0-beta01"
+
+[libraries]
+benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
+benchmark-junit4 = { module = "androidx.benchmark:benchmark-junit4", version.ref = "benchmark" }
+
+// build.gradle.kts (benchmark module)
+dependencies {
+    androidTestImplementation(libs.benchmark.macro.junit4)
+}
+
+// Baseline Profile plugin
+plugins {
+    id("androidx.benchmark") version "1.5.0-beta01"
+}</code></pre>
+
+      <p>If you were previously setting <code>androidx.benchmark.requireAot = false</code> in <code>testInstrumentationRunnerArguments</code> to avoid the compilation check, you can remove it — false was already the default before 1.5, so it was a no-op. Now that the default flips to true with AGP 8.4+, decide whether you want to enforce it (recommended) or explicitly opt out.</p>
+
+      <p>If you use <code>TraceProcessor.runServer</code> in a microbenchmark module, move the import from the <code>benchmark-macro</code> package to <code>benchmark-common</code>. The API itself didn't change, just the artifact and package it lives in. The old location in <code>benchmark-macro</code> still works but will likely be deprecated in a subsequent release.</p>
+
+      <p>For UiAutomator migration: nothing breaks. Your existing <code>device.findObject()</code> calls still compile and run. The <code>onElement { }</code> APIs are additive — migrate incrementally as you touch tests, or run a codemod if you have a large suite.</p>
+
+      <h2>The Bigger Picture</h2>
+
+      <p>Benchmark 1.5 is the first release where the library visibly coordinates with two other in-progress Jetpack efforts at once: UiAutomator 2.4's modernized API surface and Tracing 2.0's in-process event model. That's a sign the toolchain is maturing past isolated library improvements toward a coherent measurement story — write custom trace events in production code, instrument user interactions with semantic selectors, merge everything into a single Perfetto file, analyze it in Studio's Performance Analyzer or the Perfetto UI.</p>
+
+      <p>The safer <code>requireAot</code> default is the most impactful change for teams that weren't already explicitly setting it. If your benchmark numbers have ever seemed better than production cold-start reality, this was probably part of why. With 1.5, the library enforces the measurement discipline that was always implied but never guaranteed.</p>
+
+      <p>For a library that tends to be stable-and-boring between major releases, this cycle delivered genuine capability upgrades. Worth the upgrade — beta01 is solid enough to run in CI; the API churn risk from here to stable is low.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('benchmark-1-5-0-beta-uiautomator-aot-perfetto-tracing');
+  </script>
+</body>
+</html>
