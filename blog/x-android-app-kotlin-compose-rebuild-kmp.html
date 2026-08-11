@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X Rebuilt Its Android App from Scratch in Kotlin + Compose — bytevikas</title>
+  <meta name="description" content="X shipped a fully rebuilt Android app in July 2026 — 100% Kotlin, Jetpack Compose UI, and Kotlin Multiplatform powering X Chat's E2E encryption across Android, iOS, and Web. Here's what a year-long clean-slate rewrite looks like and what every Android engineer can take from it." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ff7043;--accent-dim:rgba(255,112,67,.1);--accent-border:rgba(255,112,67,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,112,67,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(255,112,67,.06);border:1px solid rgba(255,112,67,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,112,67,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">KMP</span>
+      <span class="post-date">Aug 11, 2026</span>
+      <span class="read-time">11 min read</span>
+    </div>
+
+    <h1>X Rebuilt Its Android App from Scratch in Kotlin + Compose — What a Year of Clean-Slate Engineering Looks Like</h1>
+
+    <div class="post-body">
+
+      <p>On July 20, 2026, X (formerly Twitter) shipped a fully rebuilt Android app. Not a refactor, not a rewrite-by-replacement, not a new activity duct-taped into an old codebase. A clean-slate rebuild that started in August 2025 and took nearly a year to ship — and when it landed, the new app was <strong>100% Kotlin</strong>, with Jetpack Compose handling every pixel of the UI and Kotlin Multiplatform powering the core logic behind X Chat.</p>
+
+      <p>I've spent the last week reading everything I could about this, cross-referencing what the team shared publicly, and thinking through it against my own experience rebuilding production apps. Five years of Android development, apps like Nodat and Samachar that went through full architecture migrations, and a healthy respect for how badly large rewrites can go — and I came away genuinely impressed by how X structured this.</p>
+
+      <p>This post is a case study. Not a PR piece, not speculation. Just what the rebuild was, what the engineering choices signal, and what's worth stealing if you're facing a similar decision on your own codebase.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">100%</div>
+          <div class="announce-lbl">Kotlin — zero Java in the new Android codebase</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">KMP</div>
+          <div class="announce-lbl">X Chat: business logic shared across Android, iOS, and Web</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">~1 year</div>
+          <div class="announce-lbl">Engineering effort from clean slate to Play Store</div>
+        </div>
+      </div>
+
+      <h2>Why They Rewrote Instead of Refactoring</h2>
+
+      <p>The old X for Android had been accumulating technical debt for years — layers of Java, mixed architectures, and a codebase that reportedly made it difficult to iterate on new features without unintended regressions. This is a pattern I recognize from the Android ecosystem broadly: apps that started as Java projects, partially converted to Kotlin, with business logic scattered between fragments, activities, and whatever the "modern" approach was three major versions ago.</p>
+
+      <p>At some scale, the calculus flips. Patching becomes more expensive than replacing because every patch has to work around the existing constraints. X's team made that call and started from scratch rather than chasing an incremental migration path that would leave them with a permanently hybrid codebase.</p>
+
+      <p>That's the kind of decision that looks obvious in hindsight and terrifying in advance. Rewrites fail famously — Joel Spolsky called it the "single worst strategic mistake" a software company can make. But that wisdom applies to systems where the requirements aren't stable. X's core product loop is well-understood. The problem wasn't that they didn't know what to build; it was that the existing substrate made building it too slow. That's a different kind of rewrite, and it's one where clean-slate can genuinely win.</p>
+
+      <h2>The Stack: Kotlin + Compose, End to End</h2>
+
+      <p>The choice of Kotlin + Jetpack Compose as the unified stack is exactly what I'd have picked if I were starting a major Android app from scratch in 2025. Not because it's the new shiny, but because the tooling, stability, and ecosystem around this pair have finally matured to the point where you're not paying an early-adopter tax.</p>
+
+      <p>Jetpack Compose handles all the UI. This means declarative layouts, state-driven rendering, and — critically — Compose's <strong>pausable composition</strong> for scroll-heavy surfaces like the home timeline. If you read my post on Compose 1.11, you know pausable composition lets the runtime pause mid-composition to hit the frame deadline and resume on the next frame, which eliminates one of the more frustrating performance gaps Compose had against the View system. For a feed app where the timeline is literally the whole product, this matters more than it does in most apps.</p>
+
+      <pre><code>// Compose state-driven timeline — schematic structure
+@Composable
+fun Timeline(
+    items: LazyPagingItems&lt;Tweet&gt;,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier) {
+        items(
+            count = items.itemCount,
+            key = items.itemKey { it.id }
+        ) { index ->
+            val tweet = items[index]
+            if (tweet != null) TweetCard(tweet = tweet)
+        }
+    }
+}</code></pre>
+
+      <p>Going 100% Kotlin means no Java interop overhead, no @JvmStatic or @JvmField workarounds, no nullability annotation mismatches between Java and Kotlin types. The type system is consistent top to bottom. Coroutines are the native async primitive. You write <code>suspend fun</code> and structured concurrency instead of callback chains. The signal-to-noise ratio in code review improves immediately because the whole team is working in the same idiom.</p>
+
+      <h2>X Chat and the KMP Bet</h2>
+
+      <p>The most interesting engineering choice isn't the Android app rebuild itself — it's what X did with X Chat at the same time. The messaging feature's core was built in <strong>Kotlin Multiplatform</strong>, sharing E2E encryption logic, storage, sync mechanisms, and business rules across Android, iOS, and Web.</p>
+
+      <p>From JetBrains' official account, the breakdown was explicit: <em>"X Chat: Kotlin Multiplatform across Android, iOS, and Web. E2E encryption, storage, sync, business logic: written once, shipped everywhere."</em></p>
+
+      <p>This is KMP being used exactly where it provides the strongest guarantee: correctness-critical code that must behave identically on every platform. E2E encryption is the clearest possible example. If the encryption and decryption implementations diverge even slightly between Android and iOS — because two different engineers wrote two different versions in two different languages — you get subtle interoperability bugs that are catastrophic to find in production and devastating to security.</p>
+
+      <p>With KMP, the encryption primitives, key derivation functions, message serialization, and storage abstraction layer are written once in Kotlin, compiled to native on Android, compiled to a native framework on iOS via Kotlin/Native, and compiled to JavaScript or WebAssembly for the web client. One codebase. One test suite. One security audit covers all platforms.</p>
+
+      <pre><code>// Conceptual KMP shared module structure for X Chat's architecture
+// commonMain — runs on Android, iOS, Web
+expect class EncryptedStorage {
+    suspend fun put(key: String, value: ByteArray)
+    suspend fun get(key: String): ByteArray?
+}
+
+class MessageSync(
+    private val storage: EncryptedStorage,
+    private val encryptor: MessageEncryptor   // also expect/actual
+) {
+    suspend fun syncInbox(userId: String): List&lt;DecryptedMessage&gt; {
+        // Pure Kotlin — compiled to every target
+    }
+}</code></pre>
+
+      <p>The platform-specific UI still lives in each target's native layer — SwiftUI or UIKit on iOS, Jetpack Compose on Android, React or similar on Web. KMP doesn't touch the interface layer here. It handles the shared logic that has to work correctly everywhere, then hands control back to platform-native rendering for the parts where native quality matters most.</p>
+
+      <h2>What the Rebuild Delivered</h2>
+
+      <p>The publicly stated improvements are in the directions you'd expect from this kind of architectural refresh:</p>
+
+      <ul>
+        <li><strong>Timeline scrolling</strong> is noticeably smoother, particularly on mid-range devices where the old codebase showed the most degradation under scroll pressure.</li>
+        <li><strong>Notifications</strong> arrive reliably and link correctly to in-app content — something that reportedly had edge cases in the previous app.</li>
+        <li><strong>External link loads</strong> — posts linked from other apps — now resolve correctly to the right content rather than occasionally dumping users on the home feed.</li>
+        <li><strong>Animation quality</strong> improved across transitions, attributed to Compose's animation system replacing whatever the previous implementation was doing.</li>
+      </ul>
+
+      <p>X hasn't published benchmark numbers comparing old vs. new, and I'm not going to make up figures. What I will say is that the combination of Compose's rendering model, the elimination of Java-Kotlin interop overhead, and the removal of years of architectural abstraction layers absolutely has performance headroom — whether they've fully realized it yet is a different question.</p>
+
+      <div class="callout">
+        <p><strong>Notable gap:</strong> Spaces (X's live audio feature) was not available at launch on the rebuilt app. X acknowledged this and said it's in development. That's an important signal: in a clean-slate rebuild, some features get deferred rather than ported. If you're planning a similar rewrite, that's the honest conversation to have with stakeholders before you start.</p>
+      </div>
+
+      <h2>What About Older Hardware?</h2>
+
+      <p>X explicitly noted that performance on older Android devices is still being worked on. This is worth understanding structurally. A clean-slate Compose app tends to perform better than an equivalent View-based app on flagship hardware — better memory management, fewer unnecessary recompositions, more predictable rendering — but on older, lower-RAM devices, the Compose runtime's own overhead can matter.</p>
+
+      <p>This is something I've seen in my own apps. Samachar's news feed moved to a Compose-first rendering approach, and the results were excellent on Pixel 7+ class hardware but required additional tuning on devices with 2–3GB RAM. The tools are the same as always — baseline profiles, <code>LazyColumn</code> key stability, <code>derivedStateOf</code> for computed state, <code>remember</code> for expensive operations — but the profiling surface is different in Compose than in Views.</p>
+
+      <p>The fact that X is transparent about this is a good sign. It means they're still working on it rather than pretending it's solved.</p>
+
+      <h2>What Every Android Engineer Can Take from This</h2>
+
+      <p>Most of us aren't rebuilding apps with the staffing budget X has. But the engineering decisions here translate directly to problems I see at every scale of Android development:</p>
+
+      <h3>On the rewrite question</h3>
+
+      <p>The standard wisdom is "don't rewrite." That wisdom has exceptions, and one of them is when the existing architecture blocks the business. X's team didn't rewrite because they were bored with the old code. They rewrote because patches were becoming disproportionately expensive. If you can measure that — if you can show that the time cost of adding feature X to the old codebase is consistently 3× what it would take in a clean architecture — then the rewrite case gets a lot stronger. The mistake most teams make is rewriting without that measurement, chasing architectural elegance as an end in itself.</p>
+
+      <h3>On KMP for shared logic</h3>
+
+      <p>X's use of KMP for X Chat's business layer is a template you can apply at any scale. You don't need to be rebuilding a billion-user app to benefit from writing your encryption layer, your domain models, your sync logic, or your data transformation code once in Kotlin and sharing it across platforms. If you're shipping an Android app today and iOS is a near-term requirement, the entry cost for KMP has dropped dramatically — <code>kotlin-multiplatform</code> in your <code>libs.versions.toml</code>, a <code>commonMain</code> source set, and you're sharing whatever you want to share.</p>
+
+      <h3>On Compose as the foundation</h3>
+
+      <p>Five years into Compose, the question of whether it's ready for production is settled. The remaining question is which pieces of an existing app to migrate first. X's answer — rebuild everything at once — is not the only valid strategy. The more common approach is new screens in Compose, existing screens migrated when they're touched for other reasons. Both work. The X case shows that if you have the opportunity to start clean, Compose as a foundation is the right call.</p>
+
+      <div class="callout-green">
+        <p>The JetBrains Kotlin team used X's rebuild as a milestone example for the ecosystem: the new X Android app is 100% Kotlin, and X Chat's cross-platform logic demonstrates KMP at production scale. This kind of large-scale industry adoption is the clearest signal that the "is Kotlin/KMP ready" question for the app layer has been answered.</p>
+      </div>
+
+      <h2>The Broader Signal</h2>
+
+      <p>What X shipped in July 2026 is a proof point for the modern Android stack that goes beyond their own app. When a team with deep mobile engineering resources and serious performance requirements makes these bets — 100% Kotlin, Jetpack Compose end to end, KMP for cross-platform logic — and ships it to hundreds of millions of users, the technology choices get de-risked for everyone else.</p>
+
+      <p>I've been making the same bets in my own apps for a couple of years. Kotlin all the way, Compose where it makes sense, and KMP for anything that has to be correct on multiple platforms. The X rebuild doesn't change my calculus — it validates it at a scale I can't reach myself. And validation at that scale is worth writing about.</p>
+
+      <p>The app is live on the Play Store as a normal update. If you haven't checked it recently, it's worth a few minutes with a profiler running to see what a freshly written Kotlin + Compose feed app looks and feels like on your device class. That's better than any benchmark table I could publish.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('x-android-app-kotlin-compose-rebuild-kmp');
+  </script>
+</body>
+</html>
