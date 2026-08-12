@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jetpack Compose 1.12.0 Is Stable — Wide Color Gamut, FlexBox, and the Production Upgrade Guide — bytevikas</title>
+  <meta name="description" content="Compose 1.12.0 hit stable August 12, 2026 — alongside Fragment 1.9.0, Tracing 2.0.0, and Navigation3 1.1.6. Here's what's genuinely new, what breaks, and the exact upgrade steps." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+
+    .glow{position:fixed;z-index:-1;pointer-events:none;filter:blur(90px);}
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+
+    .navbar{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background:rgba(5,5,5,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--card-border);height:60px;display:flex;align-items:center;padding:0 24px;
+    }
+    .navbar-inner{max-width:800px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:white;text-decoration:none;}
+    .nav-back{color:var(--muted-light);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
+    .nav-back:hover{color:white;}
+
+    .post-wrap{max-width:720px;margin:0 auto;padding:100px 24px 100px;}
+
+    .post-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:28px;}
+    .post-cat{
+      font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+      background:var(--accent-dim);border:1px solid var(--accent-border);
+      padding:4px 12px;border-radius:50px;
+    }
+    .post-date{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .read-time{font-size:13px;color:var(--muted);}
+
+    h1{
+      font-family:'Outfit',sans-serif;font-size:clamp(28px,5vw,44px);font-weight:900;
+      line-height:1.15;letter-spacing:-0.5px;margin-bottom:32px;
+    }
+
+    .post-body h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin:52px 0 16px;letter-spacing:-0.3px;}
+    .post-body h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:32px 0 12px;color:var(--muted-light);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body ul,.post-body ol{padding-left:24px;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-body code{
+      font-family:'JetBrains Mono',monospace;font-size:14px;
+      background:rgba(255,255,255,.07);padding:2px 7px;border-radius:5px;color:#93c5fd;
+    }
+    .post-body pre{
+      background:rgba(255,255,255,.03);border:1px solid var(--card-border);
+      border-radius:14px;padding:24px;overflow-x:auto;margin:28px 0;
+    }
+    .post-body pre code{background:none;padding:0;color:#c0cdd8;font-size:14px;line-height:1.7;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-warn{
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-left:3px solid #fbbf24;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fbbf24;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    footer{border-top:1px solid var(--card-border);padding:40px 0;text-align:center;color:var(--muted);font-size:14px;}
+    footer a{color:var(--text);text-decoration:none;margin:0 12px;transition:color .2s;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+
+    /* INTERACTIONS */
+    .interactions-wrap{margin-top:64px;padding-top:52px;border-top:1px solid var(--card-border);}
+    .like-section{display:flex;align-items:center;gap:14px;margin-bottom:56px;}
+    .like-btn{display:inline-flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);padding:11px 22px;border-radius:50px;font-size:15px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;}
+    .like-btn:hover{border-color:rgba(248,113,113,.5);color:#f87171;}
+    .like-btn.liked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171;}
+    .like-btn:disabled{opacity:.6;cursor:not-allowed;}
+    .heart-icon{font-size:17px;line-height:1;} .like-label{font-size:14px;color:var(--muted);}
+    .comments-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .comments-list{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .no-comments{font-size:15px;color:var(--muted);padding:16px 0;}
+    .comment-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 24px;}
+    .comment-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .comment-author{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:white;}
+    .comment-time{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+    .comment-body{font-size:15px;color:var(--muted-light);line-height:1.65;margin:0;}
+    .comment-form{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+    .comment-form h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin:0;}
+    .form-input,.form-textarea{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:10px;color:white;font-family:'Inter',sans-serif;font-size:15px;padding:12px 16px;transition:border-color .2s;width:100%;outline:none;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted);}
+    .form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+    .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px);}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "d5d2f97e-696a-4b8b-b5a6-801a1e0e18b0",
+        notifyButton: { enable: true },
+      });
+      const permission = await OneSignal.getNotificationPermission();
+      if (permission === 'default') {
+        setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Compose</span>
+      <span class="post-date">Aug 12, 2026</span>
+      <span class="read-time">11 min read</span>
+    </div>
+
+    <h1>Jetpack Compose 1.12.0 Is Stable — Wide Color Gamut, FlexBox, and the Production Upgrade Guide</h1>
+
+    <div class="post-body">
+
+      <p>August 12 is a busy day for Jetpack. Compose 1.12.0 hit stable, and it brought company: Fragment 1.9.0, Tracing 2.0.0, Navigation3 1.1.6, Paging 3.5.1, and Appcompat 1.8.0 all graduated on the same day. If you've been waiting for the right moment to bump your BOM and call it a production upgrade, this is that moment.</p>
+
+      <p>I covered the individual features across several posts as they shipped through beta and RC — MeshGradientPainter in beta02, SoundEffectOnInteraction and the passkey semantics in RC01. But stable graduation is a different conversation. This post is about what changed between RC01 and the final stable build, what actually breaks on upgrade, and what's genuinely new that didn't surface in any of the pre-release writeups.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">1.12.0</div>
+          <div class="announce-lbl">Compose stable — Aug 12, 2026</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">9.2.0</div>
+          <div class="announce-lbl">Minimum AGP required</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">6</div>
+          <div class="announce-lbl">Jetpack libraries stable same day</div>
+        </div>
+      </div>
+
+      <h2>Wide Color Gamut — The Feature Nobody Was Talking About</h2>
+
+      <p>The flashiest 1.12 features got covered when beta landed. Wide Color Gamut (WCG) support didn't get a blog post or a tweet — it just showed up in the stable release notes, and it's actually one of the most meaningful changes for apps targeting high-end hardware.</p>
+
+      <p>Before 1.12.0, Compose quietly crushed non-sRGB colors during rendering. If you created a <code>Color</code> in the Display P3 or Adobe RGB color space, Compose would convert it to sRGB before painting — silently, without warning. On hardware that supports wide gamut displays (Pixel 9 series, high-end Samsung foldables), you were leaving real color fidelity on the table without knowing it.</p>
+
+      <p>In 1.12.0 on API 29+, non-sRGB colors are now preserved through the rendering pipeline and passed to the compositor in their native color space. On older APIs, it falls back safely to sRGB. You don't change any code to get this — if you were already using Display P3 colors, they'll automatically look better. If you've been using only sRGB, nothing changes.</p>
+
+      <pre><code>import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+
+// On API 29+ with Compose 1.12.0, this is now preserved end-to-end
+// On older APIs it falls back gracefully to sRGB — no crash, no action needed
+val p3Red = Color(0.9f, 0.1f, 0.1f, colorSpace = ColorSpaces.DisplayP3)
+val adobeRgbColor = Color(0.9f, 0.5f, 0.1f, colorSpace = ColorSpaces.AdobeRgb)</code></pre>
+
+      <p>For Musist, where album art dominates the screen, this is a meaningful win. The most vibrant cover art assets already contain wide gamut data — what was missing was the runtime preserving it. Now it does. If your app is media- or photography-heavy, it's worth running the same UI on a Pixel 9 before and after the upgrade just to see the difference.</p>
+
+      <h2>Variable Fonts — Zero-Config GMS Certificates</h2>
+
+      <p>Variable fonts in Compose have always worked, but the setup has always had an invisible tax: you needed to supply the correct GMS certificate to verify downloadable Google Fonts at runtime, and getting that wrong produced a silent fallback to the system font with no obvious error.</p>
+
+      <p>In 1.12.0, <code>ui-text-google-fonts</code> handles the certificate automatically. You just request the font and set variation settings — the certificate management happens in the library:</p>
+
+      <pre><code>import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
+
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    // No certificate list needed — 1.12.0 handles it
+)
+
+val flexFont = FontFamily(
+    Font(
+        googleFont = GoogleFont("Google Sans Flex"),
+        fontProvider = provider,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(700),
+            FontVariation.slant(0f)
+        )
+    )
+)</code></pre>
+
+      <p>If you're on a pre-1.12 BOM and your downloadable font sometimes silently falls back to system default, this is probably why. The fix is a BOM bump, not a code change.</p>
+
+      <h2>Foundation 1.12.0 — FlexBox and WindowInsets Are Now Stable</h2>
+
+      <p>The alpha/experimental story for Compose has always been "usable in dev, questionable in production." Two Foundation APIs that were experimental for most of 1.12's pre-release cycle graduated to stable in the final build.</p>
+
+      <p><strong>FlexBox is stable.</strong> No more <code>@OptIn(ExperimentalFlexBoxApi::class)</code>. The stable release also adds <code>maxItemsInEachLine</code>, which limits how many items can wrap to a single line — useful for tag clouds and chip rows where you want a maximum density without the layout becoming unreadable:</p>
+
+      <pre><code>FlexBox(
+    modifier = Modifier.fillMaxWidth(),
+    config = FlexBoxConfig(
+        direction = FlexDirection.Row,
+        wrap = FlexWrap.Wrap,
+        justifyContent = JustifyContent.Start
+    ),
+    maxItemsInEachLine = 4
+) {
+    skills.forEach { skill ->
+        Chip(label = skill, modifier = Modifier.flex(grow = 0f))
+    }
+}</code></pre>
+
+      <p><strong>WindowInsets visibility and animation APIs are stable.</strong> This one matters for apps that animate the keyboard in and out — the <code>WindowInsets</code> APIs for querying visibility and hooking into the inset animation lifecycle are now safe to build on without the experimental opt-in.</p>
+
+      <h2>DialogProperties Gets Blur and Shape Controls</h2>
+
+      <p>A small but welcome addition that wasn't flagged in the pre-release posts: <code>DialogProperties</code> and <code>PopupProperties</code> now accept blur and shape parameters.</p>
+
+      <pre><code>Dialog(
+    onDismissRequest = { showDialog = false },
+    properties = DialogProperties(
+        blurBehindRadius = 12.dp,
+        backgroundBlurRadius = 20.dp,
+        scrimAlpha = 0.6f,
+        windowShape = RoundedCornerShape(24.dp)
+    )
+) {
+    // Dialog content
+}</code></pre>
+
+      <p>On devices that support window blur (API 31+ with the right hardware compositing path), <code>blurBehindRadius</code> blurs the content behind the dialog window — the frosted glass effect that every design team wants and that used to require a custom <code>Window</code> flag setup. <code>backgroundBlurRadius</code> blurs the dialog's own background. Both degrade gracefully on unsupported hardware, so you can ship this without guarding it.</p>
+
+      <h2>The Espresso Bridge for Hybrid Apps</h2>
+
+      <p>If you're migrating from Views to Compose incrementally — which most production apps are — this is a quality-of-life upgrade for your test suite. Compose 1.12.0 adds <code>onRootWithViewInteraction</code> to scope Compose test interactions to a specific View hierarchy:</p>
+
+      <pre><code>import androidx.compose.ui.test.junit4.onRootWithViewInteraction
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.ViewMatchers.*
+
+@Test
+fun testComposableInsideRecyclerViewRow() {
+    val specificRow = onView(allOf(withId(R.id.row), hasDescendant(withText("Item #5"))))
+
+    // Scopes all Compose interactions to the Compose root inside that specific row
+    composeTestRule.onRootWithViewInteraction(specificRow)
+        .onNodeWithTag("fav_icon")
+        .performClick()
+
+    // Assertions...
+}</code></pre>
+
+      <p>Before this, testing Compose content inside a <code>RecyclerView</code> row was awkward — you'd either write a full Espresso test that couldn't verify Compose semantics, or you'd restructure your layout to make the Compose root more accessible. Now the two worlds talk to each other cleanly.</p>
+
+      <div class="callout">
+        <p><strong>Worth knowing for Nodat:</strong> the app's main feed is still a hybrid RecyclerView/Compose setup during migration. This test API unlocks proper semantic testing for those rows without requiring a full Compose migration first.</p>
+      </div>
+
+      <h2>Breaking Changes — Read This Before You Bump the BOM</h2>
+
+      <p>1.12.0 has a few genuine breaking changes. None are catastrophic, but they'll cause compile errors or silent behavior changes if you don't catch them in code review.</p>
+
+      <h3>TextObfuscationMode.Default is gone — use .System</h3>
+
+      <p>Covered in the RC01 post, but it ships as a stable breaking change now. <code>TextObfuscationMode.Default</code> was renamed to <code>TextObfuscationMode.System</code>. If you use <code>BasicSecureTextField</code>, you'll get a compile error unless you update the reference. Find all usages before merging the BOM bump:</p>
+
+      <pre><code>// Before 1.12.0
+BasicSecureTextField(
+    textObfuscationMode = TextObfuscationMode.Default
+)
+
+// 1.12.0+
+BasicSecureTextField(
+    textObfuscationMode = TextObfuscationMode.System
+)</code></pre>
+
+      <h3>Modifier.onFocusedBoundsChanged is a no-op</h3>
+
+      <p>If you were using <code>Modifier.onFocusedBoundsChanged</code> to react to focus movements for custom scroll-to-focus behavior, it now does nothing. The replacement is <code>FocusTargetModifierNode.getFocusedRect()</code>, which you query on demand from inside a custom modifier node rather than subscribing to a stream. This is a behavior change, not a compile error — your code will still build, but the callback will never fire.</p>
+
+      <h3>ExposedDropdownMenu needs an updated import</h3>
+
+      <p><code>ExposedDropdownMenu</code> is now an extension function on <code>ExposedDropdownMenuBoxScope</code> rather than a top-level composable. This changes the import path. If you get "unresolved reference" on <code>ExposedDropdownMenu</code> after the upgrade, update the import to the new fully-qualified path from the Material3 package.</p>
+
+      <h3>Test default input mode changed</h3>
+
+      <p>Compose UI tests now default to <code>InputMode.Touch</code> instead of <code>InputMode.Keyboard</code>. Tests that relied on keyboard-mode behavior without explicitly setting it may start failing. If you have tests that do keyboard-specific interactions, set the input mode explicitly:</p>
+
+      <pre><code>@get:Rule
+val composeTestRule = createComposeRule(
+    ComposeUiTestConfig(inputMode = InputMode.Keyboard)
+)</code></pre>
+
+      <div class="callout-warn">
+        <p><strong>AGP requirement:</strong> Compose 1.12.0 requires <strong>AGP 9.2.0 or higher</strong>. If you're still on AGP 8.x or earlier 9.x builds, you need to upgrade AGP first. This also means AGP 9.2's R8 AtomicReferenceFieldUpdater optimization kicks in automatically — coroutine performance improves without any code changes on your end.</p>
+      </div>
+
+      <h2>LazyGridState Cache Window Configuration Changed</h2>
+
+      <p>A quieter breaking change in Foundation: the way you configure <code>LazyLayoutCacheWindow</code> for <code>LazyVerticalGrid</code> has moved. Providing it via <code>LazyGridState</code> is now deprecated — you pass it directly to the composable instead. The old API still compiles with a deprecation warning, so it won't block your build, but update it before the next major version removes the overload entirely.</p>
+
+      <h2>The Rest of the August 12 Stable Wave</h2>
+
+      <p>Six libraries stable on the same day is unusual. Here's the practical impact of the others:</p>
+
+      <p><strong>Fragment 1.9.0 stable.</strong> RC01 was covered in detail two days ago — <code>fragment-ktx</code> is fully absorbed into the main artifact, <code>AndroidFragment</code> gets <code>maxLifecycle</code> to prevent lifecycle leaks in Compose pagers, and Fragment enters maintenance mode. If you're on RC01, the stable bump is a no-op. If you skipped RC01, read <a href="fragment-1-9-0-rc01-ktx-merged-compose-interop.html">that post</a> first.</p>
+
+      <p><strong>Tracing 2.0.0 stable.</strong> The full in-process Perfetto engine — <code>TraceDriver</code>, <code>Tracer</code>, <code>traceCoroutine()</code> for suspend boundary propagation — is now stable and safe to build on. Benchmark 1.5.0-beta01 (which also landed today) already uses it to merge in-process trace events into Macrobenchmark output.</p>
+
+      <p><strong>Navigation3 1.1.6 stable.</strong> Patch release over 1.1.5 — no new APIs. If you're already on Navigation3, this is a routine update.</p>
+
+      <p><strong>Paging 3.5.1 stable.</strong> Bug-fix-only over 3.5.0, which introduced <code>asItemSnapshotListFlow()</code> and the manual load trigger APIs.</p>
+
+      <p><strong>Appcompat 1.8.0 stable.</strong> Routine minor release for the Views compatibility layer — no standout changes relevant to pure Compose apps.</p>
+
+      <h2>How to Upgrade — The Exact Steps</h2>
+
+      <p>If you're using the Compose BOM, bump to the August 12 BOM version. If you're managing individual artifact versions, update to <code>1.12.0</code> for <code>compose.ui</code>, <code>compose.foundation</code>, <code>compose.runtime</code>, and <code>compose.animation</code>. Confirm AGP is at 9.2.0+, then run through this checklist before merging:</p>
+
+      <ol>
+        <li>Search for <code>TextObfuscationMode.Default</code> — replace with <code>TextObfuscationMode.System</code></li>
+        <li>Search for <code>onFocusedBoundsChanged</code> — audit if you were using it for scroll-to-focus; migrate to <code>getFocusedRect()</code> if so</li>
+        <li>Search for <code>ExposedDropdownMenu</code> — verify imports after upgrading if you hit "unresolved reference"</li>
+        <li>Run your Compose UI test suite — watch for failures from the <code>InputMode.Touch</code> default flip</li>
+        <li>Check <code>LazyGridState</code> usages if you were passing <code>LazyLayoutCacheWindow</code> via state — migrate to the composable parameter</li>
+        <li>Run the app on a wide-gamut display (Pixel 9 or similar) if your app renders custom colors — verify the new WCG behavior looks correct</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>The bottom line:</strong> the breaking changes in 1.12.0 are real but narrow — they'll show up as compile errors or one failing test, not as runtime crashes that slip past review. This is a stable release worth shipping to production. The WCG improvement, FlexBox graduation, and Dialog blur controls are all additive; the migration risk is low if you run the checklist above.</p>
+      </div>
+
+      <p>The bigger picture from this release: Compose's surface area for "things that are safe to build on in production" grew considerably in 1.12. FlexBox stable, WindowInsets animation stable, <code>InterceptPlatformTextInput</code> stable, the passkey semantics stable — these are all APIs that were technically available before but came with the experimental asterisk. That asterisk is gone now. Build on them.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-1-12-0-stable');
+  </script>
+</body>
+</html>
