@@ -176,7 +176,8 @@ vikas9489.github.io/
 2. Update the content, category color (new category → new accent color, add a `.post-cat.<name>` / `.blog-cat.<name>` CSS rule), date, read time, and unique slug passed to `initInteractions('<slug>')`.
 3. Add a new row to `blog/index.html` (the `.post-item` list, newest at top).
 4. Update `index.html` `#blog` section — it shows only the **4 most recent** posts. Add the new `.blog-card` and remove the oldest of the current 4 to keep it to 4.
-5. Commit and push to `main` — GitHub Pages auto-deploys in ~1 minute.
+5. Update the copied post's `<link rel="canonical">`, `og:*` and `twitter:*` meta tags (title, description, URL `https://bytevikas.com/blog/<file>.html`), and add the new URL to `sitemap.xml`.
+6. Commit and push to `main` — GitHub Pages auto-deploys in ~1 minute.
 
 ---
 
@@ -201,7 +202,7 @@ Requires a **`ONESIGNAL_REST_API_KEY` GitHub Actions secret** (repo → Settings
 
 ## Hire Me Details
 - **Target:** ₹30–50 LPA
-- **Role:** Senior Android Engineer
+- **Role:** Android + AI Engineer
 - **Contact:** hi@bytevikas.com
 
 ---
