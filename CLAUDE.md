@@ -73,7 +73,7 @@ vikas9489.github.io/
 | — | Navbar | Live | Sticky, blur, "Open to Work" amber pill with pulse dot |
 | 1 | Hero | Live | 90px heading, metrics bar, tech chips, CTA buttons |
 | 2 | `#expertise` | Live | 3 cards: Architecture, Performance, Video/Streaming |
-| 3 | `#projects` | Live | Nodat + Musist as featured wide cards; HailUp/Samachar/OnlyArabs in 3-col grid |
+| 3 | `#projects` | Live | Nodat, Musist, OnlyArabs (CSS UI-concept phones) and HailUp (real Play Store screenshots in assets/apps/hailup/) as featured wide cards; Samachar removed from the portfolio (blog posts still mention it) |
 | 4 | `#creator` | **Hidden** (`display:none`) | YouTube/Instagram/LinkedIn — unhide when ready |
 | 5 | `#blog` | Live | 4 cards in 2×2 grid → blog posts |
 | 6 | `#hire` | Live | ₹30–50 LPA, Senior Android Engineer CTA |
@@ -88,7 +88,6 @@ vikas9489.github.io/
 | **Nodat** | 10K+ | ★ 5.0 | Kotlin, Clean Architecture, Dagger Hilt |
 | **Musist** | 1K+ | ★ 4.7 | Kotlin, MVVM, FFMPEG, ExoPlayer, AdMob |
 | **HailUp** | 10K+ | — | Kotlin, MVVM, ExoPlayer, PayPal SDK |
-| **Samachar** | 10K+ | — | Kotlin, YouTube API |
 | **OnlyArabs** | Live/ongoing | — | Jetpack Compose, Agora SDK, HLS/DASH |
 
 ---
