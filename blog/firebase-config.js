@@ -9,3 +9,6 @@ export const firebaseConfig = {
   appId: "1:702758621259:web:c7ff96f73474deac867dce",
   measurementId: "G-YBS2WXG8CQ"
 };
+
+// reCAPTCHA Enterprise key for Firebase App Check (public; restricted to bytevikas.com + localhost)
+export const recaptchaSiteKey = "6Ldhkv0tAAAAAPMgOdxT26Rg3IuLPgPzGiSzzIWf";

@@ -285,7 +285,7 @@ adb shell cmd app_function list-app-functions | grep "com.your.package"</code></
 
     <div class="interactions-wrap">
       <div class="like-section">
-        <button class="like-btn" id="likeBtn" onclick="handleLike()">
+        <button class="like-btn" id="likeBtn">
           <span class="heart-icon">♥</span>
           <span id="likeCount">0</span>
         </button>
@@ -299,12 +299,12 @@ adb shell cmd app_function list-app-functions | grep "com.your.package"</code></
         <p class="no-comments">No comments yet — be the first.</p>
       </div>
 
-      <div class="comment-form">
+      <form class="comment-form" id="commentForm">
         <h3>Leave a comment</h3>
-        <input class="form-input" id="commentName" placeholder="Your name" />
-        <textarea class="form-textarea" id="commentText" placeholder="Share your thoughts or questions..."></textarea>
-        <button class="submit-btn" onclick="submitComment()">Post comment</button>
-      </div>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Share your thoughts or questions..." maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
     </div>
   </div>
 
@@ -321,7 +321,9 @@ adb shell cmd app_function list-app-functions | grep "com.your.package"</code></
     </div>
   </footer>
 
-  <script src="../blog-interactions.js"></script>
-  <script>initInteractions('appfunctions-android-mcp-ai-agents');</script>
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('appfunctions-android-mcp-ai-agents');
+  </script>
 </body>
 </html>

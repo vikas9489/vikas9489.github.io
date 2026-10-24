@@ -1,0 +1,42 @@
+rules_version = '2';
+
+// Source of truth for Firestore security rules. Not deployed automatically:
+// paste into Firebase Console -> Firestore Database -> Rules -> Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /posts/{slug} {
+      allow read: if true;
+
+      // Likes: the only field is likeCount, and each write may move it by exactly one.
+      allow create: if slug.matches('^[a-z0-9-]{1,120}$')
+                    && request.resource.data.keys().hasOnly(['likeCount'])
+                    && request.resource.data.likeCount == 1;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount'])
+                    && request.resource.data.likeCount is int
+                    && request.resource.data.likeCount >= 0
+                    && (request.resource.data.likeCount == resource.data.likeCount + 1
+                        || request.resource.data.likeCount == resource.data.likeCount - 1);
+      allow delete: if false;
+
+      match /comments/{commentId} {
+        // Comments go live only after approved is set to true in the console.
+        allow read: if resource.data.approved == true;
+        allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'timestamp', 'approved'])
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() >= 1
+                      && request.resource.data.name.size() <= 50
+                      && request.resource.data.message is string
+                      && request.resource.data.message.size() >= 1
+                      && request.resource.data.message.size() <= 1000
+                      && request.resource.data.timestamp == request.time
+                      && request.resource.data.approved == false;
+        allow update, delete: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

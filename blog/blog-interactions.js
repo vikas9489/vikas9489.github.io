@@ -1,13 +1,20 @@
 import { initializeApp }         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
+  initializeAppCheck, ReCaptchaEnterpriseProvider
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js';
+import {
   getFirestore,
-  doc, setDoc, updateDoc,
+  doc, setDoc,
   collection, addDoc, onSnapshot,
-  query, orderBy, increment, serverTimestamp
+  query, where, increment, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { firebaseConfig } from './firebase-config.js';
+import { firebaseConfig, recaptchaSiteKey } from './firebase-config.js';
 
 const app = initializeApp(firebaseConfig);
+initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
+  isTokenAutoRefreshEnabled: true
+});
 const db  = getFirestore(app);
 
 export function initInteractions(postSlug) {
@@ -62,7 +69,21 @@ function setupComments(postSlug) {
   const submitBtn = document.getElementById('submitBtn');
 
   const commentsRef = collection(db, 'posts', postSlug, 'comments');
-  const q = query(commentsRef, orderBy('timestamp', 'asc'));
+  // Sorted client-side: where() + orderBy() on different fields would need a composite index
+  const q = query(commentsRef, where('approved', '==', true));
+
+  // Bots that fill every field trip this; it is invisible to people and screen readers
+  const trap = document.createElement('input');
+  Object.assign(trap, { type: 'text', name: 'website', tabIndex: -1, autocomplete: 'off' });
+  trap.setAttribute('aria-hidden', 'true');
+  trap.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;opacity:0;';
+  form.appendChild(trap);
+
+  const status = document.createElement('p');
+  status.className = 'no-comments';
+  status.style.marginTop = '12px';
+  status.hidden = true;
+  form.appendChild(status);
 
   // Live comments
   onSnapshot(q, (snapshot) => {
@@ -73,9 +94,12 @@ function setupComments(postSlug) {
       return;
     }
 
+    const docs = snapshot.docs
+      .map((s) => s.data())
+      .sort((a, b) => (a.timestamp?.toMillis() ?? 0) - (b.timestamp?.toMillis() ?? 0));
+
     list.innerHTML = '';
-    snapshot.forEach((docSnap) => {
-      const d    = docSnap.data();
+    docs.forEach((d) => {
       const time = d.timestamp?.toDate();
       list.innerHTML += `
         <div class="comment-item">
@@ -95,14 +119,19 @@ function setupComments(postSlug) {
     const message = document.getElementById('commentMessage').value.trim();
     if (!name || !message) return;
 
+    status.hidden = true;
     submitBtn.disabled    = true;
     submitBtn.textContent = 'Posting…';
 
     try {
-      await addDoc(collection(db, 'posts', postSlug, 'comments'), {
-        name, message, timestamp: serverTimestamp()
-      });
+      if (!trap.value) {
+        await addDoc(commentsRef, {
+          name, message, timestamp: serverTimestamp(), approved: false
+        });
+      }
       form.reset();
+      status.textContent = 'Thanks! Your comment will appear here once it is approved.';
+      status.hidden = false;
     } catch (err) {
       console.error('Comment failed:', err);
       submitBtn.textContent = 'Failed — try again';
