@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>bytevikas Blog</title>
+    <link>https://bytevikas.com/blog/index.html</link>
+    <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
+    <language>en</language>
+    <lastBuildDate>Thu, 13 Aug 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Compose 1.13.0-alpha01: FlexBox Hits Stable, SelectionState API, and the Next Cycle Begins</title>
+      <link>https://bytevikas.com/blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html</guid>
+      <pubDate>Thu, 13 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Compose 1.12.0 went stable August 12, and alpha01 of 1.13 dropped the same day. FlexBox graduates from experimental (no more @OptIn), a new SelectionState API gives you programmatic text selection control, and click sounds are now automatic on Android.</description>
+    </item>
+    <item>
+      <title>Jetpack Compose 1.12.0 Is Stable — Wide Color Gamut, FlexBox, and the Production Upgrade Guide</title>
+      <link>https://bytevikas.com/blog/compose-1-12-0-stable.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-12-0-stable.html</guid>
+      <pubDate>Wed, 12 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Compose 1.12.0 hit stable August 12 alongside Fragment 1.9.0, Tracing 2.0.0, and Navigation3 1.1.6. What's genuinely new vs RC01 (WCG, variable fonts, Dialog blur), what breaks on upgrade, and the exact migration checklist before you bump the BOM.</description>
+    </item>
+    <item>
+      <title>X Rebuilt Its Android App from Scratch in Kotlin + Compose — What a Year of Clean-Slate Engineering Looks Like</title>
+      <link>https://bytevikas.com/blog/x-android-app-kotlin-compose-rebuild-kmp.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/x-android-app-kotlin-compose-rebuild-kmp.html</guid>
+      <pubDate>Tue, 11 Aug 2026 08:00:00 +0530</pubDate>
+      <category>KMP</category>
+      <description>X shipped a fully rebuilt Android app on July 20, 2026 — 100% Kotlin, Jetpack Compose end to end, and Kotlin Multiplatform powering X Chat's E2E encryption across Android, iOS, and Web. Here's what a year-long clean-slate rewrite looks like and what every Android engineer can take from it.</description>
+    </item>
+    <item>
+      <title>Benchmark 1.5.0 Beta: UiAutomator 2.4, Safer AOT Defaults, and In-Process Trace Merging</title>
+      <link>https://bytevikas.com/blog/benchmark-1-5-0-beta-uiautomator-aot-perfetto-tracing.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/benchmark-1-5-0-beta-uiautomator-aot-perfetto-tracing.html</guid>
+      <pubDate>Mon, 10 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Testing</category>
+      <description>Seven alphas, one beta, and the Benchmark library has its most consequential upgrade since stable. UiAutomator 2.4 lands in MacrobenchmarkScope, requireAot flips to true by default to stop silent JIT-warm measurements, TraceProcessor moves to benchmark-common, and beta01 lets PerfettoCapture merge Tracing 2.0 in-process events into one Perfetto file.</description>
+    </item>
+    <item>
+      <title>Fragment 1.9.0-rc01: fragment-ktx Merged, Compose maxLifecycle, and the Maintenance Mode Reality Check</title>
+      <link>https://bytevikas.com/blog/fragment-1-9-0-rc01-ktx-merged-compose-interop.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/fragment-1-9-0-rc01-ktx-merged-compose-interop.html</guid>
+      <pubDate>Sun, 09 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Fragment</category>
+      <description>Fragment 1.9.0 is at RC01. Three practical changes: fragment-ktx is absorbed into the main artifact (Jake Wharton contribution), AndroidFragment gets a maxLifecycle param to fix lifecycle leaks in Compose pagers, and Fragment officially enters maintenance mode. Here's what each means and what to do about it.</description>
+    </item>
+    <item>
+      <title>Media3 1.11.0 Stable: OggMuxer, Chapter Metadata, and the Production Upgrade Checklist</title>
+      <link>https://bytevikas.com/blog/media3-1-11-0-stable-muxers-chapter-metadata.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/media3-1-11-0-stable-muxers-chapter-metadata.html</guid>
+      <pubDate>Sat, 08 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Media</category>
+      <description>Media3 1.11.0 graduated to stable on August 5. Beyond what alpha01 and beta01 shipped, stable adds OggMuxer and WavMuxer for audio output, MP4 chapter extraction, enablePerStreamMediaProgression() for startup latency, HLS Content Steering, and five API removals to fix before you upgrade.</description>
+    </item>
+    <item>
+      <title>Android Skills: Why Google Built an AI Knowledge Layer Designed to Disappear</title>
+      <link>https://bytevikas.com/blog/android-skills-built-for-deprecation.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-skills-built-for-deprecation.html</guid>
+      <pubDate>Fri, 07 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Skills</category>
+      <description>Google's official Android Skills are built for deprecation by design — every skill should eventually make itself obsolete as models improve. The philosophy, the evaluation framework (think integration tests for AI knowledge), when skills actually add value, and why only ~20 official ones exist.</description>
+    </item>
+    <item>
+      <title>Compose 1.12 RC01: Sound Effects, Passkey Semantics, and the APIs Before Stable</title>
+      <link>https://bytevikas.com/blog/compose-1-12-rc01-sound-credentials-input.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-12-rc01-sound-credentials-input.html</guid>
+      <pubDate>Thu, 06 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>RC01 shipped July 29 — stable is weeks away. Beyond the visual APIs covered in beta, 1.12 adds SoundEffectOnInteraction for accessibility-aware click sounds, credentialRequest Semantics for passkey-ready Compose login forms, a breaking TextObfuscationMode rename in BasicSecureTextField, and InterceptPlatformTextInput promoted to stable.</description>
+    </item>
+    <item>
+      <title>Compose's New Adaptive Layout APIs: FlexBox, Grid, and mediaQuery() Explained</title>
+      <link>https://bytevikas.com/blog/compose-adaptive-layout-flexbox-grid-mediaquery.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-adaptive-layout-flexbox-grid-mediaquery.html</guid>
+      <pubDate>Wed, 05 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Layout</category>
+      <description>Three new experimental layout primitives bring CSS-inspired adaptive layouts to Jetpack Compose: FlexBox for flowing content sections, a structural Grid for 2D panels without lazy loading, and mediaQuery() for branching on device posture, pointer precision, and viewing distance — not just window width.</description>
+    </item>
+    <item>
+      <title>Jetpack Navigation 2.10 Beta: KMP on 9 Platforms, Richer Predictive Back, and the Maintenance Mode Signal</title>
+      <link>https://bytevikas.com/blog/navigation-2-10-kmp-predictive-back-maintenance-mode.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/navigation-2-10-kmp-predictive-back-maintenance-mode.html</guid>
+      <pubDate>Tue, 04 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Nav</category>
+      <description>Navigation 2.10.0-beta01 ships multiplatform support for Desktop, macOS, iOS, WASM, tvOS, and watchOS; NavBackStackEntryInfo for custom predictive back animations; NavUri replacing android.net.Uri; and a deep link security fix. Plus the honest maintenance mode reality check and a decision tree for Navigation 2.x vs Navigation3.</description>
+    </item>
+    <item>
+      <title>ML Kit GenAI Gets @Generable Structured Output and Gemini Nano Speech Recognition</title>
+      <link>https://bytevikas.com/blog/mlkit-genai-generable-structured-output-speech-recognition.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/mlkit-genai-generable-structured-output-speech-recognition.html</guid>
+      <pubDate>Mon, 03 Aug 2026 08:00:00 +0530</pubDate>
+      <category>ML Kit</category>
+      <description>Google's 'Build intelligent Android apps' series introduced @Generable annotations for type-safe structured output via KSP, and a new genai-speech-recognition 1.0.0-alpha1 library. Here's the integration guide: setup, data class annotations, streaming transcription, and how to go from 13-second receipts parsing to under 2 seconds.</description>
+    </item>
+    <item>
+      <title>Play Age Signals API Goes Global: Build Age-Appropriate Android Experiences Without Custom Age Gates</title>
+      <link>https://bytevikas.com/blog/google-play-age-signals-api-global.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/google-play-age-signals-api-global.html</guid>
+      <pubDate>Sun, 02 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Policy</category>
+      <description>Google's Play Age Signals API expands to Australia and Canada in mid-August, then globally by year-end. Integration guide with AgeSignalsManager, the four default age tiers, testing with FakeAgeSignalsManager, and the strict policy restrictions that govern what you can actually do with the data.</description>
+    </item>
+    <item>
+      <title>Android 17's Security Hardening: The Behavior Changes That Will Break Your Production App</title>
+      <link>https://bytevikas.com/blog/android-17-security-behavior-changes.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-17-security-behavior-changes.html</guid>
+      <pubDate>Sat, 01 Aug 2026 08:00:00 +0530</pubDate>
+      <category>Security</category>
+      <description>Seven security and privacy behavior changes in Android 17 that aren't in the other posts: ACCESS_LOCAL_NETWORK permission for LAN access, banned static-final reflection, enforced ECH and Certificate Transparency, stricter native DCL, Contacts Provider 2 PII removal, and more.</description>
+    </item>
+    <item>
+      <title>Compose Material3 1.5.0-alpha25: The Expressive API Cleans House</title>
+      <link>https://bytevikas.com/blog/compose-material3-1-5-alpha25-api-renames-expressive-graduation.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-material3-1-5-alpha25-api-renames-expressive-graduation.html</guid>
+      <pubDate>Fri, 31 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Design</category>
+      <description>Alpha25 lands six API renames and two deprecations as M3 Expressive hardens toward stable — trailingIcon becomes trailingContent, TonalToggleButton becomes FilledTonalToggleButton, SplitButtonLayout is deprecated, and ComponentOverride is removed entirely. Plus alpha24's new material3-ripple artifact for inset focus rings.</description>
+    </item>
+    <item>
+      <title>Navigation3 1.2.0-alpha07: BackStackMatcher Solves the Deep Link Back-Stack Problem</title>
+      <link>https://bytevikas.com/blog/navigation3-1-2-alpha07-backstack-matcher-deep-link-serializer.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/navigation3-1-2-alpha07-backstack-matcher-deep-link-serializer.html</guid>
+      <pubDate>Thu, 30 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Nav</category>
+      <description>Alpha07 adds BackStackMatcher — a declarative way to build a synthetic back stack when handling deep links — plus DeepLinkSerializer for complex argument types, five targeted bug fixes, and Navigation3 1.1.5 stable on the same day.</description>
+    </item>
+    <item>
+      <title>5 Years of Jetpack Compose: Views Enter Maintenance Mode, and What That Actually Means for Your App</title>
+      <link>https://bytevikas.com/blog/jetpack-compose-5-years-views-maintenance-mode.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-compose-5-years-views-maintenance-mode.html</guid>
+      <pubDate>Wed, 29 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Google officially moved the Views toolkit to maintenance mode — bug fixes only, no new features. 68% of the top 1,000 Play apps already use Compose. Here's what the announcement means for teams still on View-based UI and how to think about the migration now.</description>
+    </item>
+    <item>
+      <title>R8 Makes Kotlin Coroutines 2x Faster in AGP 9.2 — and You Don't Change a Single Line</title>
+      <link>https://bytevikas.com/blog/r8-coroutines-2x-faster-agp-9-2.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/r8-coroutines-2x-faster-agp-9-2.html</guid>
+      <pubDate>Tue, 28 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Performance</category>
+      <description>AGP 9.2.0 ships an R8 optimization that rewrites AtomicReferenceFieldUpdater into direct Unsafe calls, cutting coroutine overhead by half and improving Compose's Modifier.clickable by 2x — automatically. Here's the three-step mechanism and what it means for your benchmarks.</description>
+    </item>
+    <item>
+      <title>Galaxy Unpacked 2026: What the New Foldable and Wearable Lineup Means for Android Developers</title>
+      <link>https://bytevikas.com/blog/samsung-galaxy-foldable-adaptive-window-2026.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/samsung-galaxy-foldable-adaptive-window-2026.html</guid>
+      <pubDate>Mon, 27 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Adaptive</category>
+      <description>Samsung unveiled a new lineup of foldable and wearable devices at Galaxy Unpacked London. The Android team responded the next day with a clear message: your adaptive layout strategy needs to level up. Here's the developer picture — Window 1.6.0 engagement APIs, NavigableListDetailPaneScaffold, and the Android 17 hard deadline.</description>
+    </item>
+    <item>
+      <title>Kotlin 2.4.20 Beta2: Sealed Classes Map to Swift Enums, Incremental klib Ships by Default</title>
+      <link>https://bytevikas.com/blog/kotlin-2-4-20-beta2-swift-export-sealed-classes-klib.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/kotlin-2-4-20-beta2-swift-export-sealed-classes-klib.html</guid>
+      <pubDate>Sun, 26 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Kotlin</category>
+      <description>Kotlin 2.4.20-Beta2 lands sealed class Swift export for exhaustive enum switching in KMP, incremental klib compilation on by default for faster Kotlin/Native debug builds, four new stdlib collection functions, and an experimental compiler native image.</description>
+    </item>
+    <item>
+      <title>Nearby Connections API Is Losing Auto-Radio Management: What Changes and How to Adapt Now</title>
+      <link>https://bytevikas.com/blog/nearby-connections-api-radio-management-changes.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/nearby-connections-api-radio-management-changes.html</guid>
+      <pubDate>Sat, 25 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Connectivity</category>
+      <description>Google is removing the Nearby Connections API's silent ability to enable Wi-Fi and Bluetooth on your app's behalf. Late 2026 enforcement, all three strategies affected. Here's the pre-flight check pattern and how to audit your connection flows before the deadline.</description>
+    </item>
+    <item>
+      <title>Navigation3 1.2.0: Deep Links and Result Passing Fill the Two Biggest Gaps from Stable</title>
+      <link>https://bytevikas.com/blog/navigation3-1-2-deep-links-result-event-bus.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/navigation3-1-2-deep-links-result-event-bus.html</guid>
+      <pubDate>Fri, 24 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Nav</category>
+      <description>Navigation3 1.2.0-alpha05/06 adds UriDeepLinkMatcher for URI-to-NavKey resolution and ResultEventBus for typed result passing between destinations — the two features that 1.1.4 stable shipped without. Full API surface with real code.</description>
+    </item>
+    <item>
+      <title>Google Play Catalog Access Is Live: What Third-Party App Stores Mean for Android Developers</title>
+      <link>https://bytevikas.com/blog/google-play-catalog-access-third-party-stores.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/google-play-catalog-access-third-party-stores.html</guid>
+      <pubDate>Thu, 23 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Store</category>
+      <description>As of July 22, your Play Store app listing is available to rival US stores by default. Downloads still flow through Play, billing is unchanged, but you now have a decision to make in Play Console. Here's the opt-in/out trade-off, the Epic settlement context, and what actually changes in your app (spoiler: nothing in the APK).</description>
+    </item>
+    <item>
+      <title>Samsung Galaxy Glasses Are Real: What Android Developers Need to Build for the First Consumer Android XR Device</title>
+      <link>https://bytevikas.com/blog/galaxy-glasses-android-xr-developer-guide.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/galaxy-glasses-android-xr-developer-guide.html</guid>
+      <pubDate>Wed, 22 Jul 2026 08:00:00 +0530</pubDate>
+      <category>XR</category>
+      <description>Samsung announced Galaxy Glasses at Unpacked today — phone-tethered, display-free, Gemini Live API as the app model. One codebase targets headset, display glasses, and audio glasses at runtime. Here's the developer model that matters before hardware ships this fall.</description>
+    </item>
+    <item>
+      <title>Glance 1.3.0 for Wear OS: Health-Aware Widgets, Studio Previews, and a Required Annotation Change</title>
+      <link>https://bytevikas.com/blog/glance-1-3-0-wear-health-widget-preview.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/glance-1-3-0-wear-health-widget-preview.html</guid>
+      <pubDate>Tue, 21 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Wear</category>
+      <description>Glance 1.3.0 brings HealthData APIs for heart rate and steps in Wear widgets, WearWidgetPreview for Android Studio design-time rendering, GlanceWearWidgetManager for querying active instances, and a mandatory @AssociateWithGlanceWearWidget annotation that will break existing code on upgrade.</description>
+    </item>
+    <item>
+      <title>AndroidX PDF 1.0.0-alpha19: Editable Forms, Public Annotations, and OCR — The Third-Party Killer Gets Serious</title>
+      <link>https://bytevikas.com/blog/androidx-pdf-1-0-0-alpha19-edit-annotations-ocr.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/androidx-pdf-1-0-0-alpha19-edit-annotations-ocr.html</guid>
+      <pubDate>Mon, 20 Jul 2026 08:00:00 +0530</pubDate>
+      <category>PDF</category>
+      <description>Alpha19 lands EditablePdfDocument for inline form filling with autofill, a pdf-core module split that decouples document models from the UI layer, OcrProvider APIs for scanned documents, and public AnnotationView. The case for dropping your third-party PDF SDK just got stronger.</description>
+    </item>
+    <item>
+      <title>Jetpack Tracing 2.0: In-Process Perfetto Without the Setup Tax</title>
+      <link>https://bytevikas.com/blog/jetpack-tracing-2-0-in-process-perfetto.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-tracing-2-0-in-process-perfetto.html</guid>
+      <pubDate>Sun, 19 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Tracing</category>
+      <description>Tracing 2.0.0-beta01 replaces the android.os.Trace wrapper with a full in-process Perfetto engine. TraceDriver brings metadata-tagged slices, coroutine context propagation across suspend/resume boundaries, and JVM support — the tracing story production apps actually needed.</description>
+    </item>
+    <item>
+      <title>Jetpack XR SDK 1.0.0 Beta: The Breaking Changes That Matter for Spatial App Developers</title>
+      <link>https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html</guid>
+      <pubDate>Sat, 18 Jul 2026 08:00:00 +0530</pubDate>
+      <category>XR</category>
+      <description>xr.arcore, xr.scenecore, and xr.runtime all hit 1.0.0-beta01 on July 15. Session.create is now a suspend function, AnchorEntity became AnchorSpace, and the movable modifier got a policy API. Here's what breaks and how to migrate.</description>
+    </item>
+    <item>
+      <title>WorkManager 2.12: Your Background Jobs Finally Leave a Paper Trail</title>
+      <link>https://bytevikas.com/blog/workmanager-2-12-work-analytics-metrics-api.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/workmanager-2-12-work-analytics-metrics-api.html</guid>
+      <pubDate>Fri, 17 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Background</category>
+      <description>WorkManager 2.12.0-alpha01 ships a new work-analytics artifact with WorkMetricsInfo — duration, stop reasons, retry counts, and full execution history — so background job failures finally have a structured record you can query and pipe into your analytics stack.</description>
+    </item>
+    <item>
+      <title>Android Studio Quail 2: Concurrent Agent Tabs, Native LeakCanary, and Crash Remediation That Actually Works</title>
+      <link>https://bytevikas.com/blog/android-studio-quail-2-concurrent-agents-crash-remediation.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-studio-quail-2-concurrent-agents-crash-remediation.html</guid>
+      <pubDate>Thu, 16 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Tooling</category>
+      <description>Quail 2 (2026.1.2) is stable. Run multiple Gemini agent chats in parallel, get LeakCanary heap analysis at 5x speed on your development machine, and triage production crashes with full source context — not just the stack trace.</description>
+    </item>
+    <item>
+      <title>Media3 1.11.0-beta01: Track Priority, DASH CDN Fallback, and the Session Crashes Worth Fixing Now</title>
+      <link>https://bytevikas.com/blog/media3-1-11-beta01-track-selection-cdn-fallback.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/media3-1-11-beta01-track-selection-cdn-fallback.html</guid>
+      <pubDate>Wed, 15 Jul 2026 08:00:00 +0530</pubDate>
+      <category>Media</category>
+      <description>Beta01 lands Format.selectionPriority for HLS/DASH adaptive streaming, multi-Location DASH fallback for CDN resilience, and fixes a ForegroundServiceStartNotAllowedException crash that bites every background music app.</description>
+    </item>
+  </channel>
+</rss>
