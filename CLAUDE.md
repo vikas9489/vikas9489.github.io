@@ -211,7 +211,7 @@ Requires a **`ONESIGNAL_REST_API_KEY` GitHub Actions secret** (repo → Settings
 ## Hire Me Details
 - **Target:** ₹30–50 LPA
 - **Role:** Android + AI Engineer
-- **Contact:** hi@bytevikas.com
+- **Contact:** dhimanv209@gmail.com (hi@bytevikas.com has no mail records and bounces; don't use it)
 
 ---
 
