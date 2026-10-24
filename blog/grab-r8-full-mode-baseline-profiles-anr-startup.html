@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook — bytevikas</title>
+  <meta name="description" content="Grab's case study: 32% fewer ANRs, ~30% smaller downloads and 35% faster startup from phased R8 optimization, Full Mode, Baseline Profiles and keep-rule hygiene. What to copy." />
+  <link rel="canonical" href="https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook — bytevikas" />
+  <meta property="og:description" content="Grab's case study: 32% fewer ANRs, ~30% smaller downloads and 35% faster startup from phased R8 optimization, Full Mode, Baseline Profiles and keep-rule hygiene. What to copy." />
+  <meta property="og:url" content="https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook — bytevikas" />
+  <meta name="twitter:description" content="Grab's case study: 32% fewer ANRs, ~30% smaller downloads and 35% faster startup from phased R8 optimization, Full Mode, Baseline Profiles and keep-rule hygiene. What to copy." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#d4a373;--accent-dim:rgba(212,163,115,.1);--accent-border:rgba(212,163,115,.25);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(212,163,115,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(212,163,115,.06);border:1px solid rgba(212,163,115,.22);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:#e6c9a8;}
+
+    .callout-warn{
+      background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.22);
+      border-left:3px solid #fb923c;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fb923c;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(212,163,115,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+
+    .cmp-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px;}
+    .cmp-table th,.cmp-table td{padding:10px 12px;border-bottom:1px solid var(--card-border);text-align:left;color:#c0cdd8;}
+    .cmp-table th{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">R8</span>
+      <span class="post-date">Oct 24, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook</h1>
+
+    <div class="post-body">
+
+      <p>Most R8 write-ups stop at "enable minification, ship it." Grab's case study, published on the Android Developers Blog on October 19, 2026, is more useful because it covers what happens when you do this on a roughly ten-year-old codebase with over 10 million lines of code and hundreds of third-party libraries. The headline: <strong>32% fewer ANRs, about 30% smaller downloads, and 35% faster startup</strong>, reached in phases over more than a year.</p>
+
+      <p>The numbers are good, but the sequencing and the unglamorous operational work behind them are what you can copy. Here is the breakdown.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">~32.5%</div>
+          <div class="announce-lbl">Cumulative reduction in user-perceived ANRs</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">~30.4%</div>
+          <div class="announce-lbl">Cumulative download size reduction</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">~35%</div>
+          <div class="announce-lbl">Faster cold start across all phases</div>
+        </div>
+      </div>
+
+      <h2>The Starting Point</h2>
+
+      <p>Grab is a Southeast Asian superapp covering deliveries, mobility, and financial services across eight countries. It uses a hybrid build: Bazel for debug and Gradle with R8 for release. The team was fighting three problems at once: high ANR rates, an app that grew with every new service, and startup time that rose year over year.</p>
+
+      <p>The ANR pattern was specific. Spikes followed each weekly release, and the main cause was the overhead of reading many DEX files during initialization. Google Play Cloud Profiles covered standard flows but not every initialization path, such as Dagger dependency graph setup at launch. Code outside the profile ran through JIT compilation and background optimization over the following days, which is exactly when users saw ANRs.</p>
+
+      <p>The fix was a custom Baseline Profile that fed Grab's critical user journeys into Play's Cloud Profiles, so those paths were compiled to machine code at install time.</p>
+
+      <h2>Phase 1: R8 Optimization in Compat Mode (2025)</h2>
+
+      <p>The first step was unglamorous. Grab moved from the legacy default ProGuard file to <code>proguard-android-optimize.txt</code>, which turns on R8's optimizations. They also cleaned up legacy configuration and reflection usage across the codebase, and shipped Baseline Profiles and Startup Profiles in the same release.</p>
+
+      <pre><code>android {
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                // the optimizing default, not the legacy proguard-android.txt
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+}</code></pre>
+
+      <p>Results for this phase: about 25% fewer user-perceived ANRs, a 16% smaller download, and about 27% faster cold start. Grab attributes 12% of the startup gain to R8 and 15% to Baseline Profiles, a useful reminder that the two tools stack rather than overlap.</p>
+
+      <h2>Phase 2: R8 Full Mode (2026)</h2>
+
+      <p>Nine months later Grab moved to R8 Full Mode. Libraries such as Retrofit, Firebase, and Jetpack Compose worked with their built-in consumer rules, and Grab adopted the consumer keep rules from the latest Gson release for JSON parsing.</p>
+
+      <p>The real breakage came from Java dynamic proxies. R8 can't see runtime reflection, so it strips or renames the classes involved and the app crashes at runtime. The tempting fix is a broad exception like <code>-keep class com.yourapp.** { *; }</code>, which defeats the optimization and bloats the app. Grab did the opposite: isolate the specific reflection-dependent classes and write targeted keep rules.</p>
+
+      <pre><code># Illustrative: keep only what reflection actually touches
+-keep interface com.example.api.PaymentsApi
+-keepclassmembers class com.example.model.PaymentRequest {
+    &lt;fields&gt;;
+}</code></pre>
+
+      <p>The post does not publish Grab's actual rules, so treat the snippet above as the shape of the approach rather than their config. Results for Full Mode: an additional ~14% smaller download, ~10% faster startup, and ~10% fewer ANRs. After the migration, the R8 Configuration Analyzer scored the app at 72% for optimization, 73% for shrinking, and 79.6% for obfuscation.</p>
+
+      <div class="callout">
+        <p><strong>Compounding, not adding:</strong> the cumulative figures match multiplying the phases. For ANRs, 1 &minus; (0.75 &times; 0.90) &asymp; 32.5%. For size, 1 &minus; (0.84 &times; 0.86 &times; 0.964) &asymp; 30.4%. Don't add percentages from separate rollouts when you report your own results.</p>
+      </div>
+
+      <h2>Phase 3: Keep-Rule Hygiene (In Progress)</h2>
+
+      <p>Years of accumulated keep rules quietly cap what R8 can do. Grab is using the R8 Configuration Analyzer to find and trim legacy rules, targeting scores of 78.2% for optimization, 79.1% for shrinking, and 81.7% for obfuscation, plus about 3.6% additional download size reduction. Note that these are in-progress targets, not shipped results.</p>
+
+      <p>The planned follow-up is the part most teams skip: pre-merge CI guardrails where any new keep rule needs explicit justification and review, with analyzer scores tracked in CI as a regression signal. Without that gate, the rule file grows back.</p>
+
+      <h2>Results at a Glance</h2>
+
+      <table class="cmp-table">
+        <thead>
+          <tr><th>Phase</th><th>ANRs</th><th>Size</th><th>Cold start</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R8 optimizer (2025)</td><td>~25% fewer</td><td>16% smaller</td><td>~27% faster</td></tr>
+          <tr><td>R8 Full Mode (2026)</td><td>10% fewer</td><td>14% smaller</td><td>10% faster</td></tr>
+          <tr><td>Keep-rule cleanup</td><td>&mdash;</td><td>3.6% smaller</td><td>&mdash;</td></tr>
+          <tr><td><strong>Cumulative</strong></td><td><strong>~32.5%</strong></td><td><strong>~30.4%</strong></td><td><strong>~35%</strong></td></tr>
+        </tbody>
+      </table>
+
+      <h2>The Operational Lessons</h2>
+
+      <p>The most transferable parts of the post are not R8 flags. They are how a lean team made an aggressive optimizer safe to ship.</p>
+
+      <ul>
+        <li><strong>Test where the rules changed.</strong> Exhaustive testing of a decade of reflection was impossible. Grab focused testing on the code covered by the keep rules being narrowed, and refined rules iteratively to target only the classes, methods, or fields reflection needs.</li>
+        <li><strong>Shorten the feedback loop.</strong> Experimental R8 changes took up to 2 hours in remote CI. Grab aligned daily QA builds with production R8 behavior and automated collection of <code>mapping.txt</code> and <code>configuration.txt</code> so every build was debuggable.</li>
+        <li><strong>Make crashes readable.</strong> They automated mapping file uploads to Firebase Crashlytics through Gradle and bundled deobfuscation mappings for the Play Console, so root-causing across hundreds of optimized classes stayed affordable.</li>
+        <li><strong>Measure cost per line of code.</strong> Using the open-source app-sizer tool, Grab found that R8 permanently lowered the download-size cost of each line of code. That matters more as AI-assisted development increases code volume.</li>
+      </ul>
+
+      <div class="callout-warn">
+        <p><strong>What the post doesn't tell you:</strong> it shows no keep rules, no Baseline Profile contents, and little detail on Startup Profile or DEX layout work. It also uses slightly different figures for the size reduction in different sections (about 30%, 30.4%, and 30.3%). Use it as a roadmap, not a config to copy.</p>
+      </div>
+
+      <h2>How I'd Apply This to a Smaller App</h2>
+
+      <p>Most apps are nowhere near Grab's scale, but the order of operations holds up. This is my own take, not something from the case study.</p>
+
+      <ul>
+        <li><strong>Switch to the optimizing default file first</strong> and fix what breaks. Measure ANRs, size, and cold start before and after so you know which phase paid off.</li>
+        <li><strong>Ship Baseline Profiles in the same cycle.</strong> Grab's numbers show R8 and profiles contribute separately to startup.</li>
+        <li><strong>Move to Full Mode second</strong>, with reflection-heavy code (proxies, serialization) as your known risk area. Write narrow rules, never package-wide wildcards.</li>
+        <li><strong>Run the Configuration Analyzer</strong> and put a review gate on new keep rules before the file rots.</li>
+        <li><strong>Automate mapping uploads</strong> so a production crash is readable the day you ship.</li>
+      </ul>
+
+      <p>The takeaway is that R8 is not a flag you flip once. The 35% startup improvement came from two migrations, a profile pipeline, and a process that keeps the rule file honest.</p>
+
+      <p>Source: <a href="https://developer.android.com/blog/posts/grab-r8-profile-guided-optimization-anr-startup-time" rel="noopener">Grab Reduces ANRs by 32% and improves startup time by 35% with R8 and Profile guided optimization</a>, Android Developers Blog, October 19, 2026.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('grab-r8-full-mode-baseline-profiles-anr-startup');
+  </script>
+</body>
+</html>

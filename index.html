@@ -353,6 +353,7 @@
     .blog-cat.fragment { color:#51cf66; }
     .blog-cat.testing { color:#5c7cfa; }
     .blog-cat.kmp { color:#ff7043; }
+    .blog-cat.r8 { color:#d4a373; }
     .blog-card h3 { font-family:'Outfit',sans-serif; font-size:17px; font-weight:700; line-height:1.35; margin-bottom:12px; color:white; }
     .blog-card p { font-size:13px; color:var(--muted-light); line-height:1.65; flex:1; margin-bottom:24px; }
     .blog-meta { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); padding-top:18px; border-top:1px solid var(--card-border); margin-top:auto; }
@@ -998,29 +999,29 @@
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
-          <a href="blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html" class="blog-card reveal delay-1">
+          <a href="blog/grab-r8-full-mode-baseline-profiles-anr-startup.html" class="blog-card reveal delay-1">
+            <div class="blog-cat r8">R8</div>
+            <h3>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook</h3>
+            <p>Grab's decade-old superapp moved from legacy ProGuard config to R8 Full Mode in phases, paired with Baseline Profiles. The result: ~32.5% fewer ANRs, ~30% smaller downloads and ~35% faster startup. What to copy.</p>
+            <div class="blog-meta"><span>Oct 24, 2026 &nbsp;·&nbsp; 8 min</span><span class="read-more">Read →</span></div>
+          </a>
+          <a href="blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html" class="blog-card reveal delay-2">
             <div class="blog-cat compose">Compose</div>
             <h3>Compose 1.13.0-alpha01: FlexBox Hits Stable, SelectionState API, and the Next Cycle Begins</h3>
             <p>The same day 1.12 went stable, alpha01 of 1.13 dropped. FlexBox graduates from experimental (no @OptIn), a new SelectionState API gives programmatic text selection control, and clicks now play sounds by default on Android.</p>
             <div class="blog-meta"><span>Aug 13, 2026 &nbsp;·&nbsp; 10 min</span><span class="read-more">Read →</span></div>
           </a>
-          <a href="blog/compose-1-12-0-stable.html" class="blog-card reveal delay-2">
+          <a href="blog/compose-1-12-0-stable.html" class="blog-card reveal delay-1">
             <div class="blog-cat compose">Compose</div>
             <h3>Jetpack Compose 1.12.0 Is Stable — Wide Color Gamut, FlexBox, and the Production Upgrade Guide</h3>
             <p>Compose 1.12.0 hit stable August 12 alongside Fragment 1.9.0 and Tracing 2.0.0. Wide color gamut support, FlexBox stable, Dialog blur controls — plus the breaking changes and exact migration checklist before you bump the BOM.</p>
             <div class="blog-meta"><span>Aug 12, 2026 &nbsp;·&nbsp; 11 min</span><span class="read-more">Read →</span></div>
           </a>
-          <a href="blog/x-android-app-kotlin-compose-rebuild-kmp.html" class="blog-card reveal delay-1">
+          <a href="blog/x-android-app-kotlin-compose-rebuild-kmp.html" class="blog-card reveal delay-2">
             <div class="blog-cat kmp">KMP</div>
             <h3>X Rebuilt Its Android App from Scratch in Kotlin + Compose — Lessons from the Biggest KMP Bet in Production</h3>
             <p>X shipped a fully rebuilt Android app — 100% Kotlin, Jetpack Compose UI, and Kotlin Multiplatform powering X Chat's E2E encryption across Android, iOS, and Web. What a year-long clean-slate rewrite looks like and what you can steal from it.</p>
             <div class="blog-meta"><span>Aug 11, 2026 &nbsp;·&nbsp; 11 min</span><span class="read-more">Read →</span></div>
-          </a>
-          <a href="blog/benchmark-1-5-0-beta-uiautomator-aot-perfetto-tracing.html" class="blog-card reveal delay-2">
-            <div class="blog-cat testing">Testing</div>
-            <h3>Benchmark 1.5.0 Beta: UiAutomator 2.4, Safer AOT Defaults, and In-Process Trace Merging</h3>
-            <p>Seven alphas, one beta, and the most consequential Benchmark upgrade since stable. requireAot flips to true by default, UiAutomator 2.4 lands in MacrobenchmarkScope, and beta01 lets PerfettoCapture merge Tracing 2.0 in-process events into one Perfetto file.</p>
-            <div class="blog-meta"><span>Aug 10, 2026 &nbsp;·&nbsp; 9 min</span><span class="read-more">Read →</span></div>
           </a>
         </div>
         <a href="blog/index.html" class="view-all reveal">View all articles &nbsp;→</a>

@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 13 Aug 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 24 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook</title>
+      <link>https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html</guid>
+      <pubDate>Sat, 24 Oct 2026 08:00:00 +0530</pubDate>
+      <category>R8</category>
+      <description>Grab's 10-million-line superapp went from legacy ProGuard config to R8 Full Mode in phases: ~32.5% fewer ANRs, ~30% smaller downloads and ~35% faster cold start. The sequencing, the reflection fixes and the CI guardrails worth copying.</description>
+    </item>
     <item>
       <title>Compose 1.13.0-alpha01: FlexBox Hits Stable, SelectionState API, and the Next Cycle Begins</title>
       <link>https://bytevikas.com/blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Thu, 16 Jul 2026 08:00:00 +0530</pubDate>
       <category>Tooling</category>
       <description>Quail 2 (2026.1.2) is stable. Run multiple Gemini agent chats in parallel, get LeakCanary heap analysis at 5x speed on your development machine, and triage production crashes with full source context — not just the stack trace.</description>
-    </item>
-    <item>
-      <title>Media3 1.11.0-beta01: Track Priority, DASH CDN Fallback, and the Session Crashes Worth Fixing Now</title>
-      <link>https://bytevikas.com/blog/media3-1-11-beta01-track-selection-cdn-fallback.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/media3-1-11-beta01-track-selection-cdn-fallback.html</guid>
-      <pubDate>Wed, 15 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Media</category>
-      <description>Beta01 lands Format.selectionPriority for HLS/DASH adaptive streaming, multi-Location DASH fallback for CDN resilience, and fixes a ForegroundServiceStartNotAllowedException crash that bites every background music app.</description>
     </item>
   </channel>
 </rss>
