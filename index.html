@@ -66,24 +66,9 @@
     .glow-1 { top:-20%; left:-10%; width:65%; height:65%; background:radial-gradient(circle,rgba(34,197,94,.08) 0%,transparent 70%); }
     .glow-2 { bottom:-10%; right:-10%; width:55%; height:55%; background:radial-gradient(circle,rgba(22,163,74,.06) 0%,transparent 70%); }
 
-    /* ANNOUNCE BAR */
-    .announce-bar {
-      position:fixed; top:0; left:0; right:0; z-index:1001;
-      background:rgba(34,197,94,.08); border-bottom:1px solid rgba(34,197,94,.18);
-      padding:9px 48px; min-height:40px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:13px; color:var(--amber-light); font-weight:500; gap:8px;
-    }
-    .announce-bar .dismiss {
-      position:absolute; right:16px; top:50%; transform:translateY(-50%);
-      background:none; border:none; cursor:pointer; color:var(--muted);
-      font-size:20px; line-height:1; padding:4px 8px; transition:color .2s;
-    }
-    .announce-bar .dismiss:hover { color:white; }
-
     /* NAVBAR */
     .navbar {
-      position:fixed; left:0; right:0; z-index:1000; top:40px;
+      position:fixed; left:0; right:0; z-index:1000; top:0;
       background:rgba(5,5,5,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
       border-bottom:1px solid var(--card-border);
       height:60px; display:flex; align-items:center; padding:0 24px;
@@ -125,6 +110,10 @@
     .btn-white:hover { background:#e2e2e2; transform:translateY(-2px); box-shadow:0 10px 30px -10px rgba(255,255,255,.25); }
     .btn-ghost { background:transparent; color:white; border:1px solid rgba(255,255,255,.18); }
     .btn-ghost:hover { border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.04); }
+    .hero-social { display:flex; gap:10px; align-items:center; }
+    .icon-link { width:50px; height:50px; border-radius:12px; border:1px solid rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; color:var(--muted-light); transition:all .25s; }
+    .icon-link:hover { color:white; border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.04); }
+    .icon-link svg { width:20px; height:20px; fill:currentColor; }
 
     /* SCROLL REVEAL */
     .reveal { opacity:0; transform:translateY(32px); transition:opacity .65s ease,transform .65s ease; }
@@ -132,7 +121,7 @@
     .delay-1 { transition-delay:.1s; } .delay-2 { transition-delay:.2s; } .delay-3 { transition-delay:.3s; }
 
     /* HERO */
-    .hero { min-height:100vh; display:flex; align-items:center; padding-top:100px; }
+    .hero { min-height:100vh; display:flex; align-items:center; padding-top:60px; }
     .hero-content { flex:1; animation:fadeUp .9s ease both; }
     @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
@@ -417,8 +406,10 @@
       background:#25d366; display:flex; align-items:center; justify-content:center;
       box-shadow:0 4px 24px rgba(37,211,102,.35); transition:all .3s;
       text-decoration:none;
+      opacity:0; pointer-events:none; transform:translateY(16px);
     }
-    .whatsapp-btn:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(37,211,102,.5); }
+    .whatsapp-btn.show { opacity:1; pointer-events:auto; transform:none; }
+    .whatsapp-btn.show:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(37,211,102,.5); }
     .whatsapp-btn svg { width:28px; height:28px; fill:white; }
     .whatsapp-tip {
       position:absolute; right:66px; top:50%; transform:translateY(-50%);
@@ -473,7 +464,7 @@
 
     /* MOBILE MENU */
     .mobile-menu {
-      display:none; position:fixed; z-index:999; left:0; right:0; top:100px;
+      display:none; position:fixed; z-index:999; left:0; right:0; top:60px;
       background:rgba(5,5,5,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
       border-bottom:1px solid var(--card-border); flex-direction:column; padding:8px 0 20px;
     }
@@ -531,14 +522,12 @@
       .contact-wrap { grid-template-columns:1fr; gap:40px; }
     }
     @media (max-width:600px) {
-      .announce-bar { font-size:12px; padding:9px 40px 9px 16px; text-align:left; min-height:44px; }
-      .navbar { top:44px; }
-      .hero { padding-top:104px; }
+      .hero { padding-top:84px; }
       .hero h1 { letter-spacing:-1.5px; }
       .nav-links { display:none; }
       .btn-open { display:none; }
       .nav-hamburger { display:flex; }
-      .mobile-menu { top:104px; }
+      .mobile-menu { top:60px; }
       .hero-split { gap:28px; }
       .hero-avatar { width:160px; height:160px; }
       .hero-photo-wrap { display:flex; justify-content:center; }
@@ -564,10 +553,6 @@
   <div class="glow glow-2" aria-hidden="true"></div>
 
   <!-- AVAILABILITY BANNER -->
-  <div class="announce-bar" id="announceBar">
-    <span>Immediately Available &nbsp;·&nbsp; Open to Remote &amp; Hybrid roles</span>
-    <button class="dismiss" id="announceClose" aria-label="Dismiss">×</button>
-  </div>
 
   <!-- NAVBAR -->
   <nav class="navbar">
@@ -617,12 +602,14 @@
             <div class="hero-cta">
               <a href="#projects" class="btn btn-white">View Projects</a>
               <a href="#hire" class="btn btn-ghost">Hire Me</a>
-              <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank" class="btn btn-ghost">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:13px">LinkedIn</span>
-              </a>
-              <a href="https://github.com/vikas9489" target="_blank" class="btn btn-ghost">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:13px">GitHub</span>
-              </a>
+              <div class="hero-social">
+                <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank" rel="noopener" class="icon-link" aria-label="LinkedIn" title="LinkedIn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="https://github.com/vikas9489" target="_blank" rel="noopener" class="icon-link" aria-label="GitHub" title="GitHub">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                </a>
+              </div>
             </div>
 
             <div class="hero-chips">
@@ -778,7 +765,7 @@
               <span class="badge badge-blue">10K+ Downloads</span>
               <span class="badge badge-yellow">★ 5.0 Rating</span>
             </div>
-            <p class="proj-desc">AI-powered local search delivering intelligent, on-device information retrieval — fast and private with no internet dependency. Rated 5.0 by 10,000+ users.</p>
+            <p class="proj-desc">AI-powered local search delivering intelligent, on-device information retrieval — fast and private with no internet dependency. Rated 5.0 on Google Play.</p>
             <div class="tech-tags">
               <span class="tech-tag">Kotlin</span>
               <span class="tech-tag">Clean Architecture</span>
@@ -966,33 +953,6 @@
         </div>
       </section>
 
-      <!-- CREATOR (hidden — unhide when YouTube/Instagram are ready) -->
-      <section id="creator" class="section" style="display:none">
-        <div class="section-eyebrow reveal">Content</div>
-        <h2 class="section-title reveal">Content Creator</h2>
-        <p class="section-subtitle reveal">Beyond code — I share Android engineering insights, architecture breakdowns, and real talk about building consumer apps.</p>
-        <div class="creator-grid">
-          <a href="https://youtube.com/@bytevikas" target="_blank" class="creator-card reveal delay-1">
-            <div class="plat-icon yt">&#9654;</div>
-            <h3>YouTube</h3>
-            <p>Android architecture deep-dives, ExoPlayer tutorials, app build logs, and performance case studies from real production apps.</p>
-            <span class="creator-handle">@bytevikas</span>
-          </a>
-          <a href="https://instagram.com/bytevikas" target="_blank" class="creator-card reveal delay-2">
-            <div class="plat-icon ig">&#9670;</div>
-            <h3>Instagram</h3>
-            <p>Quick Kotlin tips, code snippets, behind-the-scenes of app building, and honest developer life content.</p>
-            <span class="creator-handle">@bytevikas</span>
-          </a>
-          <a href="https://linkedin.com/in/vikas-dhiman9489" target="_blank" class="creator-card reveal delay-3">
-            <div class="plat-icon li">in</div>
-            <h3>LinkedIn</h3>
-            <p>Professional updates, Android career perspectives, job market insights, and hot takes on the ecosystem.</p>
-            <span class="creator-handle">vikas9489</span>
-          </a>
-        </div>
-      </section>
-
       <!-- BLOG -->
       <section id="blog" class="section">
         <div class="section-eyebrow reveal">06 — Blog</div>
@@ -1025,6 +985,56 @@
           </a>
         </div>
         <a href="blog/index.html" class="view-all reveal">View all articles &nbsp;→</a>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="section">
+        <div class="section-eyebrow reveal">07 — FAQ</div>
+        <h2 class="section-title reveal">Common questions</h2>
+        <p class="section-subtitle reveal">Things people ask before reaching out.</p>
+        <div class="faq-list reveal">
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Are you available for freelance projects?
+              <span class="faq-arrow">&#9660;</span>
+            </button>
+            <div class="faq-a"><p>Yes — I actively take on freelance Android projects, typically 1–3 month engagements. Drop me a line at dhimanv209@gmail.com and we can discuss scope and timeline.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              What is your typical project timeline?
+              <span class="faq-arrow">&#9660;</span>
+            </button>
+            <div class="faq-a"><p>It depends on scope. A feature addition takes 2–4 weeks. A full app from scratch is typically 3–6 months. I'll give you a realistic estimate after a brief discovery call.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Do you sign NDAs?
+              <span class="faq-arrow">&#9660;</span>
+            </button>
+            <div class="faq-a"><p>Absolutely. I'm happy to sign a mutual NDA before any project discussion. Most of my client work is already under confidentiality agreements.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              What are your rates?
+              <span class="faq-arrow">&#9660;</span>
+            </button>
+            <div class="faq-a"><p>For full-time roles, compensation is open to discussion based on the role, team, and growth opportunity. For freelance, I work on a project or daily rate basis — reach out with your project details for a custom quote.</p></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Do you work with startups?
+              <span class="faq-arrow">&#9660;</span>
+            </button>
+            <div class="faq-a"><p>Yes — startups are my favorite clients. I've built apps from 0 to 10K+ downloads and understand the speed and constraints that early-stage products demand.</p></div>
+          </div>
+
+        </div>
       </section>
 
       <!-- CONTACT -->
@@ -1084,56 +1094,6 @@
         </div>
       </section>
 
-      <!-- FAQ -->
-      <section id="faq" class="section">
-        <div class="section-eyebrow reveal">07 — FAQ</div>
-        <h2 class="section-title reveal">Common questions</h2>
-        <p class="section-subtitle reveal">Things people ask before reaching out.</p>
-        <div class="faq-list reveal">
-
-          <div class="faq-item">
-            <button class="faq-q">
-              Are you available for freelance projects?
-              <span class="faq-arrow">&#9660;</span>
-            </button>
-            <div class="faq-a"><p>Yes — I actively take on freelance Android projects, typically 1–3 month engagements. Drop me a line at dhimanv209@gmail.com and we can discuss scope and timeline.</p></div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-q">
-              What is your typical project timeline?
-              <span class="faq-arrow">&#9660;</span>
-            </button>
-            <div class="faq-a"><p>It depends on scope. A feature addition takes 2–4 weeks. A full app from scratch is typically 3–6 months. I'll give you a realistic estimate after a brief discovery call.</p></div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-q">
-              Do you sign NDAs?
-              <span class="faq-arrow">&#9660;</span>
-            </button>
-            <div class="faq-a"><p>Absolutely. I'm happy to sign a mutual NDA before any project discussion. Most of my client work is already under confidentiality agreements.</p></div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-q">
-              What are your rates?
-              <span class="faq-arrow">&#9660;</span>
-            </button>
-            <div class="faq-a"><p>For full-time roles, compensation is open to discussion based on the role, team, and growth opportunity. For freelance, I work on a project or daily rate basis — reach out with your project details for a custom quote.</p></div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-q">
-              Do you work with startups?
-              <span class="faq-arrow">&#9660;</span>
-            </button>
-            <div class="faq-a"><p>Yes — startups are my favorite clients. I've built apps from 0 to 10K+ downloads and understand the speed and constraints that early-stage products demand.</p></div>
-          </div>
-
-        </div>
-      </section>
-
       <!-- HIRE ME -->
       <section id="hire" class="section">
         <div class="hire-card reveal">
@@ -1152,7 +1112,7 @@
 
   <footer>
     <div class="container">
-      <p>Built by <strong style="color:white">Vikas</strong> with <span style="color:var(--amber-light)">Kotlin</span> &amp; Coffee</p>
+      <p>Designed &amp; built by <strong style="color:white">Vikas Dhiman</strong></p>
       <div class="footer-links">
         <a href="mailto:dhimanv209@gmail.com">Email</a>
         <a href="https://github.com/vikas9489" target="_blank">GitHub</a>
@@ -1165,8 +1125,8 @@
     </div>
   </footer>
 
-  <!-- WHATSAPP — replace 91XXXXXXXXXX with your actual number -->
-  <a href="https://wa.me/918219875918" target="_blank" class="whatsapp-btn" title="Chat on WhatsApp">
+  <!-- WHATSAPP -->
+  <a href="https://wa.me/918219875918" target="_blank" class="whatsapp-btn" id="whatsappBtn" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
     <span class="whatsapp-tip">Chat on WhatsApp</span>
     <svg viewBox="0 0 24 24"><path d="M20.52 3.449A11.958 11.958 0 0012.023 0C5.422 0 .078 5.343.075 11.944c0 2.105.55 4.157 1.597 5.967L0 24l6.304-1.654a11.957 11.957 0 005.715 1.455h.005c6.6 0 11.946-5.336 11.949-11.945a11.868 11.868 0 00-3.453-8.407zm-8.497 18.387h-.004a9.921 9.921 0 01-5.057-1.383l-.363-.215-3.76.985 1.002-3.655-.236-.375a9.91 9.91 0 01-1.519-5.29c.003-5.476 4.462-9.929 9.94-9.929a9.87 9.87 0 017.031 2.913 9.83 9.83 0 012.911 6.994c-.003 5.476-4.462 9.93-9.945 9.93zm5.45-7.434c-.299-.149-1.768-.872-2.042-.97-.273-.1-.472-.149-.67.149-.199.298-.772.97-.946 1.17-.174.198-.349.223-.647.074-.299-.148-1.261-.464-2.401-1.483-.886-.793-1.483-1.772-1.657-2.07-.174-.299-.018-.46.13-.609.134-.133.298-.347.447-.521.148-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.074-.149-.67-1.62-.918-2.22-.242-.581-.489-.501-.67-.511-.173-.009-.372-.011-.571-.011-.198 0-.521.075-.794.372-.273.298-1.042 1.02-1.042 2.49s1.067 2.888 1.216 3.086c.149.198 2.1 3.204 5.088 4.493.711.306 1.267.489 1.699.625.714.226 1.364.194 1.878.118.572-.084 1.764-.72 2.013-1.416.248-.696.248-1.292.174-1.416-.075-.124-.273-.198-.571-.347z"/></svg>
   </a>
@@ -1181,14 +1141,10 @@
     );
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-    // Announce bar dismiss
-    const announceBar = document.getElementById('announceBar');
-    document.getElementById('announceClose').addEventListener('click', () => {
-      announceBar.style.display = 'none';
-      document.querySelector('.navbar').style.top = '0';
-      document.querySelector('.hero').style.paddingTop = '60px';
-      document.getElementById('mobileMenu').style.top = '60px';
-    });
+    const waBtn = document.getElementById('whatsappBtn');
+    const toggleWa = () => waBtn.classList.toggle('show', window.scrollY > window.innerHeight * 0.8);
+    window.addEventListener('scroll', toggleWa, { passive: true });
+    toggleWa();
 
     // Hamburger menu
     const hamburger = document.getElementById('navHamburger');

@@ -5,9 +5,15 @@ OneSignalDeferred.push(async function(OneSignal) {
     notifyButton: { enable: true },
   });
   const permission = await OneSignal.getNotificationPermission();
-  if (permission === 'default') {
-    setTimeout(() => OneSignal.Slidedown.promptPush(), 4000);
-  }
+  if (permission !== 'default') return;
+  // Ask only once the reader has shown interest (scrolled halfway), not on arrival over the title
+  const onScroll = () => {
+    const doc = document.documentElement;
+    if (window.scrollY + window.innerHeight < doc.scrollHeight * 0.5) return;
+    window.removeEventListener('scroll', onScroll);
+    OneSignal.Slidedown.promptPush();
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
 });
 
 // Visitor analytics (GoatCounter: no cookies, so no consent banner needed).

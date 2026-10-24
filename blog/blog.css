@@ -46,3 +46,5 @@ footer a:hover{color:var(--accent)}
 .form-textarea{resize:vertical;min-height:100px;line-height:1.6}
 .submit-btn:hover{background:#e2e2e2;transform:translateY(-1px)}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.post-body a{color:var(--accent,#4ade80);text-decoration:underline;text-decoration-color:rgba(255,255,255,.25);text-underline-offset:3px;transition:text-decoration-color .2s}
+.post-body a:hover{text-decoration-color:currentColor}

@@ -74,14 +74,21 @@ vikas9489.github.io/
 
 | # | Section id | Status | Notes |
 |---|-----------|--------|-------|
-| — | Navbar | Live | Sticky, blur, "Open to Work" amber pill with pulse dot |
-| 1 | Hero | Live | 90px heading, metrics bar, tech chips, CTA buttons |
-| 2 | `#expertise` | Live | 3 cards: Architecture, Performance, Video/Streaming |
-| 3 | `#projects` | Live | Nodat, Musist, OnlyArabs (CSS UI-concept phones) and HailUp (real Play Store screenshots in assets/apps/hailup/) as featured wide cards; Samachar removed from the portfolio (blog posts still mention it) |
-| 4 | `#creator` | **Hidden** (`display:none`) | YouTube/Instagram/LinkedIn — unhide when ready |
-| 5 | `#blog` | Live | 4 cards in 2×2 grid → blog posts |
-| 6 | `#hire` | Live | ₹30–50 LPA, Senior Android Engineer CTA |
-| — | Footer | Live | Email, GitHub, LinkedIn, YouTube, Blog links |
+| — | Navbar | Live | Sticky at top:0 (the old announce bar above it was removed), "Open to Work" pill with pulse dot |
+| — | Hero | Live | Heading, metrics bar, tech chips; 2 CTA buttons (View Projects, Hire Me) + LinkedIn/GitHub icon links |
+| 01 | `#expertise` | Live | 4 cards: Architecture, Performance, Video/Streaming, AI-Accelerated Development |
+| 02 | `#experience` | Live | Dharmani Apps (3 roles), Smart Programming, B.Tech |
+| 03 | `#projects` | Live | Nodat, Musist, HailUp (real Play Store screenshots in assets/apps/) and OnlyArabs (CSS UI-concept phones); Samachar removed from the portfolio (blog posts still mention it) |
+| 04 | `#services` | Live | Freelance, Contract/Consulting, Architecture Audit |
+| 05 | `#process` | Live | Discovery → Architecture → Development → Deployment |
+| 06 | `#blog` | Live | 4 most recent posts in a 2×2 grid |
+| 07 | `#faq` | Live | Sits before Contact so the eyebrow numbers read in order |
+| 08 | `#contact` | Live | Email, LinkedIn, WhatsApp + FormSubmit form |
+| — | `#hire` | Live | Android + AI Engineer CTA |
+| — | Footer | Live | Email, GitHub, LinkedIn, Blog, RSS links |
+| — | WhatsApp button | Live | Floating; hidden until the visitor scrolls past the hero |
+
+When adding or reordering sections, keep the `NN — Name` eyebrow numbers sequential.
 
 ---
 
