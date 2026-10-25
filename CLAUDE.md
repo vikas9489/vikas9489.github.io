@@ -83,10 +83,9 @@ vikas9489.github.io/
 | 05 | `#process` | Live | Discovery → Architecture → Development → Deployment |
 | 06 | `#blog` | Live | 4 most recent posts in a 2×2 grid |
 | 07 | `#faq` | Live | Sits before Contact so the eyebrow numbers read in order |
-| 08 | `#contact` | Live | Email, LinkedIn, WhatsApp + FormSubmit form |
+| 08 | `#contact` | Live | Email, LinkedIn + FormSubmit form (phone/WhatsApp intentionally not public) |
 | — | `#hire` | Live | Android + AI Engineer CTA |
 | — | Footer | Live | Email, GitHub, LinkedIn, Blog, RSS links |
-| — | WhatsApp button | Live | Floating; hidden until the visitor scrolls past the hero |
 
 When adding or reordering sections, keep the `NN — Name` eyebrow numbers sequential.
 
