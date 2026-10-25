@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sat, 24 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 25 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS</title>
+      <link>https://bytevikas.com/blog/write-contacts-permission-intents-manage-contacts.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/write-contacts-permission-intents-manage-contacts.html</guid>
+      <pubDate>Sun, 25 Oct 2026 08:00:00 +0530</pubDate>
+      <category>Contacts</category>
+      <description>Apps targeting the next Android release can no longer write contacts directly. The three standard intents, the Contact Picker and People Directory replace it, and MANAGE_CONTACTS covers the few apps that truly need broad access. Kotlin before/after and a migration checklist.</description>
+    </item>
     <item>
       <title>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook</title>
       <link>https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Fri, 17 Jul 2026 08:00:00 +0530</pubDate>
       <category>Background</category>
       <description>WorkManager 2.12.0-alpha01 ships a new work-analytics artifact with WorkMetricsInfo — duration, stop reasons, retry counts, and full execution history — so background job failures finally have a structured record you can query and pipe into your analytics stack.</description>
-    </item>
-    <item>
-      <title>Android Studio Quail 2: Concurrent Agent Tabs, Native LeakCanary, and Crash Remediation That Actually Works</title>
-      <link>https://bytevikas.com/blog/android-studio-quail-2-concurrent-agents-crash-remediation.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/android-studio-quail-2-concurrent-agents-crash-remediation.html</guid>
-      <pubDate>Thu, 16 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Tooling</category>
-      <description>Quail 2 (2026.1.2) is stable. Run multiple Gemini agent chats in parallel, get LeakCanary heap analysis at 5x speed on your development machine, and triage production crashes with full source context — not just the stack trace.</description>
     </item>
   </channel>
 </rss>

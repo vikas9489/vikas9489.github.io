@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS — bytevikas</title>
+  <meta name="description" content="Apps targeting the next Android release lose direct contact writes via WRITE_CONTACTS. Migrate to ACTION_INSERT, ACTION_EDIT and the Contact Picker, and learn when MANAGE_CONTACTS applies." />
+  <link rel="canonical" href="https://bytevikas.com/blog/write-contacts-permission-intents-manage-contacts.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS — bytevikas" />
+  <meta property="og:description" content="Apps targeting the next Android release lose direct contact writes via WRITE_CONTACTS. Migrate to ACTION_INSERT, ACTION_EDIT and the Contact Picker, and learn when MANAGE_CONTACTS applies." />
+  <meta property="og:url" content="https://bytevikas.com/blog/write-contacts-permission-intents-manage-contacts.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS — bytevikas" />
+  <meta name="twitter:description" content="Apps targeting the next Android release lose direct contact writes via WRITE_CONTACTS. Migrate to ACTION_INSERT, ACTION_EDIT and the Contact Picker, and learn when MANAGE_CONTACTS applies." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a1887f;--accent-dim:rgba(161,136,127,.1);--accent-border:rgba(161,136,127,.25);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(161,136,127,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(161,136,127,.06);border:1px solid rgba(161,136,127,.22);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:#d7ccc8;}
+
+    .callout-warn{
+      background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.22);
+      border-left:3px solid #fb923c;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fb923c;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(161,136,127,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+
+    .cmp-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px;}
+    .cmp-table th,.cmp-table td{padding:10px 12px;border-bottom:1px solid var(--card-border);text-align:left;color:#c0cdd8;}
+    .cmp-table th{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Contacts</span>
+      <span class="post-date">Oct 25, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS</h1>
+
+    <div class="post-body">
+
+      <p>On October 21, 2026, the Android Developers Blog announced a change that will break a lot of older codebases quietly: apps that target the upcoming Android release can no longer write to contacts directly with <code>WRITE_CONTACTS</code>. Writes are rejected with a <code>SecurityException</code> or permission denial. In their place come three standard intents that need no permission, and a new special app access permission, <code>MANAGE_CONTACTS</code>, for the small set of apps that genuinely need broad access.</p>
+
+      <p>The post only calls the target "the upcoming Android release" and places it in 2027, so treat exact API levels as unconfirmed. The migration, though, is something you can start now.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">3 intents</div>
+          <div class="announce-lbl">ACTION_INSERT, ACTION_EDIT, ACTION_INSERT_OR_EDIT: no permission needed</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Q4 2026</div>
+          <div class="announce-lbl">MANAGE_CONTACTS and People Directory arrive in Android 17 QPR2</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">2027</div>
+          <div class="announce-lbl">WRITE_CONTACTS stops granting writes for apps targeting the new release</div>
+        </div>
+      </div>
+
+      <h2>Why Google Is Doing This</h2>
+
+      <p><code>WRITE_CONTACTS</code> lets an app change contacts anywhere on the device, in the background, with no user interaction. The blog explains why apps requested it anyway: contact intents used to behave differently per device. Some editors dropped passed-in data such as a photo, some back buttons saved contacts unintentionally, and some "create new contact" options were hard to find. In the new release the intents behave consistently. Manufacturers may restyle the UI, but not the behavior.</p>
+
+      <h2>The Three Intents</h2>
+
+      <ul>
+        <li><strong><code>ACTION_INSERT</code></strong> opens a quick half-sheet for a new contact that the user can expand to a full-page editor.</li>
+        <li><strong><code>ACTION_INSERT_OR_EDIT</code></strong> and <strong><code>ACTION_EDIT</code></strong> let the user search for and add information to an existing contact.</li>
+      </ul>
+
+      <p><code>SHOW_OR_CREATE_CONTACT</code> is not handled by the system editor. Contacts apps may still handle it, but use <code>ACTION_INSERT_OR_EDIT</code> for consistent behavior.</p>
+
+      <table class="cmp-table">
+        <thead><tr><th>Extra</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><code>Insert.EXTRA_ACCOUNT</code></td><td>Suggests which account to save to. Existed before, standardized in the new release.</td></tr>
+          <tr><td><code>Insert.EXTRA_PHOTO_URI</code></td><td>Pre-fills the contact photo. New in the upcoming release; the editor handles the URI read permission.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Before and After in Kotlin</h2>
+
+      <p>The old approach, a batch of <code>ContentProviderOperation</code>s, is what stops working once you target the new release:</p>
+
+      <pre><code>// Requires android.permission.WRITE_CONTACTS
+fun saveContactDirectly(context: Context, name: String, phone: String, account: Account) {
+    val ops = arrayListOf(
+        ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+            .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, account.type)
+            .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, account.name)
+            .build(),
+        ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+            .withValue(
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
+            )
+            .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+            .build(),
+        ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+            .withValue(
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
+            )
+            .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phone)
+            .build()
+    )
+    context.contentResolver.applyBatch(ContactsContract.AUTHORITY, ops)
+}</code></pre>
+
+      <p>The replacement is shorter and needs no permission:</p>
+
+      <pre><code>fun saveContactWithEditor(
+    context: Context,
+    name: String,
+    phone: String,
+    account: Account,
+    photoUri: Uri
+) {
+    val intent = Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI).apply {
+        putExtra(ContactsContract.Intents.Insert.NAME, name)
+        putExtra(ContactsContract.Intents.Insert.PHONE, phone)
+        // Suggest which account the contact is saved to
+        putExtra(ContactsContract.Intents.Insert.EXTRA_ACCOUNT, account)
+        // New in the upcoming Android release: pre-fill the contact photo
+        putExtra(ContactsContract.Intents.Insert.EXTRA_PHOTO_URI, photoUri)
+        clipData = ClipData.newRawUri("", photoUri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    context.startActivity(intent)
+}</code></pre>
+
+      <p>Adding a number to an existing contact follows the same pattern. Let the user pick the target contact, or pass a known contact URI to <code>ACTION_EDIT</code>:</p>
+
+      <pre><code>fun addPhoneWithEditor(context: Context, phone: String) {
+    val intent = Intent(Intent.ACTION_INSERT_OR_EDIT).apply {
+        type = ContactsContract.Contacts.CONTENT_ITEM_TYPE
+        putExtra(ContactsContract.Intents.Insert.PHONE, phone)
+    }
+    context.startActivity(intent)
+}
+
+fun editKnownContact(context: Context, contactUri: Uri, phone: String) {
+    val intent = Intent(Intent.ACTION_EDIT, contactUri).apply {
+        putExtra(ContactsContract.Intents.Insert.PHONE, phone)
+    }
+    context.startActivity(intent)
+}</code></pre>
+
+      <div class="callout-warn">
+        <p><strong>Gotchas from the post:</strong> the editor silently drops <code>Insert.DATA</code> rows whose MIME type is not a standard <code>ContactsContract.CommonDataKinds</code> type. There is no delete intent; users delete contacts in their contacts app, and only <code>MANAGE_CONTACTS</code> apps can delete directly. Because the user finishes the flow in a system UI, you no longer get a synchronous "saved" result to build on.</p>
+      </div>
+
+      <h2>Reading and Call Actions</h2>
+
+      <p>Two other replacements round out the story. For reading user-selected contacts, use the Contact Picker, available since Android 17 and requiring no permission. For apps that today write extra rows into the address book to add call or message actions, the post points to the new People Directory (<code>PeopleContract</code>), arriving in Android 17 QPR2. It is a system directory where your app publishes how people can reach each other in your app, without editing the user's contacts.</p>
+
+      <h2>When You Do Need MANAGE_CONTACTS</h2>
+
+      <p><code>MANAGE_CONTACTS</code> is a special app access permission, not a runtime dialog: users enable it under Settings &gt; Special app access &gt; Manage contacts. It covers reading, adding, editing and deleting contacts, accounts and People Directory data, so you don't also need <code>READ_CONTACTS</code>. A custom branded editor screen alone does not qualify.</p>
+
+      <table class="cmp-table">
+        <thead><tr><th>App type</th><th>Needs it?</th></tr></thead>
+        <tbody>
+          <tr><td>Saves a contact from a chat, card or order</td><td>No, use ACTION_INSERT</td></tr>
+          <tr><td>Adds a number or email to an existing contact</td><td>No, use ACTION_INSERT_OR_EDIT / ACTION_EDIT</td></tr>
+          <tr><td>Contact pickers for invite, share or pay</td><td>No, use the Contact Picker</td></tr>
+          <tr><td>Call/message actions on contacts</td><td>No, use People Directory</td></tr>
+          <tr><td>Dedicated contact manager or dialer replacement</td><td>Likely yes</td></tr>
+          <tr><td>Caller ID and spam apps that mass-update entries</td><td>Likely yes</td></tr>
+          <tr><td>Background enterprise or cloud contact sync</td><td>Likely yes</td></tr>
+          <tr><td>Bulk backup/restore or device-to-device transfer</td><td>Likely yes</td></tr>
+          <tr><td>Custom ringtones per contact</td><td>Likely yes</td></tr>
+        </tbody>
+      </table>
+
+      <p>To send users to the right settings screen, the post gives this snippet:</p>
+
+      <pre><code>// Opens Settings &gt; Apps &gt; Special app access &gt; Manage contacts
+val intent = Intent(Settings.ACTION_MANAGE_CONTACTS, Uri.fromParts("package", packageName, null))
+context.startActivity(intent)</code></pre>
+
+      <p>On Google Play, using <code>MANAGE_CONTACTS</code> will require a Play Console declaration explaining why the intents are insufficient for your core functionality.</p>
+
+      <h2>Migration Checklist</h2>
+
+      <ul>
+        <li><strong>Find every write.</strong> Search for <code>WRITE_CONTACTS</code>, <code>ContactsContract.RawContacts.CONTENT_URI</code>, <code>ContactsContract.Data.CONTENT_URI</code> and <code>applyBatch(ContactsContract.AUTHORITY, ...)</code>.</li>
+        <li><strong>Replace user-driven writes</strong> with <code>ACTION_INSERT</code>, <code>ACTION_EDIT</code> or <code>ACTION_INSERT_OR_EDIT</code>.</li>
+        <li><strong>Stick to standard MIME types</strong> in <code>Insert.DATA</code>, and move call/message actions to People Directory.</li>
+        <li><strong>Decide on <code>MANAGE_CONTACTS</code></strong> using the table above and prepare the Play declaration if you qualify.</li>
+        <li><strong>Remove <code>WRITE_CONTACTS</code></strong> from the manifest once nothing needs it, or scope it with <code>maxSdkVersion</code> if older devices still need it.</li>
+        <li><strong>Test the failure path.</strong> Once you target the new release without <code>MANAGE_CONTACTS</code>, direct writes throw.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Who is affected:</strong> only apps targeting the upcoming release or later. Older targets keep their behavior, and the intents also work on older Android versions via the device's contacts app. The standardized editor is available on the new OS regardless of target SDK.</p>
+      </div>
+
+      <p>My take: this is the same direction as photo picker and the Android 17 Contact Picker. Permissions that grant ambient, silent access are being swapped for user-visible flows. For most apps the migration is an afternoon of work, and it removes a sensitive permission from your Play listing. Start with the grep, and you will quickly know which group you are in.</p>
+
+      <p>Source: <a href="https://developer.android.com/blog/posts/reliable-way-to-add-and-edit-contacts-android" rel="noopener">A more reliable way to add and edit contacts on Android</a>, Android Developers Blog, October 21, 2026.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('grab-r8-full-mode-baseline-profiles-anr-startup');
+  </script>
+</body>
+</html>
