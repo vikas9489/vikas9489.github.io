@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin — bytevikas</title>
+  <meta name="description" content="Google brings Gemini 4 Argon to Android developers via Antigravity, Android Studio Canary and Firebase AI Logic. Setup with android-cli-plugin, what self-healing build loops mean, AGSL shaders in Compose, and who gets access." />
+  <link rel="canonical" href="https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin — bytevikas" />
+  <meta property="og:description" content="Google brings Gemini 4 Argon to Android developers via Antigravity, Android Studio Canary and Firebase AI Logic. Setup with android-cli-plugin, what self-healing build loops mean, AGSL shaders in Compose, and who gets access." />
+  <meta property="og:url" content="https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin — bytevikas" />
+  <meta name="twitter:description" content="Google brings Gemini 4 Argon to Android developers via Antigravity, Android Studio Canary and Firebase AI Logic. Setup with android-cli-plugin, what self-healing build loops mean, AGSL shaders in Compose, and who gets access." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#e5989b;--accent-dim:rgba(229,152,155,.1);--accent-border:rgba(229,152,155,.25);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(229,152,155,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(229,152,155,.06);border:1px solid rgba(229,152,155,.22);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:#f5d5d6;}
+
+    .callout-warn{
+      background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.22);
+      border-left:3px solid #fb923c;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-warn p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout-warn strong{color:#fb923c;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(229,152,155,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+
+    .cmp-table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px;}
+    .cmp-table th,.cmp-table td{padding:10px 12px;border-bottom:1px solid var(--card-border);text-align:left;color:#c0cdd8;}
+    .cmp-table th{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Agentic</span>
+      <span class="post-date">Oct 26, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin</h1>
+
+    <div class="post-body">
+
+      <p>On October 13, 2026, the Android Developers Blog published "Bringing our latest frontier model to Android Developers," introducing <strong>Gemini 4 Argon</strong> as the model behind a shift from assistive code completion to agents that execute end-to-end tasks under your direction. The post is light on benchmarks (it lists none), so this article focuses on what is concretely stated: the two headline capabilities, the setup commands, and exactly who can use it today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card">
+          <div class="announce-num">Antigravity</div>
+          <div class="announce-lbl">Desktop app (macOS, Windows, Linux), IDE extensions and a terminal CLI</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">android-cli-plugin</div>
+          <div class="announce-lbl">Connects the agent to local Android tools and your custom skills</div>
+        </div>
+        <div class="announce-card">
+          <div class="announce-num">Nov 30, 2026</div>
+          <div class="announce-lbl">Introductory Gemini API pricing is available through this date</div>
+        </div>
+      </div>
+
+      <h2>Self-Healing Build Loops</h2>
+
+      <p>The first capability is long-horizon autonomous execution with multi-step planning. The concrete mechanism described: when a local build fails, the Antigravity execution harness captures the error streams directly from the Gradle daemons and Kotlin compiler logs, and Argon uses that feedback to diagnose the failure iteratively. The post says the model keeps a consistent hypothesis across editing rounds so it aims at the root cause instead of patching symptoms one error at a time.</p>
+
+      <p>That is the part worth testing on your own project. Anyone who has watched an agent "fix" a Gradle error by deleting the line that reported it knows why a stable hypothesis across rounds matters. The harness giving the model raw compiler and daemon output, rather than a pasted summary, is what makes the loop closable.</p>
+
+      <h2>Shader-Backed Compose UI</h2>
+
+      <p>The second capability is UI. The post says Argon generates production-ready Jetpack Compose code and writes AGSL (Android Graphics Shading Language) shaders directly into <code>Modifier.graphicsLayer</code> blocks and shader brushes. Examples it cites are live frosted glass shaders, dynamic lighting and ripple effects, running as lightweight GPU shaders alongside fluid 120 FPS Compose animations.</p>
+
+      <p>For reference, this is the kind of structure that sentence describes. The sample below is my own illustration of the standard <code>RuntimeShader</code> plus <code>graphicsLayer</code> pattern, not code from the post:</p>
+
+      <pre><code>private const val RIPPLE_AGSL = """
+    uniform float2 size;
+    uniform float time;
+    half4 main(float2 fragCoord) {
+        float2 uv = fragCoord / size;
+        float wave = sin((uv.x + uv.y) * 12.0 - time * 3.0) * 0.5 + 0.5;
+        return half4(half3(wave * 0.15), 0.0);
+    }
+"""
+
+@Composable
+fun ShaderCard(modifier: Modifier = Modifier, content: @Composable () -&gt; Unit) {
+    val shader = remember { RuntimeShader(RIPPLE_AGSL) }
+    var time by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) withFrameNanos { time = it / 1_000_000_000f }
+    }
+    Box(
+        modifier
+            .onSizeChanged { shader.setFloatUniform("size", it.width.toFloat(), it.height.toFloat()) }
+            .graphicsLayer {
+                shader.setFloatUniform("time", time)
+                renderEffect = RenderEffect
+                    .createRuntimeShaderEffect(shader, "content")
+                    .asComposeRenderEffect()
+            }
+    ) { content() }
+}</code></pre>
+
+      <div class="callout-warn">
+        <p><strong>Check generated shaders on real devices.</strong> Runtime shaders need a recent Android version and a GPU budget. Whatever the model writes, profile it with your usual tooling before shipping, and keep a non-shader fallback for older API levels.</p>
+      </div>
+
+      <h2>Where You Can Use It</h2>
+
+      <table class="cmp-table">
+        <thead><tr><th>Surface</th><th>Who</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Google Antigravity (app or CLI)</td><td>Google AI Ultra subscribers</td><td>Standalone app or terminal CLI</td></tr>
+          <tr><td>Android Studio</td><td>Google AI Ultra subscribers</td><td>Log in to Antigravity in the latest Canary</td></tr>
+          <tr><td>Android Studio</td><td>Paid Gemini API tier</td><td>Gemini API access</td></tr>
+          <tr><td>Google AI Studio</td><td>AI Ultra or paid-tier API developers</td><td>Playground and Build</td></tr>
+          <tr><td>Firebase AI Logic</td><td>Paid Gemini API tier, global</td><td>Client-side in mobile and web apps</td></tr>
+        </tbody>
+      </table>
+
+      <p>Rollout is described as global for developers in supported regions. The post gives no specific price figures, only that Antigravity needs an AI Ultra subscription and that standard API surfaces need the paid Gemini API tier, with introductory pricing through November 30, 2026.</p>
+
+      <h2>Setup</h2>
+
+      <p>The integration point is <code>android-cli-plugin</code>, which connects the agent to local Android tools, runs programmatic commands for common tasks and executes your custom skills. In the Antigravity desktop app, go to Settings &gt; Customizations &gt; Build With Google Plugins (or the Antigravity Plugin Marketplace), find the plugin and enable it. From a terminal, the post gives two commands:</p>
+
+      <pre><code># Google Antigravity CLI
+agy plugin install android-cli-plugin
+
+# Any terminal agent, via Android CLI
+android init</code></pre>
+
+      <p>The second one matters: <code>android init</code> is presented as the route for any terminal agent, so the Android tooling is not locked to one model or one harness. That fits the direction of the other recent Android agent posts, where skills and the CLI are the stable layer and the model on top is swappable.</p>
+
+      <h2>What I Would Do With It</h2>
+
+      <ul>
+        <li><strong>Start with a failing build, not a feature.</strong> Hand the agent a broken dependency bump and see whether the build-log loop converges. That tests the claim that matters most.</li>
+        <li><strong>Put your conventions into skills.</strong> The plugin runs custom developer skills, so module layout, naming and DI rules belong there, not in a prompt you retype.</li>
+        <li><strong>Review shader code like any GPU code.</strong> Visual polish is cheap to generate and easy to ship unprofiled.</li>
+        <li><strong>Mind the cost model.</strong> The access tiers are gated by subscription or paid API, and introductory pricing ends November 30, 2026, so budget before you wire it into CI.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Honest caveat:</strong> the announcement contains no benchmark numbers, so "frontier" here is Google's framing. Judge it on your own repository, and compare with whatever agent you use now.</p>
+      </div>
+
+      <p>Source: <a href="https://developer.android.com/blog/posts/bringing-gemini-4-argon-to-android-agentic-engineering-antigravity-cli" rel="noopener">Bringing our latest frontier model to Android Developers</a>, Android Developers Blog, October 13, 2026.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('gemini-4-argon-android-antigravity-cli-agentic');
+  </script>
+</body>
+</html>

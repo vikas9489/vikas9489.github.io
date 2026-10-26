@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sun, 25 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 26 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin</title>
+      <link>https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html</guid>
+      <pubDate>Mon, 26 Oct 2026 08:00:00 +0530</pubDate>
+      <category>Agentic</category>
+      <description>Gemini 4 Argon arrives for Android developers through Antigravity, Android Studio Canary and Firebase AI Logic. Self-healing build loops, AGSL shaders in Compose, android-cli-plugin setup, and who actually has access.</description>
+    </item>
     <item>
       <title>WRITE_CONTACTS Is Going Away: Migrating to Contact Intents and MANAGE_CONTACTS</title>
       <link>https://bytevikas.com/blog/write-contacts-permission-intents-manage-contacts.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sat, 18 Jul 2026 08:00:00 +0530</pubDate>
       <category>XR</category>
       <description>xr.arcore, xr.scenecore, and xr.runtime all hit 1.0.0-beta01 on July 15. Session.create is now a suspend function, AnchorEntity became AnchorSpace, and the movable modifier got a policy API. Here's what breaks and how to migrate.</description>
-    </item>
-    <item>
-      <title>WorkManager 2.12: Your Background Jobs Finally Leave a Paper Trail</title>
-      <link>https://bytevikas.com/blog/workmanager-2-12-work-analytics-metrics-api.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/workmanager-2-12-work-analytics-metrics-api.html</guid>
-      <pubDate>Fri, 17 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Background</category>
-      <description>WorkManager 2.12.0-alpha01 ships a new work-analytics artifact with WorkMetricsInfo — duration, stop reasons, retry counts, and full execution history — so background job failures finally have a structured record you can query and pipe into your analytics stack.</description>
     </item>
   </channel>
 </rss>
