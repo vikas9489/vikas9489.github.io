@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border — bytevikas</title>
+  <meta name="description" content="Compose 1.13.0-beta01 (Oct 7) and beta02 (Oct 21, 2026) break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border. Here's what to fix before stable." />
+  <link rel="canonical" href="https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border — bytevikas" />
+  <meta property="og:description" content="Compose 1.13.0-beta01 (Oct 7) and beta02 (Oct 21, 2026) break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border. Here's what to fix before stable." />
+  <meta property="og:url" content="https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border — bytevikas" />
+  <meta name="twitter:description" content="Compose 1.13.0-beta01 (Oct 7) and beta02 (Oct 21, 2026) break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border. Here's what to fix before stable." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Compose</span>
+      <span class="post-date">Oct 27, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border</h1>
+
+    <div class="post-body">
+
+      <p>Compose 1.13 has been in alpha since August. Beta01 landed on October 7, 2026 and beta02 followed on October 21, and the beta01 API notes are where the real work is: several source-breaking renames, a Slider parameter that is now mandatory, a PolygonShape API that was restructured, and a Kotlin 2.2 floor. Beta02 is bug-fix only, but it quietly swaps in a new <code>Modifier.border</code> implementation you should test.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">beta01</div><div class="announce-lbl">Released October 7, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">beta02</div><div class="announce-lbl">Bug fixes only, October 21, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">Kotlin 2.2</div><div class="announce-lbl">Libraries now require kotlinc 2.2</div></div>
+      </div>
+
+      <h2>1. Toolchain: Kotlin 2.2 Is the Floor</h2>
+
+      <p>Beta01 libraries target Kotlin 2.2 and require kotlinc 2.2. If your project is still on an older compiler, the Compose upgrade is also a Kotlin upgrade. Do that first, in its own commit, so a compiler regression isn't confused with a Compose one.</p>
+
+      <h2>2. Slider: onValueChange Is Now Required</h2>
+
+      <p><code>onValueChange</code> is now a required parameter on <code>Slider</code>, <code>VerticalSlider</code> and <code>RangeSlider</code>. The previously hidden deprecated APIs were also removed, including the <code>DraggableState</code> implementation on <code>SliderState</code>, the legacy <code>Saver</code> overloads and <code>isVertical</code> on <code>SliderState</code>. The <code>SliderDefaults.Thumb</code> overload taking <code>SliderState</code> is deprecated; use the overload with <code>isVertical</code>.</p>
+
+      <pre><code>var volume by remember { mutableFloatStateOf(0.5f) }
+
+Slider(
+    value = volume,
+    onValueChange = { volume = it },
+    valueRange = 0f..1f
+)</code></pre>
+
+      <p>Any code that built a slider from a <code>SliderState</code> without supplying a change callback, or that treated <code>SliderState</code> as a <code>DraggableState</code>, will stop compiling. Grep for both before you bump.</p>
+
+      <h2>3. PolygonShape Was Restructured</h2>
+
+      <p>Two API changes in Foundation and UI hit anyone using <code>PolygonShape</code>:</p>
+
+      <ul>
+        <li><code>CornerRounding</code> moved to the top level, with <code>dp()</code> and <code>fraction()</code> factories.</li>
+        <li>The <code>transformed()</code> and <code>scaledToFit()</code> extensions were replaced by an in-place <code>PolygonShape.transform(PolygonShapeTransformScope.() -&gt; Unit)</code> and <code>PolygonShape.copy()</code>.</li>
+        <li>Factory parameters now carry <code>@FloatRange</code> / <code>@IntRange</code>, and <code>innerRadiusRatio</code> on <code>PolygonShape.star</code> and <code>PolygonShape.pillStar</code> is restricted to <code>(0f, 1f)</code>.</li>
+      </ul>
+
+      <p>Because <code>transform</code> is in place, call <code>copy()</code> first when the original shape is shared. The notes describe it as an in-place mutable transform, so don't assume the old return-a-new-shape behavior.</p>
+
+      <h2>4. Modifier.blur, MediaQuery and Interaction Barrier</h2>
+
+      <ul>
+        <li><strong>Modifier.blur:</strong> the <code>radius</code> parameter is now <code>blurRadiusSpec</code>, as is <code>BlurScope.radius</code>. <code>BlurStop.fraction</code> gains <code>@FloatRange</code>, and the default <code>fallOffRadius</code> in <code>BlurRadiusSpec.radialGradient</code> changed to <code>Dp.Unspecified</code>.</li>
+        <li><strong>Posture in MediaQuery:</strong> replaced by <code>WindowPosture</code>, which exposes physical <code>WindowFold</code>s (<code>FoldState</code> and <code>FoldOrientation</code>). It adds <code>isTabletop</code> and <code>isFlat</code>, and the explicit Book posture is gone.</li>
+        <li><strong>Modifier.interactionBarrier():</strong> removed from the public API surface for 1.13.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Pattern:</strong> most of these are renames or removals of things that were still experimental or previously hidden. They fail at compile time, which is the good kind of breakage: bump the version on a branch and let the compiler produce your worklist.</p>
+      </div>
+
+      <h2>5. Beta02: A New Modifier.border</h2>
+
+      <p>Beta02 is documented as bug fixes only, but the first entry is significant: <code>Modifier.border</code> uses a new, more performant implementation, and it can now render generic and polygon shapes using a runtime shader. A separate fix addresses an edge case when rendering certain rounded rectangle outlines.</p>
+
+      <p>Both have escape hatches in case of visual diffs:</p>
+
+      <pre><code>// Foundation flags from the 1.13.0-beta02 notes
+ComposeFoundationFlags.isNewBorderImplementationEnabled = false
+ComposeFoundationFlags.isRoundedRectangleBorderRenderingFixEnabled = false</code></pre>
+
+      <p>If you need either flag, the release notes ask you to file a bug. Run your screenshot tests over bordered cards, chips and text fields before shipping this.</p>
+
+      <h2>6. Smaller Fixes Worth Knowing</h2>
+
+      <ul>
+        <li><strong>BasicTextField focus:</strong> it now waits for the window to gain focus before starting the text input session. This fixes the keyboard not appearing when focus was requested before the window was focused, for example in <code>onCreate</code>. Revert with <code>ComposeFoundationFlags.isTextFieldWaitWindowFocusForInputSessionEnabled = false</code>.</li>
+        <li><strong>FlexBox:</strong> <code>alignContent(FlexAlignContent.Stretch)</code> no longer forces children to stretch with their line, and a single wrapped line is no longer expanded to the minimum cross-axis constraint.</li>
+        <li><strong>Lazy layouts:</strong> the cache window no longer re-prefetches items when a previously prefetched item becomes visible.</li>
+        <li><strong>Insets:</strong> an <code>IllegalStateException</code> when updating <code>consumeWindowInsets</code>, <code>windowInsetsPadding</code> or <code>onConsumedWindowInsetsChanged</code> on detached modifier nodes (such as during <code>movableContent</code> movement) is fixed.</li>
+        <li><strong>VectorPainter:</strong> now shares internal <code>ImageBitmap</code> resources when the same <code>ImageVector</code> is drawn in multiple composables; disable with <code>ComposeUiFlags.isVectorDrawCacheSharingEnabled</code>.</li>
+        <li><strong>Accessibility and crashes:</strong> TalkBack touch exploration no longer jumps to an <code>AndroidView</code> (such as a WebView) covered by Compose content, and a crash from <code>Color.toColorLong()</code> on colors composited over <code>Color.Unspecified</code> is fixed.</li>
+        <li><strong>Styles API:</strong> <code>CommonStyle.styleLayer()</code> was added; properties in a layer override lower layers, and <code>state()</code> helpers such as <code>pressed()</code> now create a layer implicitly.</li>
+      </ul>
+
+      <h2>Should You Move Now?</h2>
+
+      <p>Beta means the API surface is meant to be settled, so this is the right time to compile against it and see what breaks, not to ship it. My order: Kotlin 2.2 first, then the Compose bump on a branch, fix slider and shape call sites, then run screenshot tests specifically for borders and text field focus. If a flag is needed, file the bug before stable ships while it can still be fixed.</p>
+
+      <p>Sources: the Compose Foundation and Compose UI release notes on developer.android.com (1.13.0-beta01 and 1.13.0-beta02).</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-1-13-0-beta-polygonshape-slider-border');
+  </script>
+</body>
+</html>

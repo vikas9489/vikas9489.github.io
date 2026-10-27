@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Mon, 26 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Tue, 27 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border</title>
+      <link>https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html</guid>
+      <pubDate>Tue, 27 Oct 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Beta01 and beta02 of Compose 1.13 break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border with opt-out flags. What to fix before stable.</description>
+    </item>
     <item>
       <title>Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin</title>
       <link>https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sun, 19 Jul 2026 08:00:00 +0530</pubDate>
       <category>Tracing</category>
       <description>Tracing 2.0.0-beta01 replaces the android.os.Trace wrapper with a full in-process Perfetto engine. TraceDriver brings metadata-tagged slices, coroutine context propagation across suspend/resume boundaries, and JVM support — the tracing story production apps actually needed.</description>
-    </item>
-    <item>
-      <title>Jetpack XR SDK 1.0.0 Beta: The Breaking Changes That Matter for Spatial App Developers</title>
-      <link>https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html</guid>
-      <pubDate>Sat, 18 Jul 2026 08:00:00 +0530</pubDate>
-      <category>XR</category>
-      <description>xr.arcore, xr.scenecore, and xr.runtime all hit 1.0.0-beta01 on July 15. Session.create is now a suspend function, AnchorEntity became AnchorSpace, and the movable modifier got a policy API. Here's what breaks and how to migrate.</description>
     </item>
   </channel>
 </rss>
