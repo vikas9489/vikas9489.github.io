@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Tue, 27 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Wed, 28 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>A2UI for Jetpack Compose: Let AI Agents Render Native UI From Your Component Catalog</title>
+      <link>https://bytevikas.com/blog/a2ui-compose-agent-driven-native-ui.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/a2ui-compose-agent-driven-native-ui.html</guid>
+      <pubDate>Wed, 28 Oct 2026 08:00:00 +0530</pubDate>
+      <category>A2UI</category>
+      <description>AndroidX now ships an official Compose renderer for the A2UI protocol. The agent describes the UI in JSON, your catalog decides what can render. A2uiSurface, custom components, two-way bindings and what changed in alpha02.</description>
+    </item>
     <item>
       <title>Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border</title>
       <link>https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Mon, 20 Jul 2026 08:00:00 +0530</pubDate>
       <category>PDF</category>
       <description>Alpha19 lands EditablePdfDocument for inline form filling with autofill, a pdf-core module split that decouples document models from the UI layer, OcrProvider APIs for scanned documents, and public AnnotationView. The case for dropping your third-party PDF SDK just got stronger.</description>
-    </item>
-    <item>
-      <title>Jetpack Tracing 2.0: In-Process Perfetto Without the Setup Tax</title>
-      <link>https://bytevikas.com/blog/jetpack-tracing-2-0-in-process-perfetto.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-tracing-2-0-in-process-perfetto.html</guid>
-      <pubDate>Sun, 19 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Tracing</category>
-      <description>Tracing 2.0.0-beta01 replaces the android.os.Trace wrapper with a full in-process Perfetto engine. TraceDriver brings metadata-tagged slices, coroutine context propagation across suspend/resume boundaries, and JVM support — the tracing story production apps actually needed.</description>
     </item>
   </channel>
 </rss>

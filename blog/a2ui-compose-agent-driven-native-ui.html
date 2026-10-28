@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2UI for Jetpack Compose: Let AI Agents Render Native UI From Your Component Catalog — bytevikas</title>
+  <meta name="description" content="AndroidX now ships an official Compose renderer for the A2UI protocol (1.0.0-alpha02, Oct 21, 2026). How catalogs, A2uiSurface, custom components and two-way bindings work, with Kotlin samples." />
+  <link rel="canonical" href="https://bytevikas.com/blog/a2ui-compose-agent-driven-native-ui.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="A2UI for Jetpack Compose: Let AI Agents Render Native UI From Your Component Catalog — bytevikas" />
+  <meta property="og:description" content="AndroidX now ships an official Compose renderer for the A2UI protocol (1.0.0-alpha02, Oct 21, 2026). How catalogs, A2uiSurface, custom components and two-way bindings work, with Kotlin samples." />
+  <meta property="og:url" content="https://bytevikas.com/blog/a2ui-compose-agent-driven-native-ui.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="A2UI for Jetpack Compose: Let AI Agents Render Native UI From Your Component Catalog — bytevikas" />
+  <meta name="twitter:description" content="AndroidX now ships an official Compose renderer for the A2UI protocol (1.0.0-alpha02, Oct 21, 2026). How catalogs, A2uiSurface, custom components and two-way bindings work, with Kotlin samples." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#e07a5f;--accent-dim:rgba(224,122,95,.1);--accent-border:rgba(224,122,95,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(224,122,95,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(224,122,95,.06);border:1px solid rgba(224,122,95,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(224,122,95,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">A2UI</span>
+      <span class="post-date">Oct 28, 2026</span>
+      <span class="read-time">9 min read</span>
+    </div>
+
+    <h1>A2UI for Jetpack Compose: Let AI Agents Render Native UI From Your Component Catalog</h1>
+
+    <div class="post-body">
+
+      <p>Most "AI renders your UI" demos are a chat bubble full of markdown. A2UI is a different bet: the agent sends a JSON description of an interface, and your app turns it into real Compose components, without the agent ever shipping code. AndroidX now has an official renderer for it. <code>1.0.0-alpha01</code> landed on September 23, 2026 and <code>1.0.0-alpha02</code> on October 21. It is alpha, but the architecture is settled enough to learn now.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">0.9.1</div><div class="announce-lbl">A2UI spec version the renderer supports</div></div>
+        <div class="announce-card"><div class="announce-num">alpha02</div><div class="announce-lbl">Latest release, October 21, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">No code</div><div class="announce-lbl">Agent picks from your catalog; nothing is executed</div></div>
+      </div>
+
+      <h2>1. The Core Idea: The Catalog Is the Contract</h2>
+
+      <p>Every A2UI surface is driven by a component catalog. The catalog declares which components exist, their property schemas and the local functions available. The agent can only build UI from what the catalog declares, so it cannot invent a widget or inject logic. The renderer maps the A2UI JSON protocol onto Compose primitives and uses the Compose Snapshot state system, so when the agent streams an update, only the components that read the changed data recompose.</p>
+
+      <p>The core engine is design-system agnostic. You either adopt the provided Basic Catalog built on Material 3, build a custom catalog for your own design system, or mix the two.</p>
+
+      <h2>2. The Artifacts</h2>
+
+      <ul>
+        <li><code>androidx.a2ui.compose:compose-runtime</code>: reactivity via Snapshot state.</li>
+        <li><code>androidx.a2ui.compose:compose-ui</code>: the catalog pattern that maps JSON schemas to Compose UI.</li>
+        <li><code>androidx.a2ui.compose:compose-ui-testing</code>: testing APIs.</li>
+        <li><code>androidx.a2ui:a2ui-model</code> and <code>androidx.a2ui:a2ui-engine</code>: the data layer, handling schema validation, protocol parsing and message processing.</li>
+        <li><code>androidx.compose.material3:material3-a2ui</code>: the ready-made Basic Catalog on Material 3.</li>
+      </ul>
+
+      <pre><code>dependencies {
+    implementation("androidx.a2ui.compose:compose-runtime:1.0.0-alpha02")
+    implementation("androidx.a2ui.compose:compose-ui:1.0.0-alpha02")
+    androidTestImplementation("androidx.a2ui.compose:compose-ui-testing:1.0.0-alpha02")
+}</code></pre>
+
+      <p>The release notes list those three Compose artifacts; add <code>material3-a2ui</code> if you want the Basic Catalog. Check the release pages for its current version.</p>
+
+      <h2>3. Wiring It Up in a ViewModel</h2>
+
+      <p>The data layer lives in your ViewModel. You create a parser and a message processor, feed incoming JSON from your network layer, and expose the active surfaces as a flow. This is the sample from the official docs:</p>
+
+      <pre><code>class AgenticUiViewModel : ViewModel() {
+    private val parser = A2uiMessageParser()
+
+    private val processor = A2uiMessageProcessor(
+        catalogs = listOf(CustomDesignSystemCatalog)
+    )
+
+    val a2uiSurfaces: StateFlow&lt;List&lt;A2uiSurfaceModel&gt;&gt; =
+        processor.activeSurfaces
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            processor.collectMessages()
+        }
+
+        // Two-way communication with the agent.
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            processor.outboundEvents.collect(::handleOutboundA2uiEvent)
+        }
+    }
+
+    fun onNetworkMessage(json: String) {
+        processor.processInput(parser, json)
+    }
+}</code></pre>
+
+      <p>On the UI side, <code>A2uiSurface</code> is the entry point. It resolves the root component and animates between loading, error and success states, all of which you can override:</p>
+
+      <pre><code>@Composable
+fun AgenticUiScreen(viewModel: AgenticUiViewModel) {
+    val surfaces by viewModel.a2uiSurfaces.collectAsStateWithLifecycle()
+
+    Column(Modifier.fillMaxSize()) {
+        surfaces.forEach { surface -&gt;
+            key(surface.id) {
+                A2uiSurface(
+                    surfaceModel = surface,
+                    loadingContent = { CircularProgressIndicator() },
+                    errorContent = { exception -&gt;
+                        Text("Failed to load: ${exception.message}")
+                    },
+                )
+            }
+        }
+    }
+}</code></pre>
+
+      <h2>4. Choosing a Catalog</h2>
+
+      <p>With the Basic Catalog you must supply the parts the library deliberately does not bundle: media renderers (image, video, audio), a URL opener and localized message formatting. That keeps Coil, Glide or Media3 out of the dependency graph unless you already use them:</p>
+
+      <pre><code>val basicCatalog = materialA2uiBasicCatalogV1(
+    image = MaterialA2uiBasicCatalogV1Defaults.image {
+            url, description, scale, modifier, onError -&gt;
+        AsyncImage(
+            model = url,
+            contentDescription = description,
+            contentScale = scale,
+            modifier = modifier,
+            onError = { state -&gt; onError(state.result.throwable) },
+        )
+    },
+    video = MaterialA2uiBasicCatalogV1Defaults.video { url, modifier, onError -&gt; /* Media3 */ },
+    audioPlayer = MaterialA2uiBasicCatalogV1Defaults.audioPlayer {
+            url, description, modifier, onError -&gt; /* audio */ },
+    urlOpener = { url -&gt; appNavigator.openUrl(url) },
+    messageFormatter = { pattern, locale, args -&gt; /* your formatter */ pattern },
+    localeProvider = A2uiLocaleProvider.Default,
+)</code></pre>
+
+      <p>That is the alpha01 shape. Alpha02 changed it: the function list on <code>A2uiBasicCatalogV1</code> was replaced by an <code>A2uiBasicCatalogV1.Functions</code> interface, and <code>materialA2uiBasicCatalogV1</code> now takes a <code>functions</code> parameter instead of <code>urlOpener</code>, <code>messageFormatter</code> and <code>localeProvider</code>. Implementations only need to implement <code>openUrl</code>; <code>A2uiBasicCatalogV1.Functions(context)</code> gives defaults for everything else. Expect to touch this call site when you move to alpha02.</p>
+
+      <div class="callout">
+        <p><strong>Alpha reality:</strong> the official guide pages still show the older parameters in places, while the alpha02 release notes document the change. Trust the release notes and your compiler over the prose, and pin the exact version.</p>
+      </div>
+
+      <p>For your own design system, build an <code>A2uiCatalog</code> from custom components. You can also mix them with Basic Catalog pieces:</p>
+
+      <pre><code>val hybridCatalog = A2uiCatalog(
+    catalogId = "https://example.com/catalogs/my-app/v1/catalog.json",
+    components = listOf(
+        MaterialA2uiBasicCatalogV1Defaults.text,
+        MaterialA2uiBasicCatalogV1Defaults.card,
+        CustomChartComponent,
+        CustomProductCardComponent,
+    ),
+    functions = createBasicCatalogFunctions(...),
+)</code></pre>
+
+      <h2>5. Writing a Custom Component</h2>
+
+      <p>A component implements <code>A2uiComponent</code>: a name, a description, a list of typed <code>A2uiProperty</code> declarations (used both to generate the JSON schema and to read values at runtime), an optional <code>isReady</code>, and a <code>Content</code> composable.</p>
+
+      <pre><code>object CustomTextComponent : A2uiComponent {
+    private val textProp = A2uiProperty.dynamicString("text", required = true)
+    private val variantProp = A2uiProperty.stringEnum(
+        "variant",
+        enumValues = listOf("body", "title"),
+    )
+
+    override val name = "Text"
+    override val description = "Displays dynamic text."
+    override val properties = listOf(textProp, variantProp)
+
+    @Composable
+    override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+        properties.bind(textProp) != null
+
+    @Composable
+    override fun A2uiComponentScope.Content(
+        properties: A2uiComponentProperties,
+        modifier: Modifier,
+    ) {
+        val text = properties.bind(textProp) ?: ""
+        val variant = properties[variantProp] ?: "body"
+        Text(
+            text = text,
+            style = if (variant == "title") MaterialTheme.typography.titleLarge
+                    else MaterialTheme.typography.bodyLarge,
+            modifier = modifier,
+        )
+    }
+}</code></pre>
+
+      <p>Two details matter. <code>bind</code> resolves a dynamic data-model value and subscribes to updates, which is what makes streaming cheap. Static config such as the variant is read with <code>properties[prop]</code>. For input components, <code>bindUpdater</code> returns a writable updater, or <code>null</code> when the agent gave a literal instead of a data path, which is your signal to render the field read-only:</p>
+
+      <pre><code>val checked = properties.bind(valueProp) ?: false
+val onCheckedChange = properties.bindUpdater(valueProp)
+
+Checkbox(
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    enabled = onCheckedChange != null,
+)</code></pre>
+
+      <p>User interactions go back to the agent through <code>dispatchAction</code> on <code>A2uiComponentScope</code>. Children are resolved with <code>observeA2uiComponentState(id)</code>, which yields <code>Loading</code>, <code>Error</code> or <code>Success</code>, so a parent can render its shell while children arrive independently.</p>
+
+      <h2>6. Defensive by Design</h2>
+
+      <p>LLM output is untrusted input, and the docs treat it that way. Per the official guide:</p>
+
+      <ul>
+        <li>Errors are dispatched back to the agent as outbound client messages so it can self-correct on the next turn.</li>
+        <li>Unknown component types are intercepted before reaching the UI tree, marked as errors and reported.</li>
+        <li>Payloads are validated against component schemas (<code>A2uiSchema</code>), so malformed properties never reach a layout.</li>
+        <li>Very large list indexes switch the data model from a dense list to an adaptive sparse map, preventing out-of-memory errors.</li>
+      </ul>
+
+      <h2>7. Versioning and Testing</h2>
+
+      <p>Catalogs are versioned by their JSON schema contract. On a breaking schema change you publish a new catalog ID (for example <code>.../v2/catalog.json</code>) and register both versions with the processor, so the agent picks the right one per surface during catalog negotiation. Non-breaking additions use default interface implementations; breaking ones introduce successors such as <code>A2uiComponentV2</code>. Once the libraries reach 1.0.0, normal AndroidX binary compatibility rules apply.</p>
+
+      <p>For tests, alpha01 added the <code>compose-ui-testing</code> artifact with an <code>A2uiTestSurface</code> composable that mounts surfaces and components in isolation.</p>
+
+      <h2>Should You Adopt It Now?</h2>
+
+      <p>Not in production. It is alpha, the spec support is 0.9.1, and alpha02 already changed the Basic Catalog factory. But if you are building any agent-driven screen, such as a support assistant, a shopping helper or an in-app copilot, this is worth a spike. The pattern it enforces is the right one: the model proposes, a typed catalog disposes. Start with the Basic Catalog, wire your existing image loader, and write one custom component to see how <code>bind</code> and <code>dispatchAction</code> feel. Also note that alpha01 raised the Compose libraries' <code>compileSdk</code> to 37.1, which transitively affects apps using them.</p>
+
+      <p>Sources: the "Agent-to-UI renderer for Jetpack Compose" guide pages (overview, render surfaces, implement components, manage catalogs) and the A2UI and A2UI Compose release notes on developer.android.com.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('a2ui-compose-agent-driven-native-ui');
+  </script>
+</body>
+</html>
