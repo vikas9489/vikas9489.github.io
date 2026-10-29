@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review — bytevikas</title>
+  <meta name="description" content="Android Studio Rabbit 2 is stable with Bring Your Own Agent support for 40+ ACP agents (Claude Agent, Codex, Junie, Antigravity), a Skills Manager and /review change walkthroughs. What it does and how to set it up." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-studio-rabbit-2-bring-your-own-agent-acp.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review — bytevikas" />
+  <meta property="og:description" content="Android Studio Rabbit 2 is stable with Bring Your Own Agent support for 40+ ACP agents (Claude Agent, Codex, Junie, Antigravity), a Skills Manager and /review change walkthroughs. What it does and how to set it up." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-studio-rabbit-2-bring-your-own-agent-acp.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review — bytevikas" />
+  <meta name="twitter:description" content="Android Studio Rabbit 2 is stable with Bring Your Own Agent support for 40+ ACP agents (Claude Agent, Codex, Junie, Antigravity), a Skills Manager and /review change walkthroughs. What it does and how to set it up." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#9fa8da;--accent-dim:rgba(159,168,218,.1);--accent-border:rgba(159,168,218,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(159,168,218,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(159,168,218,.06);border:1px solid rgba(159,168,218,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(159,168,218,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">ACP</span>
+      <span class="post-date">Oct 29, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review</h1>
+
+    <div class="post-body">
+
+      <p>Android Studio Rabbit 2 is now stable, and the headline change is not another built-in model. It is that the IDE stops caring which agent you use. Through the open Agent Client Protocol (ACP), Studio hosts over 40 coding agents, hands them the same project tools the built-in Gemini agent gets, and adds a review flow for whatever they change. Here is what Google's October 28 posts actually say, and how to use it.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">40+</div><div class="announce-lbl">ACP-compatible agents supported through BYOA</div></div>
+        <div class="announce-card"><div class="announce-num">Rabbit 2</div><div class="announce-lbl">Stable Android Studio release with BYOA</div></div>
+        <div class="announce-card"><div class="announce-num">/review</div><div class="announce-lbl">Command that starts an agentic change review</div></div>
+      </div>
+
+      <h2>1. Bring Your Own Agent</h2>
+
+      <p>BYOA is stable in Rabbit 2. The posts name Claude Agent, Codex from OpenAI, Junie and Google Antigravity as examples, and say any ACP-compliant agent can plug in. Setup is deliberately boring:</p>
+
+      <ol>
+        <li>Open the agent window and pick an agent, or go to <strong>Settings &gt; Tools &gt; AI &gt; Agents</strong>.</li>
+        <li>Authenticate with that agent's provider.</li>
+        <li>Send your first prompt.</li>
+      </ol>
+
+      <p>You can install several agents and switch between them. Logging in to Google Antigravity also gives access to the latest Gemini models at launch. The blog also notes you can use a specific provider to satisfy an enterprise agreement, though it gives no configuration details.</p>
+
+      <h2>2. What the Agent Can See</h2>
+
+      <p>The value of an IDE-hosted agent over a terminal one is context. Per the Android Developers Blog, agents running in Studio get access to:</p>
+
+      <ul>
+        <li>Project structure, build and symbol resolution</li>
+        <li>Compose Preview rendering</li>
+        <li>The Android Emulator</li>
+        <li>Logcat</li>
+        <li>Android skills for larger tasks, such as migrating to AGP 9 or building adaptive layouts</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>What was not published:</strong> the posts do not define ACP's wire format, show a config file, or give an exact Studio build number beyond "Rabbit 2". Treat protocol-level details as something to check in the ACP spec and your agent's own docs.</p>
+      </div>
+
+      <h2>3. Skills Manager</h2>
+
+      <p>Android and Firebase agent skills come preinstalled, and a Skills Manager lets you curate them. Open it from the agent panel's three-dot menu (<strong>Manage Agent Skills</strong>), by typing <code>@</code> in chat and choosing <strong>Manage skills</strong>, or via <strong>Settings &gt; Tools &gt; AI &gt; Skills Manager</strong>. Installed skills are invoked with <code>@</code> in the chat.</p>
+
+      <h2>4. Change Review</h2>
+
+      <p>Letting an agent edit forty files is easy; trusting the diff is the hard part. Rabbit 2 adds an agentic review:</p>
+
+      <ul>
+        <li>Start from <strong>Agent Changes</strong>, <strong>Pending Commits</strong> or the <strong>Git Log</strong>, or run <code>/review</code> in the agent tool window.</li>
+        <li>The agent produces a list of <strong>Recommended Fixes</strong> for the changes.</li>
+        <li>After you address them, <strong>Create Walkthrough</strong> groups related diff chunks into logical themes instead of alphabetical file order.</li>
+      </ul>
+
+      <p>The walkthrough is the part I would use most. Reviewing an AGP or Compose migration file-by-file hides the actual shape of the change; theme-grouped chunks surface it.</p>
+
+      <h2>5. Around the IDE: Android CLI and Plugins</h2>
+
+      <p>The companion tools post shows the same agent-first idea outside Studio. The official Android plugin installs into Claude Code and Codex like this (commands as published):</p>
+
+      <pre><code># Claude Code session
+/plugin marketplace add android/android-cli-plugin
+/plugin install android-cli@android-cli-plugin
+
+# Codex
+codex plugin marketplace add android/android-cli-plugin
+codex plugin add android-cli@android-cli-plugin</code></pre>
+
+      <p>New CLI commands called out there include <code>android preview</code> (render Compose Previews without an emulator or IDE; Google reports agents finishing UI tasks 77% faster with up to 3x fewer tokens in internal testing), <code>android profiler leakcanary</code> (heap analysis on your computer), <code>android signals</code> (Android vitals and Crashlytics data in the terminal) and <code>android analyze</code> (R8 effectiveness with JSON output for CI). The R8 Configuration Analyzer in AGP 9.3 runs with:</p>
+
+      <pre><code>./gradlew :app:analyzeReleaseR8Config</code></pre>
+
+      <p>Google also says there are now 30+ official Android skills across 20+ areas, installed with <code>android skills add</code>.</p>
+
+      <h2>6. Also in Rabbit 2</h2>
+
+      <ul>
+        <li><strong>Stable Android XR emulators</strong> for XR glasses, audio glasses and display glasses, with custom 360-degree photo or camera-feed environments and hardware LED indicators for mic and camera state.</li>
+        <li><strong>LeakCanary agentic fixes</strong> in the Profiler's LeakCanary task, with narrative leak explanations and suggested code changes.</li>
+        <li><strong>Gemini Enterprise</strong> (available since Rabbit 1): no retention of source code for training, audit logging, and admin policies over approved skills, agents and model endpoints.</li>
+      </ul>
+
+      <p>Still Canary-only per the posts: the one-click <strong>AI &gt; Migrate to Compose</strong> XML migration assistant, Fix with AI in the Profiler, and Lightbuild, an early-preview declarative YAML build configuration.</p>
+
+      <h2>How I'd Use It</h2>
+
+      <p>Pick one agent for a real task, such as a Views-to-Compose screen migration, and let it use the emulator and Logcat itself rather than pasting stack traces. Then run <code>/review</code> before committing, whichever agent wrote the code. Since the review is separate from the author, you can have a second agent critique the first one's work. That separation is the practical payoff of ACP: the IDE owns the tools and the review loop, and the model becomes a swappable part.</p>
+
+      <p>Sources: "Your favorite agents are now integrated in Android Studio" and "What's new in Android developer tools and performance at Android Dev Summit", both on the Android Developers Blog, October 28, 2026.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-studio-rabbit-2-bring-your-own-agent-acp');
+  </script>
+</body>
+</html>
