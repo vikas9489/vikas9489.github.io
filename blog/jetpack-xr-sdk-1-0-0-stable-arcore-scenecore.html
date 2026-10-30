@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha — bytevikas</title>
+  <meta name="description" content="ARCore for Jetpack XR and SceneCore reached 1.0.0 stable on Oct 21, 2026. What stable covers, the XR Compose beta02 changes and SceneCore memory-leak workaround, and the 1.1.0-alpha01 additions: SpatialAnnotation, dynamic meshes, simplified glTF animation." />
+  <link rel="canonical" href="https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha — bytevikas" />
+  <meta property="og:description" content="ARCore for Jetpack XR and SceneCore reached 1.0.0 stable on Oct 21, 2026. What stable covers, the XR Compose beta02 changes and SceneCore memory-leak workaround, and the 1.1.0-alpha01 additions: SpatialAnnotation, dynamic meshes, simplified glTF animation." />
+  <meta property="og:url" content="https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha — bytevikas" />
+  <meta name="twitter:description" content="ARCore for Jetpack XR and SceneCore reached 1.0.0 stable on Oct 21, 2026. What stable covers, the XR Compose beta02 changes and SceneCore memory-leak workaround, and the 1.1.0-alpha01 additions: SpatialAnnotation, dynamic meshes, simplified glTF animation." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a3e635;--accent-dim:rgba(163,230,53,.1);--accent-border:rgba(163,230,53,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(163,230,53,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(163,230,53,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">XR</span>
+      <span class="post-date">Oct 30, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha</h1>
+
+    <div class="post-body">
+
+      <p>On October 21, 2026 the core of the Jetpack XR SDK left preview: <code>androidx.xr.arcore</code> and <code>androidx.xr.scenecore</code> both shipped 1.0.0. The release notes for 1.0.0 itself are short, so this post covers what stable commits you to, the sibling XR Compose beta02 you will actually hit in a build, and the 1.1.0-alpha01 line that opened the same day. If you followed the <a href="jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html">1.0.0-beta01 breaking changes</a>, this is the follow-through.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">1.0.0</div><div class="announce-lbl">ARCore and SceneCore stable, Oct 21, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">beta02</div><div class="announce-lbl">XR Compose, still pre-stable</div></div>
+        <div class="announce-card"><div class="announce-num">1.1.0</div><div class="announce-lbl">alpha01 of both libraries opened same day</div></div>
+      </div>
+
+      <h2>1. What 1.0.0 Stable Covers</h2>
+
+      <p>Per the AndroidX release notes, ARCore for Jetpack XR 1.0.0 lists these capabilities: motion tracking, persistent anchors, hit testing, plane identification with semantic labeling (floor, walls, tabletops) and geospatial poses using Google's Visual Positioning System. SceneCore 1.0.0 is described as the library for placing and arranging 3D content as entities: 2D panels and 3D models in virtual and mixed-reality scenes, spatial environments and spatial audio sources, and anchoring virtual content to the real world.</p>
+
+      <div class="callout">
+        <p><strong>No itemized API list:</strong> neither 1.0.0 entry enumerates API changes. The practical meaning of stable is that these surfaces are now what the release process treats as compatible going forward; diff against your last beta build rather than expecting a changelog to tell you.</p>
+      </div>
+
+      <h2>2. XR Compose Is Not Stable Yet</h2>
+
+      <p>The UI layer, <code>androidx.xr.compose:compose</code>, was at 1.0.0-beta02 the same day, and the page showed no stable section. It is the library most app code touches, so its notes matter most. Changes in beta02:</p>
+
+      <ul>
+        <li>Libraries now target Kotlin 2.2 and require kotlinc 2.2.</li>
+        <li><code>FollowMode.soft()</code> parameters changed as the algorithm moved from smoothStep to exponentialDecay; <code>halfLifeMs</code> is renamed <code>halfLifeMillis</code>. The changelog is inconsistent here, so check the API reference for the final signature.</li>
+        <li><code>PitchLimits</code> is now an <code>@JvmInline value class</code> packing two floats into a <code>Long</code>.</li>
+        <li>The deprecated <code>SpatialActivityPanel</code> overload is removed; use the one taking a <code>SpatialActivityPanelController</code>.</li>
+        <li>Deprecated movable modifiers are removed. Use the modifier taking a <code>MovePolicy</code>. <code>DragPolicy</code> is gone; use <code>SubspaceModifier.movable()</code>.</li>
+        <li>Stateless <code>Slider</code> and <code>RangeSlider</code> overloads are deprecated in favor of stateful ones; <code>RangeSliderState.activeRangeStart</code>/<code>activeRangeEnd</code> became <code>startValue</code>/<code>endValue</code>.</li>
+        <li>You can transition between 3D and 2D composable content within one Activity, gated by <code>SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled</code>.</li>
+      </ul>
+
+      <pre><code>dependencies {
+    implementation("androidx.xr.compose:compose:1.0.0-beta02")
+    testImplementation("androidx.xr.compose:compose-testing:1.0.0-beta02")
+}</code></pre>
+
+      <h2>3. The SceneCore Leak Workaround</h2>
+
+      <p>This one is easy to miss. XR Compose 1.0.0-beta02 depends on <code>androidx.xr.scenecore:1.0.0-rc01</code>, which has a known memory leak. The release notes say to explicitly override the SceneCore dependency to 1.0.0, which includes the fix. In Gradle that is a direct declaration:</p>
+
+      <pre><code>dependencies {
+    implementation("androidx.xr.compose:compose:1.0.0-beta02")
+    // beta02 pulls scenecore 1.0.0-rc01 (known leak); pin the stable fix
+    implementation("androidx.xr.scenecore:scenecore:1.0.0")
+}</code></pre>
+
+      <p>The notes do not give the exact coordinates, so I used the same <code>scenecore</code> artifact name that the 1.1.0-alpha01 dependency block uses. Confirm in your dependency report that the resolved version is 1.0.0.</p>
+
+      <h2>4. What 1.1.0-alpha01 Adds</h2>
+
+      <p>Both libraries opened a 1.1 line on October 21. These are alpha APIs and may change.</p>
+
+      <p><strong>ARCore 1.1.0-alpha01</strong></p>
+      <ul>
+        <li>New <code>SpatialAnnotation</code> API for tracking 3D physical geometries and objects, with <code>SpatialAnnotationTrackingOptions</code> (builder pattern) to configure tracking through camera image buffers, and <code>SpatialAnnotationTrackingMode</code> for bounded quadrilateral (<code>Quad</code>) geometries.</li>
+        <li><code>TestSpatialAnnotation</code> for simulating annotations in automated tests.</li>
+        <li>More Geospatial state: <code>geospatialPose</code>, <code>horizontalAccuracy</code>, <code>verticalAccuracy</code> and <code>orientationYawAccuracy</code>. The notes do not name the owning class, so check the reference.</li>
+        <li>Configuring <code>AugmentedImage</code> with a max image count of 0 now throws <code>UnsupportedOperationException</code>.</li>
+      </ul>
+
+      <p><strong>SceneCore 1.1.0-alpha01</strong></p>
+      <ul>
+        <li>Dynamic meshes: <code>MeshBuffer.createDynamic</code>, <code>MeshBuffer.updateVertexData</code>, <code>MeshBuffer.updateIndexData</code> and a dynamic <code>CustomMesh.BuilderFromMeshData</code> constructor. <code>CustomMesh.bounds</code> is now a <code>var</code>.</li>
+        <li>glTF animation simplified: <code>GltfAnimation.start()</code> takes no parameters, with new <code>loop</code> and <code>speed</code> properties and <code>GltfModelEntity.stopAllAnimations()</code>. <code>GltfAnimationStartOptions</code>, <code>start(options)</code> and <code>seekTo(Duration)</code> are deprecated.</li>
+        <li><code>GltfModelEntity</code> APIs now document that they throw <code>IllegalStateException</code> (<code>Entity.DisposedException</code>) on disposed entities.</li>
+      </ul>
+
+      <pre><code>// before (deprecated in 1.1.0-alpha01)
+animation.start(GltfAnimationStartOptions(/* ... */))
+
+// after
+animation.loop = true
+animation.speed = 1.0f
+animation.start()</code></pre>
+
+      <p>The exact property types are my reading of the notes, which list the names but not signatures, so verify against the reference before copying.</p>
+
+      <h2>What I'd Do</h2>
+
+      <p>If you are shipping on the stable libraries, pin ARCore and SceneCore to 1.0.0 and treat the 1.1 alphas as a place to prototype, not depend on. If you use XR Compose, expect one more round of source changes before it goes stable, and fix the SceneCore override now. Migrate off the deprecated movable modifiers and <code>DragPolicy</code> today; they are already removed in beta02.</p>
+
+      <p>Sources: AndroidX release notes for ARCore for Jetpack XR, XR SceneCore and Jetpack Compose for XR on developer.android.com, all dated October 21, 2026.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-studio-rabbit-2-bring-your-own-agent-acp');
+  </script>
+</body>
+</html>

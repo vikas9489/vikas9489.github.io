@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 29 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Fri, 30 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha</title>
+      <link>https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html</guid>
+      <pubDate>Fri, 30 Oct 2026 08:00:00 +0530</pubDate>
+      <category>XR</category>
+      <description>ARCore and SceneCore hit 1.0.0 stable on Oct 21. XR Compose is still beta02 with a SceneCore leak workaround, and 1.1.0-alpha01 adds SpatialAnnotation, dynamic meshes and simpler glTF animation.</description>
+    </item>
     <item>
       <title>Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review</title>
       <link>https://bytevikas.com/blog/android-studio-rabbit-2-bring-your-own-agent-acp.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Wed, 22 Jul 2026 08:00:00 +0530</pubDate>
       <category>XR</category>
       <description>Samsung announced Galaxy Glasses at Unpacked today — phone-tethered, display-free, Gemini Live API as the app model. One codebase targets headset, display glasses, and audio glasses at runtime. Here's the developer model that matters before hardware ships this fall.</description>
-    </item>
-    <item>
-      <title>Glance 1.3.0 for Wear OS: Health-Aware Widgets, Studio Previews, and a Required Annotation Change</title>
-      <link>https://bytevikas.com/blog/glance-1-3-0-wear-health-widget-preview.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/glance-1-3-0-wear-health-widget-preview.html</guid>
-      <pubDate>Tue, 21 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Wear</category>
-      <description>Glance 1.3.0 brings HealthData APIs for heart rate and steps in Wear widgets, WearWidgetPreview for Android Studio design-time rendering, GlanceWearWidgetManager for querying active instances, and a mandatory @AssociateWithGlanceWearWidget annotation that will break existing code on upgrade.</description>
     </item>
   </channel>
 </rss>
