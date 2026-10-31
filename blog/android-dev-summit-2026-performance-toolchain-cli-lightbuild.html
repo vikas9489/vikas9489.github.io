@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild — bytevikas</title>
+  <meta name="description" content="The performance and build half of the Android Dev Summit 2026 tools post: android profiler leakcanary, android analyze and the R8 Configuration Analyzer, androidx.tracing 2.0, Compose 1.13 recomposition tracing, Crashlytics heap dumps, and the experimental Lightbuild YAML build." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-dev-summit-2026-performance-toolchain-cli-lightbuild.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild — bytevikas" />
+  <meta property="og:description" content="The performance and build half of the Android Dev Summit 2026 tools post: android profiler leakcanary, android analyze and the R8 Configuration Analyzer, androidx.tracing 2.0, Compose 1.13 recomposition tracing, Crashlytics heap dumps, and the experimental Lightbuild YAML build." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-dev-summit-2026-performance-toolchain-cli-lightbuild.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild — bytevikas" />
+  <meta name="twitter:description" content="The performance and build half of the Android Dev Summit 2026 tools post: android profiler leakcanary, android analyze and the R8 Configuration Analyzer, androidx.tracing 2.0, Compose 1.13 recomposition tracing, Crashlytics heap dumps, and the experimental Lightbuild YAML build." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ffd6a5;--accent-dim:rgba(255,214,165,.1);--accent-border:rgba(255,214,165,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,214,165,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(255,214,165,.06);border:1px solid rgba(255,214,165,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,214,165,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Summit</span>
+      <span class="post-date">Oct 31, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild</h1>
+
+    <div class="post-body">
+      <p>Alongside <a href="android-studio-rabbit-2-bring-your-own-agent-acp.html">Rabbit 2 and Bring Your Own Agent</a>, the Android Developers Blog's Android Dev Summit recap (Oct 28, 2026, by Adarsh Fernando) covers a second half that matters more for day-to-day engineering: profiling from the terminal, R8 diagnostics, tracing, production signals and a new declarative build. This post skips the agent-hosting story and walks through those pieces.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">77%</div><div class="announce-lbl">faster UI tasks with android preview (Google internal testing)</div></div>
+        <div class="announce-card"><div class="announce-num">~2x</div><div class="announce-lbl">faster leak fixing via the CLI, up to 25% fewer tokens</div></div>
+        <div class="announce-card"><div class="announce-num">AGP 9.3</div><div class="announce-lbl">ships the R8 Configuration Analyzer</div></div>
+      </div>
+
+      <h2>1. LeakCanary Moves Off the Device</h2>
+
+      <p>LeakCanary is now a subcommand of Android CLI. <code>android profiler leakcanary</code> analyzes heap dumps on your computer instead of on the device, so the app under test is not slowed down by the analysis. Google reports that with the CLI, the most capable models finished the leak workflow almost 2x faster using up to 25% fewer tokens than without it (an internal comparison with Claude Opus 5.5). The keynote demo gave Claude Code a list of critical user journeys, ran each on its own device in parallel, followed each reference chain to the offending code and re-ran the journeys to confirm. The post also says the memory-leak subcommand is "coming soon", and the demo caption uses a slightly different name, so check <code>android profiler --help</code> on your install.</p>
+
+      <p>In the IDE, LeakCanary is built into the Profiler and a <strong>Fix with AI</strong> action has the agent review a leak and suggest a change; that is in the canary build. If you want the manual background first, see <a href="memory-leaks.html">8 memory leak patterns</a>.</p>
+
+      <h2>2. Performance Analyzer in the CLI, and Tracing 2.0</h2>
+
+      <p>The Android Performance Analyzer (APA), the profiler behind Studio's analysis, now also powers <code>android profiler</code>, so traces can be captured from the command line or CI. Pair it with the <code>android-profiler</code> skill and an agent can capture, analyze, propose a fix, verify and measure. The standalone APA app can also use an ACP-compatible agent to analyze traces.</p>
+
+      <p>On the app side, androidx.tracing 2.0 lets trace sections carry source file, line number and arguments, and shows coroutine work as connected flows, which ties a slow slice back to the code behind it. Add <code>androidx.tracing:tracing-wire</code> to your app to use it. Our <a href="jetpack-tracing-2-0-in-process-perfetto.html">Tracing 2.0 deep dive</a> covers the API.</p>
+
+      <pre><code>dependencies {
+    implementation("androidx.tracing:tracing-wire:&lt;version&gt;")
+}</code></pre>
+
+      <p>The recap names the artifact but not a version, so pick the current one from the AndroidX release page.</p>
+
+      <h2>3. Compose 1.13 Recomposition Tracing</h2>
+
+      <p>Compose 1.13 introduces recomposition tracing: it shows which functions recomposed and why, back to the state write that caused it. Use it with composition tracing in the Studio Profiler. Google also ships a <code>jetpack-compose-performance</code> skill so an agent avoids common anti-patterns. This is the missing link in most "why is this list recomposing" investigations, where you previously had to guess the upstream state.</p>
+
+      <h2>4. R8: android analyze and the Configuration Analyzer</h2>
+
+      <p><code>android analyze</code> takes an APK or app bundle and reports how well R8 shrinks, optimizes and obfuscates it, with JSON output intended for CI. Pointed at a library, it reports size, cost and any overly broad keep rules the library ships to consumers. That last check is useful for anyone publishing an SDK.</p>
+
+      <p>Inside Gradle, AGP 9.3 includes the R8 Configuration Analyzer, which scores your configuration and ranks keep rules by cost:</p>
+
+      <pre><code>./gradlew :app:analyzeReleaseR8Config</code></pre>
+
+      <p>An <code>r8-analyzer</code> skill lets an agent focus on the highest-impact rules. The post also announces <strong>Jetpack Keep</strong> (alpha), which replaces broad keep rules with precise, type-safe annotations that lint can add automatically. For a real-world result of the same discipline, see the <a href="grab-r8-full-mode-baseline-profiles-anr-startup.html">Grab R8 case study</a>.</p>
+
+      <h2>5. Production Signals</h2>
+
+      <ul>
+        <li><code>android signals</code> brings crashes, ANRs and memory issues from Android vitals and Crashlytics to the terminal and agent, matching App Quality Insights in Studio.</li>
+        <li>Crashlytics gains heap dumps from the field for real OOM crashes and Android 17 Memory Limiter Kills, deobfuscated with your existing R8 mappings and openable in Perfetto. This is early access via a sign-up form.</li>
+        <li>Crashlytics also groups Memory Limiter Kills, adds thread insights for ANR root-causing, and surfaces GWP-ASan and Arm MTE reports for native memory bugs.</li>
+        <li>Android vitals adds a bitmap memory metric showing how much memory your bitmaps use across devices.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Why Memory Limiter Kills matter:</strong> they are a new kind of process death on Android 17, so a crash dashboard that only counts exceptions will undercount them. See the <a href="android-17-developer-behavior-changes.html">Android 17 behavior changes</a> post for the memory-limit background.</p>
+      </div>
+
+      <h2>6. Lightbuild: Build Config as YAML</h2>
+
+      <p>Lightbuild is an early, experimental declarative build experience where build configuration is data in a YAML schema instead of executable Kotlin DSL. Per the overview page, the files are:</p>
+
+      <ul>
+        <li><code>project.lightbuild.yaml</code> in the root: modules, dependency repositories and the Lightbuild version.</li>
+        <li><code>lightbuild.yaml</code> in each module: module type, Android settings, dependencies and tests.</li>
+        <li><code>resolved.deps</code>, auto-generated and not hand-edited; committing it lets the project skip dynamic dependency resolution, which is where the reproducibility claim comes from.</li>
+      </ul>
+
+      <p>The Lightbuild CLI, installed via Android CLI, provides <code>lightbuild build</code>, <code>lightbuild test</code> and <code>lightbuild query</code> (project structure and outputs, aimed at agents), and <code>android build</code> also supports Lightbuild projects. New project templates include an <code>AGENTS.md</code> telling agents how to use it. Studio Canary opens such projects quickly and skips manual syncs after config changes.</p>
+
+      <div class="callout-green">
+        <p>Google's own guidance: it is best for small apps, prototypes and demos, doesn't support all Android build features yet, and Kotlin DSL remains the recommendation for production apps and existing projects. I would not migrate anything real.</p>
+      </div>
+
+      <h2>7. Skills for Policy and Security</h2>
+
+      <p>The recap counts over 30 official Android skills across more than 20 areas, managed with <code>android skills list</code> and <code>android skills add</code>, and searchable knowledge via <code>android docs search</code>. New are <code>play-policy-insights</code>, which audits code, manifest and SDKs against Play policy before submission (and surfaces as lint checks in Studio), plus <code>android-intent-security</code> and <code>android-permissions-security</code> for security reviews.</p>
+
+      <h2>What I'd Do</h2>
+
+      <p>Wire <code>android analyze</code> into CI this week: it is cheap and the library keep-rule check catches problems that never show up in your own app. Try recomposition tracing on your worst screen once Compose 1.13 is in your build. Treat Crashlytics heap dumps and the CLI leak command as early; sign up, but don't plan around them. Ignore Lightbuild until it supports your project's features.</p>
+
+      <p>Sources: "What's new in Android developer tools and performance at Android Dev Summit" (Android Developers Blog, Oct 28, 2026) and the Lightbuild overview on developer.android.com. Performance figures are Google's internal results, not independent measurements.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-dev-summit-2026-performance-toolchain-cli-lightbuild');
+  </script>
+</body>
+</html>

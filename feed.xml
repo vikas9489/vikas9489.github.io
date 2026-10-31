@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 30 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 31 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild</title>
+      <link>https://bytevikas.com/blog/android-dev-summit-2026-performance-toolchain-cli-lightbuild.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-dev-summit-2026-performance-toolchain-cli-lightbuild.html</guid>
+      <pubDate>Sat, 31 Oct 2026 08:00:00 +0530</pubDate>
+      <category>Summit</category>
+      <description>The Dev Summit tools post, performance half: android profiler leakcanary, android analyze and the R8 Configuration Analyzer, Tracing 2.0, recomposition tracing, Crashlytics heap dumps and the experimental Lightbuild YAML build.</description>
+    </item>
     <item>
       <title>Jetpack XR SDK 1.0.0 Is Stable: ARCore and SceneCore GA, What Moves in 1.1 Alpha</title>
       <link>https://bytevikas.com/blog/jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Thu, 23 Jul 2026 08:00:00 +0530</pubDate>
       <category>Store</category>
       <description>As of July 22, your Play Store app listing is available to rival US stores by default. Downloads still flow through Play, billing is unchanged, but you now have a decision to make in Play Console. Here's the opt-in/out trade-off, the Epic settlement context, and what actually changes in your app (spoiler: nothing in the APK).</description>
-    </item>
-    <item>
-      <title>Samsung Galaxy Glasses Are Real: What Android Developers Need to Build for the First Consumer Android XR Device</title>
-      <link>https://bytevikas.com/blog/galaxy-glasses-android-xr-developer-guide.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/galaxy-glasses-android-xr-developer-guide.html</guid>
-      <pubDate>Wed, 22 Jul 2026 08:00:00 +0530</pubDate>
-      <category>XR</category>
-      <description>Samsung announced Galaxy Glasses at Unpacked today — phone-tethered, display-free, Gemini Live API as the app model. One codebase targets headset, display glasses, and audio glasses at runtime. Here's the developer model that matters before hardware ships this fall.</description>
     </item>
   </channel>
 </rss>
