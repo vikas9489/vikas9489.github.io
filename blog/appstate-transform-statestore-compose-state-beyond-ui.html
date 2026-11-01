@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AppState Alpha: Compose State in Your ViewModels with Transform and StateStore — bytevikas</title>
+  <meta name="description" content="AppState 1.0.0-alpha01 takes Compose State out of the UI layer: transform and listener run a composable block with no UI, StateStore shares keyed state across activities and services, and a DataStore sync survives process death. Setup, patterns, testing and caveats." />
+  <link rel="canonical" href="https://bytevikas.com/blog/appstate-transform-statestore-compose-state-beyond-ui.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="AppState Alpha: Compose State in Your ViewModels with Transform and StateStore — bytevikas" />
+  <meta property="og:description" content="AppState 1.0.0-alpha01 takes Compose State out of the UI layer: transform and listener run a composable block with no UI, StateStore shares keyed state across activities and services, and a DataStore sync survives process death. Setup, patterns, testing and caveats." />
+  <meta property="og:url" content="https://bytevikas.com/blog/appstate-transform-statestore-compose-state-beyond-ui.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AppState Alpha: Compose State in Your ViewModels with Transform and StateStore — bytevikas" />
+  <meta name="twitter:description" content="AppState 1.0.0-alpha01 takes Compose State out of the UI layer: transform and listener run a composable block with no UI, StateStore shares keyed state across activities and services, and a DataStore sync survives process death. Setup, patterns, testing and caveats." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#cdb4db;--accent-dim:rgba(205,180,219,.1);--accent-border:rgba(205,180,219,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(205,180,219,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(205,180,219,.06);border:1px solid rgba(205,180,219,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(205,180,219,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">State</span>
+      <span class="post-date">Nov 1, 2026</span>
+      <span class="read-time">8 min read</span>
+    </div>
+
+    <h1>AppState Alpha: Compose State in Your ViewModels with Transform and StateStore</h1>
+
+    <div class="post-body">
+      <p>Buried in the Android Dev Summit announcements (Oct 28, 2026) is a new Jetpack library group called <strong>AppState</strong>, at <code>1.0.0-alpha01</code>. Its idea is simple: Compose <code>State</code> is built on the snapshot system, which is not tied to rendering, so you can use it in ViewModels, repositories and services instead of reaching for <code>StateFlow</code> everywhere. The docs describe two libraries, <strong>Transform</strong> and <strong>StateStore</strong>.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">alpha01</div><div class="announce-lbl">first release of both libraries, Oct 28, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">2</div><div class="announce-lbl">libraries: Transform and StateStore</div></div>
+        <div class="announce-card"><div class="announce-num">Kotlin 2.4.10</div><div class="announce-lbl">version used in the official setup guide</div></div>
+      </div>
+
+      <h2>1. Setup</h2>
+
+      <p>Because <code>transform</code> and <code>listener</code> take <code>@Composable</code> blocks, every module that calls them needs the Compose compiler plugin and <code>buildFeatures { compose = true }</code>, even a non-UI data module. Modules that only read and write <code>State&lt;T&gt;</code> do not.</p>
+
+      <pre><code>dependencies {
+    implementation(libs.androidx.appstate.transform)
+    implementation(libs.androidx.appstate.statestore)
+
+    // Optional: persist StateStore keys with DataStore
+    implementation(libs.androidx.appstate.statestore.datastore)
+    implementation(libs.kotlinx.serialization.core)
+
+    testImplementation(libs.androidx.appstate.transform.testing)
+}</code></pre>
+
+      <p>The artifacts are <code>androidx.appstate.transform:transform</code>, <code>androidx.appstate.statestore:statestore</code> and the optional <code>statestore-datastore</code> and <code>transform-testing</code>. The DataStore integration also needs the Kotlin serialization plugin and <code>kotlinx-serialization-core</code> (1.11.0 in the guide).</p>
+
+      <h2>2. Transform: Compose Without the UI</h2>
+
+      <p><code>transform</code> runs a composable block with no UI attached. Whenever a <code>State</code> read inside the block changes, the block recomposes and the returned <code>State</code> updates. The signatures from the docs:</p>
+
+      <pre><code>public fun &lt;R&gt; transform(
+    initialValue: R,
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    onUpdate: @Composable (R) -&gt; R,
+): State&lt;R&gt;
+
+public suspend fun listener(
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    onUpdate: @Composable () -&gt; Unit,
+)</code></pre>
+
+      <p>There is also a <code>@Composable</code> overload of <code>transform</code> that follows the calling composition and runs the block on <code>Dispatchers.Default</code>, which is useful for filtering a large list off the main thread. A ViewModel version, adapted from the official example, switches between online and offline sources with plain <code>if</code>:</p>
+
+      <pre><code>class HomeViewModel(
+    private val mediaRepository: MediaRepository,
+    private val networkMonitor: NetworkMonitor,
+) : ViewModel() {
+    val uiState: State&lt;HomeUiState&gt; = transform&lt;HomeUiState&gt;(
+        initialValue = HomeUiState.Loading,
+        scope = viewModelScope,
+    ) {
+        val isOnline by networkMonitor.isOnline
+        val tracks = if (isOnline) {
+            mediaRepository.allTracksFlow.collectAsState(initial = null).value
+        } else {
+            mediaRepository.downloadedTracksFlow
+                .collectAsState(initial = null).value
+        } ?: return@transform HomeUiState.Loading
+
+        HomeUiState.Success(tracks = tracks, isOnline = isOnline)
+    }
+}</code></pre>
+
+      <p>Read tracking is dynamic: only the branch that ran in the latest recomposition is observed. That replaces a <code>combine</code> chain, and the docs point out that <code>Flow.combine</code> has typed overloads only up to five flows, while here each extra input is one more read.</p>
+
+      <p>Debouncing is just a <code>LaunchedEffect</code> keyed on the input:</p>
+
+      <pre><code>var query: String by mutableStateOf("")
+val searchResults: List&lt;String&gt; by transform&lt;List&lt;String&gt;&gt;(
+    initialValue = emptyList(),
+    scope = coroutineScope,
+) {
+    var results by remember { mutableStateOf(emptyList&lt;String&gt;()) }
+    LaunchedEffect(query) {
+        if (query.isBlank()) {
+            results = emptyList()
+            return@LaunchedEffect
+        }
+        delay(300.milliseconds)
+        results = api.search(query)
+    }
+    results
+}</code></pre>
+
+      <h3>listener</h3>
+
+      <p><code>listener</code> is for reacting to state in a non-UI component without producing a derived value. It is a suspend function that keeps recomposing until its coroutine is cancelled. The docs use it for a focus timer: when the session is <code>Running</code>, a <code>LaunchedEffect</code> waits until the end time and posts a notification; pausing the session removes that branch from composition and cancels the timer automatically.</p>
+
+      <h2>3. StateStore: Keyed, Typed Shared State</h2>
+
+      <p><code>StateStore</code> is an in-memory, type-safe container that exposes values as Compose <code>State</code>. The docs position it for sharing state between activities, between an activity and a service or AppFunction, and between an activity and a widget. Keys are typed objects that carry their default:</p>
+
+      <pre><code>@Serializable
+private data object FocusSessionKey :
+    StateStoreKey&lt;FocusSession&gt;(defaultValue = FocusSession.Idle)
+
+class FocusSessionManager(private val stateStore: StateStore) {
+    val session: State&lt;FocusSession&gt; = stateStore.getState(FocusSessionKey)
+
+    fun pauseFocus(nowMillis: Long) {
+        stateStore.updateState(FocusSessionKey) { current -&gt;
+            if (current is FocusSession.Running) {
+                FocusSession.Paused(
+                    taskId = current.taskId,
+                    remainingMillis = (current.endTimeMillis - nowMillis)
+                        .coerceAtLeast(0L),
+                )
+            } else current
+        }
+    }
+}</code></pre>
+
+      <p>The API surface is small: <code>getState</code>, <code>setState</code>, <code>updateState</code> and a <code>keys</code> set. Keep keys <code>private</code> or <code>internal</code> to the manager that owns them and inject the store into managers rather than UI classes.</p>
+
+      <h2>4. Surviving Process Death with DataStore</h2>
+
+      <p>Without extra setup the store is lost when the process dies. To persist a key, mark it with <code>PersistToDataStore</code> and call <code>syncToDataStore</code> once at startup:</p>
+
+      <pre><code>class ProductivityApplication : Application() {
+    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    val stateStore = StateStore().also { store -&gt;
+        applicationScope.launch {
+            store.syncToDataStore(
+                path = dataStoreFile("statestore.json").absolutePath,
+                coroutineScope = applicationScope,
+            )
+        }
+    }
+}</code></pre>
+
+      <p>Until DataStore finishes reading, <code>getState</code> returns the key's default, so never assume a restored value on first read. Every change to a persisted key serializes all persisted keys into one file, so the docs recommend persisting timestamps rather than ticks, debouncing rapid input, and keeping large or queryable data in Room.</p>
+
+      <h2>5. Picking the Right State API</h2>
+
+      <p>The "Use Compose State outside the UI" page gives a lifetime-based decision table that I found more useful than the libraries themselves:</p>
+
+      <ul>
+        <li><strong>Live state</strong> (connectivity, selection): <code>mutableStateOf</code> in a ViewModel or singleton; do not persist it.</li>
+        <li><strong>Transient UI state</strong> (search query, scroll): <code>rememberSaveable</code>, or <code>SavedStateHandle.saveable</code> in a ViewModel.</li>
+        <li><strong>Transient session state</strong> (timer, checkout cart, form draft): <code>StateStore</code> with <code>PersistToDataStore</code>.</li>
+        <li><strong>Permanent state</strong>: DataStore or Room, collected inside <code>transform</code>.</li>
+      </ul>
+
+      <p>Two details matter in practice. Use <code>SavedStateHandle.saveable { mutableStateOf(...) }</code> rather than bare <code>saved</code>, because only the former is Compose state that <code>transform</code> can track. And wrap multi-property writes in <code>Snapshot.withMutableSnapshot</code> so observers never see a new query paired with a stale selection, which is the atomicity a set of separate <code>StateFlow</code>s cannot give you.</p>
+
+      <h2>6. When Not to Use It</h2>
+
+      <div class="callout">
+        <p><strong>transform is the current value, not an event stream.</strong> If state changes several times before the next recomposition, only the latest value is used, and an update equal to the previous one is skipped. Use <code>Flow</code> for running totals, event logs, one-time commands that must fire twice, and backpressure-sensitive streams.</p>
+      </div>
+
+      <p>Prefer plain <code>derivedStateOf</code> when all inputs are already <code>State</code> and you want synchronous, same-snapshot results. A <code>transform</code> scoped to <code>viewModelScope</code> also stays active while the UI is in the background, which is different from a lifecycle-aware collector. And <code>StateStore</code> is process-local; cross-process sharing still needs IPC.</p>
+
+      <h2>7. Testing</h2>
+
+      <p>The <code>transform-testing</code> artifact adds <code>transformTest</code>, which wraps <code>runTest</code> and exposes <code>backgroundScope</code>, <code>testDispatcher</code> and an <code>advance()</code> that applies snapshot notifications and recomposes:</p>
+
+      <pre><code>@Test
+fun testStateUpdate() = transformTest {
+    var sourceState by mutableStateOf(0)
+
+    val state = transform(
+        initialValue = 0,
+        scope = backgroundScope,
+        dispatcher = testDispatcher,
+    ) { sourceState }
+    assertThat(state.value).isEqualTo(0)
+
+    sourceState = 1
+    advance()
+    assertThat(state.value).isEqualTo(1)
+}</code></pre>
+
+      <p>Design classes that create a transform to accept the scope and dispatcher as constructor parameters so tests can inject these. The docs note that a flow-driven branch switch can need two <code>advance()</code> calls: one to recompose into the new branch and one to apply the freshly collected value.</p>
+
+      <h2>What I'd Do</h2>
+
+      <p>This is alpha, and the signatures can change, so I would not rebuild a production ViewModel layer on it. Where I would try it: one feature with several combined inputs and a debounce, where a <code>combine</code> chain has grown unreadable, and one process-death-sensitive session such as a timer or in-progress form, using <code>StateStore</code> with DataStore. If you already hold UI state in <code>SavedStateHandle</code>, see <a href="lifecycle-2-11-scoped-viewmodels-compose-pager.html">Lifecycle 2.11 scoped ViewModels</a> for the surrounding ViewModel changes, and <a href="datastore-1-3-encryption-kmp-builder-api.html">DataStore 1.3</a> for the persistence side.</p>
+
+      <p>Sources: "Agentic and Flexible: A next era of Android development" (Android Developers Blog, Oct 28, 2026) and the AppState, Transform, StateStore and "Use Compose State outside the UI" pages on developer.android.com, plus the AndroidX release page. Code is adapted from the official examples.</p>
+
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('appstate-transform-statestore-compose-state-beyond-ui');
+  </script>
+</body>
+</html>

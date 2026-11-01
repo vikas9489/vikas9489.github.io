@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sat, 31 Oct 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 01 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>AppState Alpha: Compose State in Your ViewModels with Transform and StateStore</title>
+      <link>https://bytevikas.com/blog/appstate-transform-statestore-compose-state-beyond-ui.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/appstate-transform-statestore-compose-state-beyond-ui.html</guid>
+      <pubDate>Sun, 01 Nov 2026 08:00:00 +0530</pubDate>
+      <category>State</category>
+      <description>AppState 1.0.0-alpha01 takes Compose State out of the UI: transform and listener run composable blocks without UI, StateStore shares keyed state across components, and DataStore sync survives process death.</description>
+    </item>
     <item>
       <title>Android Dev Summit 2026: LeakCanary in the CLI, R8 Analysis, Recomposition Tracing and Lightbuild</title>
       <link>https://bytevikas.com/blog/android-dev-summit-2026-performance-toolchain-cli-lightbuild.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Fri, 24 Jul 2026 08:00:00 +0530</pubDate>
       <category>Nav</category>
       <description>Navigation3 1.2.0-alpha05/06 adds UriDeepLinkMatcher for URI-to-NavKey resolution and ResultEventBus for typed result passing between destinations — the two features that 1.1.4 stable shipped without. Full API surface with real code.</description>
-    </item>
-    <item>
-      <title>Google Play Catalog Access Is Live: What Third-Party App Stores Mean for Android Developers</title>
-      <link>https://bytevikas.com/blog/google-play-catalog-access-third-party-stores.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/google-play-catalog-access-third-party-stores.html</guid>
-      <pubDate>Thu, 23 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Store</category>
-      <description>As of July 22, your Play Store app listing is available to rival US stores by default. Downloads still flow through Play, billing is unchanged, but you now have a decision to make in Play Console. Here's the opt-in/out trade-off, the Epic settlement context, and what actually changes in your app (spoiler: nothing in the APK).</description>
     </item>
   </channel>
 </rss>
