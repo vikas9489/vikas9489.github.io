@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram Direct’s AI-Native Compose Migration: 50% Less UI Code and 33% Fewer Tokens — bytevikas</title>
+  <meta name="description" content="How Meta and Google migrated Instagram Direct to Jetpack Compose with AI agents in mind: constructor-only Compose items, a RecyclerView/LazyColumn interop layer, Pausable composition plus LazyLayoutCacheWindow, and the measured results." />
+  <link rel="canonical" href="https://bytevikas.com/blog/instagram-direct-ai-native-compose-migration-lazylayoutcachewindow.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Instagram Direct’s AI-Native Compose Migration: 50% Less UI Code and 33% Fewer Tokens — bytevikas" />
+  <meta property="og:description" content="How Meta and Google migrated Instagram Direct to Jetpack Compose with AI agents in mind: constructor-only Compose items, a RecyclerView/LazyColumn interop layer, Pausable composition plus LazyLayoutCacheWindow, and the measured results." />
+  <meta property="og:url" content="https://bytevikas.com/blog/instagram-direct-ai-native-compose-migration-lazylayoutcachewindow.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Instagram Direct’s AI-Native Compose Migration: 50% Less UI Code and 33% Fewer Tokens — bytevikas" />
+  <meta name="twitter:description" content="How Meta and Google migrated Instagram Direct to Jetpack Compose with AI agents in mind: constructor-only Compose items, a RecyclerView/LazyColumn interop layer, Pausable composition plus LazyLayoutCacheWindow, and the measured results." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#caffbf;--accent-dim:rgba(202,255,191,.1);--accent-border:rgba(202,255,191,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(202,255,191,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(202,255,191,.06);border:1px solid rgba(202,255,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(202,255,191,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat">Case Study</span>
+      <span class="post-date">Nov 2, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>Instagram Direct’s AI-Native Compose Migration: 50% Less UI Code and 33% Fewer Tokens</h1>
+
+    <div class="post-body">
+      <p>On Sep 30, 2026 the Android Developers Blog published a case study written by Pavlo Stavytskyi (Meta) and Rebecca Franks (Google) on how Instagram Direct moved to Jetpack Compose. The interesting part is not "they migrated" but <em>why they designed the code the way they did</em>: so that AI coding agents produce correct code by default. This post pulls out the architecture rules, the code pattern and the Compose features that made the numbers possible.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">~50%</div><div class="announce-lbl">less UI code on migrated surfaces</div></div>
+        <div class="announce-card"><div class="announce-num">33%</div><div class="announce-lbl">lower token cost per agent session</div></div>
+        <div class="announce-card"><div class="announce-num">35%</div><div class="announce-lbl">less agent execution time per landed code</div></div>
+      </div>
+
+      <p>Scale matters here. The post says Direct handles billions of messages daily, individual components can render in over 160 distinct state permutations, and a single conversation screen handles more than 200 message types.</p>
+
+      <h2>1. Two rules for AI-native architecture</h2>
+
+      <p>The team's position is that pointing an AI tool at legacy code gives limited gains, so they redesigned the codebase around two rules:</p>
+      <ul>
+        <li><strong>Minimize custom context.</strong> The more bespoke knowledge an agent needs, the worse its output. Code closer to well-known best practices gets better results.</li>
+        <li><strong>Enforce boundaries in the architecture, not in skills.</strong> Skills consume tokens and can hurt performance, and agents route around them when blocked. Make the correct path the easiest one.</li>
+      </ul>
+
+      <div class="callout"><p><strong>Takeaway:</strong> a lint rule or a type that makes the wrong thing impossible beats a paragraph in an agent instruction file.</p></div>
+
+      <h2>2. The core risk: mixing paradigms</h2>
+
+      <p>During a gradual migration, Compose items live inside an imperative <code>RecyclerView</code> world. The post says AI tends to blend imperative and declarative code, which causes subtle bugs. Their example: a <code>RecyclerViewItem</code> subclass reads a feature flag imperatively, captures it in a Compose lambda and stores a mutable <code>isPinned</code> on the item, and that state survives rebinding and recycling. Moving the logic into a <code>@Composable</code> override still leaves the cross-paradigm coupling.</p>
+
+      <p>The fix is to put all Compose code in the constructor, so the item has no members and no state and receives everything through its arguments:</p>
+
+      <pre><code>class ChatItem(
+  val features: FeatureFlagProvider,
+  val onPin: (Boolean) -&gt; Unit,
+) : ComposeItem&lt;ChatUiState&gt;(
+
+   // Compose UI
+   content = { uiState: ChatUiState -&gt;
+    val isPinnedChatsEnabled = features.isEnabled("pinned_chats_feature")
+
+    if (isPinnedChatsEnabled) {
+      Button(onClick = { onPin(!uiState.isPinned) }) {
+        Text(if (uiState.isPinned) "Unpin" else "Pin")
+      }
+    }
+
+    ...
+  },
+)</code></pre>
+
+      <p>(The <code>...</code> is from the original, abridged snippet.) A stateless item can't leak state across recycling, and an agent has nowhere to put an imperative field.</p>
+
+      <h2>3. Migration process</h2>
+
+      <ul>
+        <li>Hundreds of UI components coexisted with legacy counterparts during a parallel, gradual migration.</li>
+        <li>Engineers shared a knowledge base of reusable AI skills and conventions to keep practices consistent.</li>
+        <li>Each screen had two stages: write all the Compose code with AI to settle architecture and edge cases, then polish edge cases and performance gaps before a public test rollout.</li>
+      </ul>
+
+      <h2>4. Measuring agent efficiency</h2>
+
+      <p>The team compared agent sessions on Compose UI against the same tasks on Views, measuring per character of landed code (exchanges, execution time) and per session (token cost). Results reported: 32% fewer engineer-agent exchanges, 35% less execution time, 33% lower token cost. Meta's internal <strong>risk score</strong> estimates code quality and incident likelihood; when a file's risk score doubles, agent efficiency dropped 30% for Views code versus 9% for Compose.</p>
+
+      <h2>5. Performance: migrate whole surfaces</h2>
+
+      <p>Runtime metrics were A/B tested: time to interact, time to fully load, and scroll performance (dropped frames). The post's advice is to migrate end to end, because small isolated migrations give misleading numbers when interop bridging costs distort measurements.</p>
+
+      <p>Compose items were first migrated inside the existing <code>RecyclerView</code> and rolled out to small A/B groups. The team then built an interop API so the same Compose items work in both <code>RecyclerView</code> and <code>LazyColumn</code>, with feature flags switching between them at runtime.</p>
+
+      <h2>6. The Compose features that mattered</h2>
+
+      <p><strong>Pausable composition</strong> (on by default since Compose 1.10) composes expensive lazy items incrementally across frames to prevent jank.</p>
+
+      <p><strong><code>LazyLayoutCacheWindow</code></strong> (Compose 1.9) keeps off-screen items prepared within a band around the viewport. The post's usage, from Compose 1.13.0-alpha03:</p>
+
+      <pre><code>val cacheWindow = LazyLayoutCacheWindow(ahead = 150.dp, behind = 100.dp)
+// OR
+val cacheWindow = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 0.3f)
+
+LazyColumn(state = state, cacheWindow = cacheWindow) {
+    ...
+}</code></pre>
+
+      <p><code>Dp</code> values are fixed lengths; float values are viewport fractions, so the prefetch scales with screen height. Instagram tuned the fractions to Direct's content and item sizes.</p>
+
+      <p><strong><code>onVisibilityChanged</code></strong> (Compose 1.9.0) gives a consistent signal for when a composable is truly on screen, replacing custom implementations. Direct uses it across hundreds of files for impression-based product metrics.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">~8%</div><div class="announce-lbl">fewer large frame drops per minute with LazyLayoutCacheWindow alone</div></div>
+        <div class="announce-card"><div class="announce-num">~13%</div><div class="announce-lbl">with Pausable composition plus a one-viewport cache window</div></div>
+        <div class="announce-card"><div class="announce-num">vs. vanilla</div><div class="announce-lbl">baseline is stock Compose</div></div>
+      </div>
+
+      <div class="callout-green"><p>Pair the two. The post warns the cache window alone can let a heavy item compose in a single pass and overrun the frame budget; Pausable composition spreads that work out.</p></div>
+
+      <h2>7. Startup</h2>
+
+      <p>Compose's runtime warmup cost is paid once. Since messaging is often visited early in a session, other Compose surfaces in Instagram got faster too. Baseline Profiles pre-compile hot paths so Compose renders quickly from first launch.</p>
+
+      <h2>What to take into your own app</h2>
+
+      <ul>
+        <li>Make migrated items stateless and constructor-driven so neither humans nor agents can smuggle in <code>RecyclerView</code> state.</li>
+        <li>Build one interop layer so each item runs in both containers, then A/B between them with a flag.</li>
+        <li>Migrate whole surfaces before judging performance.</li>
+        <li>Turn on <code>LazyLayoutCacheWindow</code> and keep Pausable composition enabled together.</li>
+        <li>Prefer enforcement in code structure over long agent instruction files.</li>
+      </ul>
+
+      <p>Source: the Android Developers Blog case study, "How Instagram Direct engineers built AI-native UI architecture with Jetpack Compose and reduced token cost per agent session by 33%" (Sep 30, 2026). Feedback on the Compose pieces goes to the issue tracker, component 612128.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('instagram-direct-ai-native-compose-migration-lazylayoutcachewindow');
+  </script>
+</body>
+</html>
