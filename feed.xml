@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Mon, 02 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Tue, 03 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Android Dev Summit 2026 Keynote: BYO Agent, Android CLI Plugins, AppFunctions Beta and Googlebook</title>
+      <link>https://bytevikas.com/blog/android-dev-summit-2026-keynote-agentic-flexible-android.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-dev-summit-2026-keynote-agentic-flexible-android.html</guid>
+      <pubDate>Tue, 03 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Keynote</category>
+      <description>Which Dev Summit announcements are stable, beta or alpha: Android CLI plugins for Claude Code, Codex and Antigravity, AppFunctions beta, A2UI, ML Kit Agentic API, Navigation 3 1.2 and Googlebook adaptive guidance.</description>
+    </item>
     <item>
       <title>Instagram Direct’s AI-Native Compose Migration: 50% Less UI Code and 33% Fewer Tokens</title>
       <link>https://bytevikas.com/blog/instagram-direct-ai-native-compose-migration-lazylayoutcachewindow.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sun, 26 Jul 2026 08:00:00 +0530</pubDate>
       <category>Kotlin</category>
       <description>Kotlin 2.4.20-Beta2 lands sealed class Swift export for exhaustive enum switching in KMP, incremental klib compilation on by default for faster Kotlin/Native debug builds, four new stdlib collection functions, and an experimental compiler native image.</description>
-    </item>
-    <item>
-      <title>Nearby Connections API Is Losing Auto-Radio Management: What Changes and How to Adapt Now</title>
-      <link>https://bytevikas.com/blog/nearby-connections-api-radio-management-changes.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/nearby-connections-api-radio-management-changes.html</guid>
-      <pubDate>Sat, 25 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Connectivity</category>
-      <description>Google is removing the Nearby Connections API's silent ability to enable Wi-Fi and Bluetooth on your app's behalf. Late 2026 enforcement, all three strategies affected. Here's the pre-flight check pattern and how to audit your connection flows before the deadline.</description>
     </item>
   </channel>
 </rss>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Dev Summit 2026 Keynote: BYO Agent, Android CLI Plugins, AppFunctions Beta and Googlebook — bytevikas</title>
+  <meta name="description" content="The Dev Summit keynote roundup: Android CLI plugins for Claude Code, Codex and Antigravity, AppFunctions in beta, A2UI and ML Kit Agentic API in alpha, Navigation 3 1.2, Compose 1.13 and Googlebook adaptive guidance." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-dev-summit-2026-keynote-agentic-flexible-android.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Android Dev Summit 2026 Keynote: BYO Agent, Android CLI Plugins, AppFunctions Beta and Googlebook — bytevikas" />
+  <meta property="og:description" content="The Dev Summit keynote roundup: Android CLI plugins for Claude Code, Codex and Antigravity, AppFunctions in beta, A2UI and ML Kit Agentic API in alpha, Navigation 3 1.2, Compose 1.13 and Googlebook adaptive guidance." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-dev-summit-2026-keynote-agentic-flexible-android.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Android Dev Summit 2026 Keynote: BYO Agent, Android CLI Plugins, AppFunctions Beta and Googlebook — bytevikas" />
+  <meta name="twitter:description" content="The Dev Summit keynote roundup: Android CLI plugins for Claude Code, Codex and Antigravity, AppFunctions in beta, A2UI and ML Kit Agentic API in alpha, Navigation 3 1.2, Compose 1.13 and Googlebook adaptive guidance." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#bde0fe;--accent-dim:rgba(189,224,254,.1);--accent-border:rgba(189,224,254,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(189,224,254,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(189,224,254,.06);border:1px solid rgba(189,224,254,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(189,224,254,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat keynote">Keynote</span>
+      <span class="post-date">Nov 3, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>Android Dev Summit 2026 Keynote: BYO Agent, Android CLI Plugins, AppFunctions Beta and Googlebook</h1>
+
+    <div class="post-body">
+      <p>At Android Dev Summit on Oct 28, 2026, Matthew McCullough (VP, Product Management, Android Developer) published "Agentic and Flexible: A next era of Android development". It is the umbrella post: nothing in it is a deep dive, but it tells you which pieces are now stable, which are beta and which are still alpha. This is the version with the status of each item spelled out, plus the exact install commands from the Android CLI docs.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">40+</div><div class="announce-lbl">ACP-compliant agents usable in Studio Rabbit 2</div></div>
+        <div class="announce-card"><div class="announce-num">30+</div><div class="announce-lbl">Android skills across 20+ areas</div></div>
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">official CLI plugins: Antigravity, Claude Code, Codex</div></div>
+      </div>
+
+      <h2>1. Bring your own agent</h2>
+      <p>Android Studio Rabbit 2 is stable. You can pick Claude Agent, Codex, Antigravity or any of over 40 ACP-compliant agents and use them with Studio's tooling. The post frames the whole summit around choice: you pick the model and the agent, Android supplies the tools.</p>
+
+      <h2>2. Android CLI gets official agent plugins</h2>
+      <p>The Android CLI is now installable as an official plugin for Antigravity, Claude Code and OpenAI's Codex. Each adds the <code>android-cli</code> skill so your agent can create projects, manage virtual devices, inspect live UI layouts, run Journeys and search the official Android Knowledge Base. From the docs:</p>
+      <pre><code># Claude Code
+claude plugin marketplace add android/android-cli-plugin
+claude plugin install android-cli@android-cli-plugin
+
+# Codex
+codex plugin marketplace add android/android-cli-plugin
+codex plugin add android-cli@android-cli-plugin
+
+# Antigravity
+agy plugin install android-cli-plugin@antigravity-plugins-official</code></pre>
+      <p>Inside a Claude Code session the same thing is <code>/plugin marketplace add android/android-cli-plugin</code> then <code>/plugin install android-cli@android-cli-plugin</code>. Antigravity gets the deeper integration: Compose Previews and a Device Hub appear alongside the conversation, for virtual and physical devices, local or remote.</p>
+
+      <p>New CLI capabilities listed in the post:</p>
+      <ul>
+        <li><strong>Device streaming and Compose previews.</strong> Remote real-device testing powered by Firebase, and agent-rendered Compose previews without an emulator or an APK deploy.</li>
+        <li><strong>Profiling.</strong> Perfetto system traces for cold start latency, jank and background wakeups.</li>
+        <li><strong>Analyze.</strong> Checks bundles and libraries for obfuscation, optimization and shrinking scores, using the same logic Google Play applies before upload.</li>
+        <li><strong>Skills.</strong> 30+ skills spanning 20+ areas, such as permissions security, Glance widget layouts and Compose performance.</li>
+      </ul>
+
+      <div class="callout"><p><strong>Why it matters:</strong> the plugin route means the same Android tooling follows you across agents, so switching from one coding agent to another no longer means rebuilding your Android setup.</p></div>
+
+      <h2>3. Agentic experiences inside your app</h2>
+      <ul>
+        <li><strong>Android intelligence system and Connected Apps.</strong> Prototype a Connected App that shares your services when Gemini is the system AI agent; sign up for the Connected Apps Platform preview to publish to production. You can build with Android MCP or remote MCP and register via the Google Connected Console preview program.</li>
+        <li><strong>AppFunctions is now in beta.</strong> Android's tool-calling layer for exposing app functionality to on-device or system agents through Android MCP.</li>
+        <li><strong>A2UI for Jetpack Compose, alpha.</strong> Agent replies rendered as interactive UI built from your own components rather than text.</li>
+        <li><strong>ML Kit Agentic API on Gemini Nano 4, alpha.</strong> Extends the Prompt API; it auto-executes functions, saves conversation history, manages the orchestration loop and includes automatic guardrails.</li>
+      </ul>
+
+      <h2>4. Architecture, navigation and Compose</h2>
+      <ul>
+        <li><strong>AppState, alpha.</strong> Compose's reactive model applied to the state layer, to preserve state across device configurations.</li>
+        <li><strong>Navigation 3 1.2 is stable</strong> with deep links support and richer predictive back handling.</li>
+        <li><strong>Compose 1.13 stable is upcoming</strong>, with Grid and Flexbox moving to stable and new features including Progressive Blur and Formatted Text.</li>
+      </ul>
+
+      <h2>5. Googlebook and foldables</h2>
+      <p>With Googlebook arriving, the post pushes one codebase across phones and laptops. The Compose adaptive skill was updated: it can audit your Compose UI for keyboard shortcuts, custom pointer cursors, hover states and tooltips; it understands navigation and migrating layouts to Grid, FlexBox and <code>mediaQuery</code>; it handles end-to-end state management; and it refactors media and camera screens into tabletop layouts for foldable postures.</p>
+      <div class="callout-green"><p>Next year Google Play will look closely at how apps and games run on foldables and provide more showcase opportunities. Details of any Play requirement are promised later this year, so nothing is mandated yet. Follow the Android adaptive quality guidelines now.</p></div>
+
+      <h2>6. Android XR</h2>
+      <p>XREAL AURA, described as the world's first wired XR glasses powered by Android XR, launched. Core Jetpack XR SDK libraries (SceneCore, ARCore for Jetpack XR, XR Runtime) are stable, as are the Android XR emulators in Studio (glasses, audio glasses, display glasses) and the Android XR Engine Hub for traces across Unity, Godot and Unreal. Geospatial APIs arrive in ARCore for Jetpack XR and Unity.</p>
+
+      <h2>What to do this week</h2>
+      <ul>
+        <li>Install the Android CLI plugin for whichever agent you already use and let it run <code>android analyze</code> on your release bundle.</li>
+        <li>Try AppFunctions (beta) on one read-only feature, such as search, before exposing anything that writes.</li>
+        <li>Treat A2UI and the ML Kit Agentic API as experiments; both are alpha.</li>
+        <li>If you ship on Navigation 3, move to 1.2 for deep links and predictive back.</li>
+        <li>Run the Compose adaptive skill against your main screens to see what a desktop or foldable pass would change.</li>
+      </ul>
+
+      <p>Sources: the Android Developers Blog post "Agentic and Flexible: A next era of Android development" (Oct 28, 2026) and the Android CLI agent plugins documentation on developer.android.com.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-dev-summit-2026-keynote-agentic-flexible-android');
+  </script>
+</body>
+</html>
