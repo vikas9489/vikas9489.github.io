@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Play Subscriptions Next Era: Multi-Quantity, Usage-Based Billing, Mixed Carts and Dynamic Grace Period — bytevikas</title>
+  <meta name="description" content="What Google Play announced for subscriptions: multi-quantity seats, prepaid usage-based billing for AI apps, mixed carts, cross-developer bundles, in-app messaging, dynamic grace period, retention and winback offers, with a working showInAppMessages sample." />
+  <link rel="canonical" href="https://bytevikas.com/blog/google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Google Play Subscriptions Next Era: Multi-Quantity, Usage-Based Billing, Mixed Carts and Dynamic Grace Period — bytevikas" />
+  <meta property="og:description" content="What Google Play announced for subscriptions: multi-quantity seats, prepaid usage-based billing for AI apps, mixed carts, cross-developer bundles, in-app messaging, dynamic grace period, retention and winback offers, with a working showInAppMessages sample." />
+  <meta property="og:url" content="https://bytevikas.com/blog/google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Google Play Subscriptions Next Era: Multi-Quantity, Usage-Based Billing, Mixed Carts and Dynamic Grace Period — bytevikas" />
+  <meta name="twitter:description" content="What Google Play announced for subscriptions: multi-quantity seats, prepaid usage-based billing for AI apps, mixed carts, cross-developer bundles, in-app messaging, dynamic grace period, retention and winback offers, with a working showInAppMessages sample." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#b5e48c;--accent-dim:rgba(181,228,140,.1);--accent-border:rgba(181,228,140,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(181,228,140,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(181,228,140,.06);border:1px solid rgba(181,228,140,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(181,228,140,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat subscriptions">Subscriptions</span>
+      <span class="post-date">Nov 4, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Google Play Subscriptions Next Era: Multi-Quantity, Usage-Based Billing, Mixed Carts and Dynamic Grace Period</h1>
+
+    <div class="post-body">
+      <p>On Sep 29, 2026, Sheenam Mittal (Senior Product Manager, Google Play) published "Driving growth on Google Play: The next era of subscriptions" on the Android Developers Blog. It is a product post, not a release note, and the useful part for an engineer is sorting out what is available today and what is still gated. The post says many of these features are available or rolling out through an Early Access Program, with select partners, before wider rollout in Play Console. Only the In-App Messaging API is described as available now to all developers.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">new ways to sell: multi-quantity, usage-based, mixed carts, cross-developer bundles</div></div>
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">retention tools: in-app messaging, dynamic grace, retention offers, winback offers</div></div>
+        <div class="announce-card"><div class="announce-num">0</div><div class="announce-lbl">client code needed for dynamic grace period</div></div>
+      </div>
+
+      <h2>1. Multi-quantity subscription purchase</h2>
+      <p>A user can buy several subscriptions in a single transaction and assign them as seats to team members or students. The post positions this for productivity, EdTech and GenAI apps that sell team-wide access. If you sell per-seat plans today through a web checkout, this is the Play-native equivalent to watch.</p>
+
+      <h2>2. Usage-based billing</h2>
+      <p>For apps with variable compute cost, such as AI generation, Play describes prepaid metered billing: users top up automatically whenever their balance falls below a set threshold. The stated aim is uninterrupted service for the user while protecting your margins. The post gives no API surface yet, so design your entitlement model around a balance rather than a period, and wait for the Play Billing docs before writing code.</p>
+
+      <h2>3. Mixed carts</h2>
+      <p>Subscriptions and one-time products used to need two checkouts. Mixed Carts processes an auto-renewing base subscription alongside one-time products in a single API call and one checkout sheet. The post also suggests bundle discounts, for example a lower price when a user buys a subscription together with complementary in-app items.</p>
+
+      <h2>4. Cross-developer bundling</h2>
+      <p>You can create a hard bundle of two or more complementary subscriptions in your own catalog, partnering with other developers or combining your own apps. The post's example is a language-learning membership bundled with a partner's premium travel guide at a combined discounted rate.</p>
+
+      <div class="callout"><p><strong>Reality check:</strong> items 1 to 4 are described as capabilities "being tested and rolled out". Do not plan a release around them without confirming access through your Google Play partner manager.</p></div>
+
+      <h2>5. In-App Messaging API (available now)</h2>
+      <p>This is the one you can ship this week. With <code>InAppMessageCategoryId.TRANSACTIONAL</code> enabled, Play shows a message when there is a payment issue or an outstanding opt-in price increase. Per the subscriptions docs, call it whenever the user opens the app, and handle <code>SUBSCRIPTION_STATUS_UPDATED</code> by using the returned purchase token against the Google Play Developer API to refresh status.</p>
+      <pre><code>val params = InAppMessageParams.newBuilder()
+    .addInAppMessageCategoryToShow(InAppMessageCategoryId.TRANSACTIONAL)
+    .build()
+
+// Needs an Activity with a created, attached window so Play can overlay the message.
+billingClient.showInAppMessages(
+    activity,
+    params,
+    object : InAppMessageResponseListener {
+        override fun onInAppMessageResponse(result: InAppMessageResult) {
+            when (result.responseCode) {
+                InAppMessageResponseCode.NO_ACTION_NEEDED -> Unit
+                InAppMessageResponseCode.SUBSCRIPTION_STATUS_UPDATED -> {
+                    // Payment recovered or price increase confirmed:
+                    // send the returned purchase token to your backend,
+                    // which re-queries the Google Play Developer API.
+                }
+            }
+        }
+    }
+)</code></pre>
+      <p>The docs show this as an if/else on the same two response codes; the <code>when</code> above is equivalent. Call it from your main screen's start, not from a background service, since it needs a live window.</p>
+
+      <h2>6. Dynamic grace period</h2>
+      <p>Instead of a fixed grace window after a payment decline, Play uses machine-learning and heuristic models to tailor the duration per subscriber, aiming to balance renewal recovery against unpaid service access. Play adjusts the following account hold so your total configured recovery window is preserved, and the post says no client-side code changes are required. What stays your job: keep granting access during grace and revoke it in account hold, as the subscriptions docs already say, and do not hard-code an assumed grace length.</p>
+
+      <h2>7. Retention offers, plan change and winback</h2>
+      <ul>
+        <li><strong>Retention Offers:</strong> developer-funded incentives, such as a discount, shown directly in the Play Store cancellation flow.</li>
+        <li><strong>Plan Change:</strong> for users not eligible for a discount or promotion, a suggested move to a lower-priced tier.</li>
+        <li><strong>Subscription Winback Offers:</strong> personalized offers shown to lapsed subscribers on the Play Store itself, which reaches people who uninstalled your app and so cannot be hit by push or email.</li>
+      </ul>
+
+      <h2>Behind the scenes</h2>
+      <p>Play also runs optimizations that need no code: smart payment retries, cycling through backup payment methods for opted-in users, context-aware reminders during grace period and account hold, and fraud and abuse prevention against promotional-offer exploitation.</p>
+
+      <h2>What to do this week</h2>
+      <ul>
+        <li>Add the in-app messaging call on app open if you have not, and wire <code>SUBSCRIPTION_STATUS_UPDATED</code> to a server-side refresh.</li>
+        <li>Audit entitlement logic so it depends on server state (grace, hold) rather than a fixed number of days.</li>
+        <li>If you sell team or AI-metered plans, ask your partner manager about the Early Access Program.</li>
+        <li>Model your catalog for bundles and mixed carts: keep subscription and one-time SKUs cleanly separated.</li>
+      </ul>
+
+      <p>Sources: the Android Developers Blog post "Driving growth on Google Play: The next era of subscriptions" (Sep 29, 2026) and the Google Play Billing subscriptions documentation on developer.android.com.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace');
+  </script>
+</body>
+</html>
