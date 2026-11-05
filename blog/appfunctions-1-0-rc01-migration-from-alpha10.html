@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate — bytevikas</title>
+  <meta name="description" content="AppFunctions reached release candidate on Nov 5, 2026. A migration guide from alpha10: AppFunction renamed to AppFunctionDeclaration, AppFunctionContext removed, explicit isDescribedByKDoc, AppFunctionState, patternMatchers and the new rc01 Gradle setup." />
+  <link rel="canonical" href="https://bytevikas.com/blog/appfunctions-1-0-rc01-migration-from-alpha10.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate — bytevikas" />
+  <meta property="og:description" content="AppFunctions reached release candidate on Nov 5, 2026. A migration guide from alpha10: AppFunction renamed to AppFunctionDeclaration, AppFunctionContext removed, explicit isDescribedByKDoc, AppFunctionState, patternMatchers and the new rc01 Gradle setup." />
+  <meta property="og:url" content="https://bytevikas.com/blog/appfunctions-1-0-rc01-migration-from-alpha10.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate — bytevikas" />
+  <meta name="twitter:description" content="AppFunctions reached release candidate on Nov 5, 2026. A migration guide from alpha10: AppFunction renamed to AppFunctionDeclaration, AppFunctionContext removed, explicit isDescribedByKDoc, AppFunctionState, patternMatchers and the new rc01 Gradle setup." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#67e8f9;--accent-dim:rgba(103,232,249,.1);--accent-border:rgba(103,232,249,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(103,232,249,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(103,232,249,.06);border:1px solid rgba(103,232,249,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(103,232,249,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat agents">Agents</span>
+      <span class="post-date">Nov 5, 2026</span>
+      <span class="read-time">7 min read</span>
+    </div>
+
+    <h1>AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate</h1>
+
+    <div class="post-body">
+      <p>AppFunctions, the Jetpack library that lets AI agents discover and call functions in your app, reached <strong>1.0.0-rc01</strong> on Nov 4, 2026. The release itself is tiny: the release notes say only that it is a version bump to RC and that the legacy aggregation compiler option is removed. The real story is the five releases before it. If you followed my <a href="appfunctions-android-mcp-ai-agents.html">earlier AppFunctions post</a>, written against alpha10, a good part of that code no longer compiles. This is the checklist, built from the AndroidX release notes.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">rc01</div><div class="announce-lbl">Nov 4, 2026: API surface now considered final for 1.0</div></div>
+        <div class="announce-card"><div class="announce-num">5</div><div class="announce-lbl">releases since alpha10: alpha11, alpha12, alpha13, beta01, rc01</div></div>
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">artifacts: appfunctions, appfunctions-compiler, appfunctions-testing</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Why rc matters:</strong> per the AndroidX stage definitions, a release candidate has a final API surface and may only receive critical last-minute fixes. If you were waiting to start, the churn below is the reason to wait no longer.</p></div>
+
+      <h2>1. The annotation was renamed</h2>
+      <p>In alpha13 (Oct 7, 2026) the <code>AppFunction</code> annotation became <code>AppFunctionDeclaration</code>. The same release renamed <code>ObserveAppFunctionsEvent</code> to <code>AppFunctionsChangeEvent</code> and surfaced <code>AppFunctionMetadata</code> in <code>AppFunctionService</code>.</p>
+      <p>Then beta01 (Oct 21, 2026) removed the default value of <code>isDescribedByKDoc</code> from <code>AppFunctionDeclaration</code>, <code>AppFunctionSerializable</code> and <code>AppFunctionSignature</code>. You must now say explicitly whether the KDoc is the description the agent sees:</p>
+      <pre><code>// alpha10
+@AppFunction(isDescribedByKDoc = true)
+suspend fun listNotes(appFunctionContext: AppFunctionContext): List&lt;Note&gt;?
+
+// rc01: new name, and the flag has no default so it must stay explicit
+@AppFunctionDeclaration(isDescribedByKDoc = true)
+suspend fun listNotes(/* see section 2 for the context parameter */): List&lt;Note&gt;?</code></pre>
+      <p>Do the same for every <code>@AppFunctionSerializable</code> class, otherwise the build fails.</p>
+
+      <h2>2. AppFunctionContext and AppFunctionConfiguration are gone</h2>
+      <p>Alpha12 (Sep 23, 2026) removed both <code>AppFunctionContext</code> and <code>AppFunctionConfiguration</code>. That is why the first-parameter-must-be-context rule from my alpha10 post is obsolete. The release notes do not spell out the replacement for execution info, so check the 1.0 reference for your signatures instead of guessing. The alpha10 notes had already flagged <code>AppFunctionConfiguration</code> for removal in favor of <code>@AppFunctionServiceEntryPoint</code>, which stays: declarations still live inside an <code>AppFunctionService</code> annotated with it.</p>
+
+      <h2>3. Gradle setup changed</h2>
+      <p>The rc01 dependency snippet on the release page lists two lines: the runtime artifact and the KSP compiler. The separate <code>appfunctions-service</code> artifact I used in the alpha10 post does not appear in it, while <code>appfunctions-testing</code> is released alongside.</p>
+      <pre><code>dependencies {
+    implementation("androidx.appfunctions:appfunctions:1.0.0-rc01")
+    ksp("androidx.appfunctions:appfunctions-compiler:1.0.0-rc01")
+    androidTestImplementation("androidx.appfunctions:appfunctions-testing:1.0.0-rc01")
+}</code></pre>
+      <p>rc01 also removes the legacy aggregation compiler option. If your build passes a KSP argument for aggregation, delete it and rebuild.</p>
+
+      <h2>4. Other renames and type moves in beta01</h2>
+      <ul>
+        <li><code>AppFunctionName</code> moved from <code>androidx.appfunctions.metadata</code> to <code>androidx.appfunctions</code>. Fix your imports.</li>
+        <li><code>AppFunctionAppMetadata.description</code> is now <code>instructions</code>, and the matching XML attribute changed the same way, to align with MCP naming.</li>
+        <li>The regex pattern in <code>@AppFunctionStringValueConstraint</code> was replaced by <code>patternMatchers</code>, backed by <code>android.os.PatternMatcher</code>. Regexes need rewriting as prefix, literal or simple-glob matchers.</li>
+        <li><code>AppFunctionResourceContainer</code> and <code>AppFunctionTextResource</code> are now <code>@ExperimentalAppFunctionsApi</code>.</li>
+        <li><code>AppFunctionTestRule</code> now supports <code>AppFunctionServiceEntryPoint</code>, so your Robolectric tests can exercise the real entry point.</li>
+      </ul>
+
+      <h2>5. State is no longer part of metadata</h2>
+      <p>Alpha11 (Aug 26, 2026) added <code>AppFunctionState</code> and <code>AppFunctionManager#getAppFunctionStates</code>, replacing <code>AppFunctionMetadata#isEnabled</code>. Metadata is now purely descriptive. If a settings screen reads <code>isEnabled</code> to show a toggle, switch it to the states API:</p>
+      <pre><code>// alpha10 style, no longer available
+val on = metadata.isEnabled
+
+// since alpha11: ask the manager for state, keyed to the function
+val states = appFunctionManager.getAppFunctionStates(/* search spec or ids */)</code></pre>
+      <p>I am leaving the call arguments as a placeholder because the release notes name the method but not its signature. Alpha11 also added <code>getAppFunctionActivityStates</code> and changed <code>observeAppFunctions</code> to match the platform API.</p>
+
+      <h2>6. New in the alphas, mostly experimental</h2>
+      <ul>
+        <li><strong>Access control (alpha13):</strong> <code>@AppFunctionAccessLevel</code> supports an access restriction setting per function.</li>
+        <li><strong>Dynamic registration (alpha11 to alpha12):</strong> <code>@AppFunctionSignature</code> plus <code>registerAppFunction</code>, <code>registerAppFunctions</code>, <code>RegisterAppFunctionRequest</code> and <code>CallbackAppFunction</code>, all marked <code>@ExperimentalAppFunctionsApi</code>. Useful when the available functions depend on runtime state.</li>
+        <li><strong>Constraints (alpha12):</strong> <code>AppFunctionUriValueConstraint</code> is public, and <code>scope</code> was added to <code>AppFunctionMetadata</code> and <code>AppFunctionSearchSpec</code>.</li>
+        <li><strong>Requests (alpha12):</strong> <code>ExecuteAppFunctionRequest</code> gained <code>activityId</code>; earlier, alpha09 added <code>AppInteractionAttribution</code>.</li>
+        <li><strong>Sidecar apps (alpha11):</strong> <code>ExtensionsAppFunctionService</code>.</li>
+      </ul>
+
+      <h2>7. Bug fixes worth knowing</h2>
+      <ul>
+        <li>Beta01: <code>java.time</code> parameter types now deserialize in apps with Java library desugaring enabled, previously they failed.</li>
+        <li>Beta01: on SDK 37 and above, URI permissions were being granted twice; fixed.</li>
+        <li>Beta01: the generated file name could contain symbols invalid on some operating systems; fixed.</li>
+        <li>Alpha13: <code>AppFunctionData</code> supports all built-in proxy types: <code>LocalDate</code>, <code>LocalTime</code>, <code>Instant</code>, <code>ZoneId</code>.</li>
+      </ul>
+
+      <h2>Migration checklist</h2>
+      <ul>
+        <li>Bump all three artifacts to <code>1.0.0-rc01</code> and drop <code>appfunctions-service</code> from your build file if you still have it.</li>
+        <li>Rename <code>@AppFunction</code> to <code>@AppFunctionDeclaration</code> and set <code>isDescribedByKDoc</code> explicitly everywhere it is used.</li>
+        <li>Remove <code>AppFunctionContext</code> and <code>AppFunctionConfiguration</code> usage; keep <code>@AppFunctionServiceEntryPoint</code>.</li>
+        <li>Replace <code>isEnabled</code> reads with <code>getAppFunctionStates</code>, and <code>metadata.description</code> with <code>instructions</code>.</li>
+        <li>Rewrite any regex in <code>@AppFunctionStringValueConstraint</code> using <code>patternMatchers</code>.</li>
+        <li>Delete the legacy aggregation KSP option and run your <code>AppFunctionTestRule</code> tests.</li>
+      </ul>
+
+      <p>Sources: the AndroidX release notes for <code>androidx.appfunctions</code> (versions alpha09 through 1.0.0-rc01, retrieved Nov 5, 2026) and the AndroidX all-channel release page listing Nov 4, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('appfunctions-1-0-rc01-migration-from-alpha10');
+  </script>
+</body>
+</html>

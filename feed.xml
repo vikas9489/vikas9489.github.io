@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Wed, 04 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Thu, 05 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate</title>
+      <link>https://bytevikas.com/blog/appfunctions-1-0-rc01-migration-from-alpha10.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/appfunctions-1-0-rc01-migration-from-alpha10.html</guid>
+      <pubDate>Thu, 05 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Agents</category>
+      <description>AppFunctions hit release candidate on Nov 4, 2026. What changed since alpha10: AppFunctionDeclaration rename, AppFunctionContext removal, explicit isDescribedByKDoc, AppFunctionState, patternMatchers and the rc01 Gradle setup.</description>
+    </item>
     <item>
       <title>Google Play Subscriptions Next Era: Multi-Quantity, Usage-Based Billing, Mixed Carts and Dynamic Grace Period</title>
       <link>https://bytevikas.com/blog/google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Tue, 28 Jul 2026 08:00:00 +0530</pubDate>
       <category>Performance</category>
       <description>AGP 9.2.0 ships an R8 optimization that rewrites AtomicReferenceFieldUpdater into direct Unsafe calls, cutting coroutine overhead by half and improving Compose's Modifier.clickable by 2x — automatically. Here's the three-step mechanism and what it means for your benchmarks.</description>
-    </item>
-    <item>
-      <title>Galaxy Unpacked 2026: What the New Foldable and Wearable Lineup Means for Android Developers</title>
-      <link>https://bytevikas.com/blog/samsung-galaxy-foldable-adaptive-window-2026.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/samsung-galaxy-foldable-adaptive-window-2026.html</guid>
-      <pubDate>Mon, 27 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Adaptive</category>
-      <description>Samsung unveiled a new lineup of foldable and wearable devices at Galaxy Unpacked London. The Android team responded the next day with a clear message: your adaptive layout strategy needs to level up. Here's the developer picture — Window 1.6.0 engagement APIs, NavigableListDetailPaneScaffold, and the Android 17 hard deadline.</description>
     </item>
   </channel>
 </rss>
