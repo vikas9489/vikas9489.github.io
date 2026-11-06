@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs — bytevikas</title>
+  <meta name="description" content="Android now has three ways for system agents like Gemini to act in your app: AppFunctions (Android MCP), a remote MCP server, and OEM Computer Control. What each requires, how they differ, plus on-device agents with ML Kit and Gemini Nano 4." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-intelligence-system-appfunctions-mcp-computer-control.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs — bytevikas" />
+  <meta property="og:description" content="Android now has three ways for system agents like Gemini to act in your app: AppFunctions (Android MCP), a remote MCP server, and OEM Computer Control. What each requires, how they differ, plus on-device agents with ML Kit and Gemini Nano 4." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-intelligence-system-appfunctions-mcp-computer-control.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs — bytevikas" />
+  <meta name="twitter:description" content="Android now has three ways for system agents like Gemini to act in your app: AppFunctions (Android MCP), a remote MCP server, and OEM Computer Control. What each requires, how they differ, plus on-device agents with ML Kit and Gemini Nano 4." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ff99c8;--accent-dim:rgba(255,153,200,.1);--accent-border:rgba(255,153,200,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,153,200,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(255,153,200,.06);border:1px solid rgba(255,153,200,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,153,200,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat intelligence">Intelligence</span>
+      <span class="post-date">Nov 6, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs</h1>
+
+    <div class="post-body">
+      <p>On Nov 5, 2026 the Android team published its Android Developer Summit round-up for intelligent apps. Strip away the product names and one idea remains: users now state a goal ("check my calendar, book a ride, and message Jingyu my ETA") and a system agent orchestrates apps to finish it. Android gives you <strong>three</strong> ways to take part, with very different costs. This post sorts them by what they demand from you, using the Android docs and the Dev Summit post, and then covers the other half: putting an agent inside your own app.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">integration paths: AppFunctions, remote MCP, Computer Control</div></div>
+        <div class="announce-card"><div class="announce-num">6</div><div class="announce-lbl">max target apps in one Computer Control session</div></div>
+        <div class="announce-card"><div class="announce-num">0</div><div class="announce-lbl">code changes needed in a Computer Control target app</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Status check:</strong> the Android docs label the intelligence-system features as <strong>Preview</strong>, and Computer Control as an "upcoming" API that currently works with a limited set of target apps. Treat this as a design decision to prepare for, not a feature to promise in a release.</p></div>
+
+      <h2>The two modes: prompted and proactive</h2>
+      <p>Per the Dev Summit post, the intelligence system offers <strong>prompted assistance</strong>, where the user explicitly asks an agent for something, and <strong>proactive assistance</strong>, where the system surfaces contextual suggestion chips on lock screens, notifications, virtual keyboards and inside apps. The three integration paths below serve the prompted flow. The system covers phones, wearables, XR glasses, TVs and cars.</p>
+
+      <h2>Path 1: AppFunctions (Android MCP)</h2>
+      <p>AppFunctions is a platform API with a Jetpack library that exposes specific capabilities of your app as discrete functions that agents can discover and execute <strong>on-device</strong>. The blog calls this "Android MCP", built on the familiar MCP standard. You write the functions, so you control exactly what an agent can do. If you adopted it earlier, my <a href="appfunctions-1-0-rc01-migration-from-alpha10.html">rc01 migration guide</a> lists the API churn.</p>
+      <p>Google recommends it when your user journey:</p>
+      <ul>
+        <li>uses end-to-end encryption or sensitive local device data,</li>
+        <li>needs device sensors or hardware,</li>
+        <li>must execute locally, or</li>
+        <li>has no server endpoint available.</li>
+      </ul>
+      <p>It can also connect your own on-device in-app agent, not only the system agent.</p>
+
+      <h2>Path 2: a remote MCP server</h2>
+      <p>With the server-side approach your backend exposes capabilities to agents directly. The docs describe it as complementary and a good fit for coverage across Android and other platforms. Nothing runs on the phone, so there is no app release to ship and no on-device data. The trade-off is the mirror image of path 1: if the journey depends on local state or hardware, a server cannot see it.</p>
+
+      <h2>Path 3: Computer Control</h2>
+      <p>Computer Control lets an <strong>OEM-preloaded assistant</strong> drive your app's UI, with no integration on your side. According to the framework docs:</p>
+      <ul>
+        <li>The assistant needs the privileged <code>ACCESS_COMPUTER_CONTROL</code> permission, so this is not an API third-party assistants can adopt.</li>
+        <li>A session covers up to six target apps for sequential execution, and only one session is active at a time.</li>
+        <li>The first time it touches your app, the system shows a permission dialog to the user.</li>
+        <li>Your app runs on a secure background virtual display. The assistant captures screenshots, infers actions and simulates taps, swipes and text input.</li>
+        <li>Control can be handed back to the user, for example for transaction confirmation.</li>
+      </ul>
+      <p>Because the agent reads screenshots, the docs' advice for target apps is the unglamorous kind: follow adaptive design and lifecycle best practices. Stable, labeled, predictable screens are your integration. An assistant may also choose to limit which apps it automates, so you cannot opt yourself in by polishing the UI.</p>
+
+      <div class="callout-green"><p>The Dev Summit post describes Computer Control as the fallback: agents can use it "to complete actions without requiring any app-side integration" when neither MCP route exists. That makes the first two paths the ones where you decide the behavior and the third the one where you do not.</p></div>
+
+      <h2>Choosing: a heuristic, not an API</h2>
+      <p>This snippet is my own summary of the guidance above, not a library call. It is useful as a team checklist:</p>
+      <pre><code>enum class AgentPath { ANDROID_MCP, REMOTE_MCP, COMPUTER_CONTROL_ONLY }
+
+data class Journey(
+    val usesLocalSensitiveData: Boolean,
+    val needsDeviceHardware: Boolean,
+    val mustRunLocally: Boolean,
+    val hasServerEndpoint: Boolean,
+    val needsOtherPlatforms: Boolean,
+)
+
+fun pickPath(j: Journey): AgentPath = when {
+    j.usesLocalSensitiveData || j.needsDeviceHardware || j.mustRunLocally ->
+        AgentPath.ANDROID_MCP
+    j.hasServerEndpoint || j.needsOtherPlatforms ->
+        AgentPath.REMOTE_MCP
+    else -> AgentPath.COMPUTER_CONTROL_ONLY
+}</code></pre>
+      <p>The two are not exclusive. The Connected Apps Platform, which targets Gemini and Search, combines Android MCP for native on-device execution with remote MCP servers for cross-platform reach. You can test locally today with Gemini Apps Developer Mode; production access is a preview waitlist, and capacity is currently limited to selected production-ready apps in supported categories.</p>
+
+      <h2>The other half: agents inside your app</h2>
+      <p>The same post covers building intelligence in:</p>
+      <ul>
+        <li><strong>ML Kit GenAI Agentic API.</strong> With function calling in Gemini Nano 4, ML Kit adds an Agentic API that auto-executes functions, saves conversation history, manages the orchestration loop and includes automatic guardrails. The Prompt API gives direct model access, including thinking mode and system instructions. The reference is the Jetpacker sample in the <code>android/ai-samples</code> repository.</li>
+        <li><strong>Gemini Nano 4</strong> is built on Gemma 4. Google reports up to 3x inference speedup and up to 4x lower memory use versus the previous Gemini Nano, in internal testing benchmarks. Opt in to the AICore Developer Preview to test preview-model capabilities.</li>
+        <li><strong>Embeddings API (alpha)</strong>, powered by EmbeddingGemma 2.</li>
+        <li><strong>LiteRT in Google Play services</strong> removes the runtime from your APK, making it about 8 MB smaller, and is now also on Wear OS and Android Automotive OS.</li>
+        <li><strong>Firebase AI Logic</strong> for hybrid cloud plus on-device calls, protected by App Check, server prompt templates and spend caps.</li>
+        <li><strong>A2UI Compose renderer (alpha)</strong> so your agent can stream native Compose UI from a JSON protocol; see my <a href="a2ui-compose-agent-driven-native-ui.html">A2UI post</a>.</li>
+      </ul>
+
+      <h2>What I would do this quarter</h2>
+      <ul>
+        <li>List your top three user journeys and run each through the heuristic above.</li>
+        <li>For any journey touching local or private data, prototype with AppFunctions using the official skill and sample agent.</li>
+        <li>For everything else, check whether an existing backend endpoint can become a remote MCP tool.</li>
+        <li>Audit screens for Computer Control readiness: stable lifecycle handling, adaptive layouts, no flows that break when run on a virtual display.</li>
+        <li>Keep in-app agents on-device only where latency or privacy demands it; use Firebase AI Logic hybrid otherwise.</li>
+      </ul>
+
+      <p>Sources: the Android Developers Blog post "From in-app agents to the Android intelligence system" (Nov 5, 2026) and the Android docs pages on the intelligence system and Computer Control, retrieved Nov 6, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-intelligence-system-appfunctions-mcp-computer-control');
+  </script>
+</body>
+</html>

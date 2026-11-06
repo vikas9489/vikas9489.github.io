@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 05 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Fri, 06 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs</title>
+      <link>https://bytevikas.com/blog/android-intelligence-system-appfunctions-mcp-computer-control.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-intelligence-system-appfunctions-mcp-computer-control.html</guid>
+      <pubDate>Fri, 06 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Intelligence</category>
+      <description>Three ways system agents like Gemini can act in your app: AppFunctions (Android MCP), a remote MCP server and OEM Computer Control. What each demands, when to pick which, plus on-device agents with ML Kit and Gemini Nano 4.</description>
+    </item>
     <item>
       <title>AppFunctions 1.0.0-rc01: Every Breaking Change Since alpha10, and How to Migrate</title>
       <link>https://bytevikas.com/blog/appfunctions-1-0-rc01-migration-from-alpha10.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Wed, 29 Jul 2026 08:00:00 +0530</pubDate>
       <category>Compose</category>
       <description>Google officially moved the Views toolkit to maintenance mode — bug fixes only, no new features. 68% of the top 1,000 Play apps already use Compose. Here's what the announcement means for teams still on View-based UI and how to think about the migration now.</description>
-    </item>
-    <item>
-      <title>R8 Makes Kotlin Coroutines 2x Faster in AGP 9.2 — and You Don't Change a Single Line</title>
-      <link>https://bytevikas.com/blog/r8-coroutines-2x-faster-agp-9-2.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/r8-coroutines-2x-faster-agp-9-2.html</guid>
-      <pubDate>Tue, 28 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Performance</category>
-      <description>AGP 9.2.0 ships an R8 optimization that rewrites AtomicReferenceFieldUpdater into direct Unsafe calls, cutting coroutine overhead by half and improving Compose's Modifier.clickable by 2x — automatically. Here's the three-step mechanism and what it means for your benchmarks.</description>
     </item>
   </channel>
 </rss>
