@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub — bytevikas</title>
+  <meta name="description" content="Android Dev Summit XR round-up: XREAL AURA wired glasses launch, Jetpack SceneCore, ARCore and XR Runtime go stable, Geospatial APIs stabilize, Android XR Engine Hub for Unity, Godot and Unreal, and ML Kit GenAI Text to Speech for audio-first glasses." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-xr-xreal-aura-stable-jetpack-xr-engine-hub.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub — bytevikas" />
+  <meta property="og:description" content="Android Dev Summit XR round-up: XREAL AURA wired glasses launch, Jetpack SceneCore, ARCore and XR Runtime go stable, Geospatial APIs stabilize, Android XR Engine Hub for Unity, Godot and Unreal, and ML Kit GenAI Text to Speech for audio-first glasses." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-xr-xreal-aura-stable-jetpack-xr-engine-hub.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub — bytevikas" />
+  <meta name="twitter:description" content="Android Dev Summit XR round-up: XREAL AURA wired glasses launch, Jetpack SceneCore, ARCore and XR Runtime go stable, Geospatial APIs stabilize, Android XR Engine Hub for Unity, Godot and Unreal, and ML Kit GenAI Text to Speech for audio-first glasses." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#a3e635;--accent-dim:rgba(163,230,53,.1);--accent-border:rgba(163,230,53,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(163,230,53,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(163,230,53,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat xr">XR</span>
+      <span class="post-date">Nov 7, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub</h1>
+
+    <div class="post-body">
+      <p>On Nov 6, 2026 the Android XR team published its Android Developer Summit round-up. The headline is a device: <strong>XREAL AURA</strong>, described as the first wired XR glasses powered by Android XR, at under 95 grams with a portable compute puck. The part that matters for code is underneath it. The core Jetpack XR libraries and the Studio emulators are now <strong>stable</strong>, so you can stop treating XR as a preview-only side project. If you followed my earlier <a href="jetpack-xr-sdk-1-0-0-stable-arcore-scenecore.html">Jetpack XR 1.0.0 stable</a> post, this one covers the platform and tooling around it.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">core libraries graduated: SceneCore, ARCore for Jetpack XR, XR Runtime</div></div>
+        <div class="announce-card"><div class="announce-num">&lt;95 g</div><div class="announce-lbl">XREAL AURA weight, wired glasses plus compute puck</div></div>
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">engines in the Engine Hub: Unity, Godot, Unreal</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Scope note:</strong> the post is a summary with links to Dev Summit session videos. It does not publish API signatures or artifact versions, so I have not invented any here. Check the linked release pages for exact versions before you update your build files.</p></div>
+
+      <h2>What went stable</h2>
+      <ul>
+        <li><strong>Jetpack SceneCore</strong> for building and manipulating the XR scene graph with 3D content.</li>
+        <li><strong>ARCore for Jetpack XR</strong> for environment perception.</li>
+        <li><strong>XR Runtime</strong> for standardized session management.</li>
+        <li><strong>Android XR emulators in Android Studio</strong>, so you can build and visually validate layouts across XR devices without hardware. The post specifically points to virtual devices for glasses form factors.</li>
+      </ul>
+      <p>The practical meaning is long-term API stability. Earlier betas renamed and removed APIs between releases (I covered those in the <a href="jetpack-xr-sdk-1-0-0-beta01-breaking-changes.html">beta01 breaking-changes post</a>); a stable tier lets teams ship against it.</p>
+
+      <h2>Geospatial: anchoring content to places</h2>
+      <p>The <strong>Geospatial APIs</strong> in ARCore for Jetpack XR are now stable. They anchor digital content to real-world coordinates by combining visual positioning with local device tracking, aimed at location-aware experiences on wired XR glasses. For glanceable optical see-through UI the team points to <strong>Jetpack Compose Glimmer</strong>, and the session "Build world anchored experiences for XREAL AURA wired XR glasses" walks through pairing Glimmer UIs with world anchors.</p>
+      <p>For Unity teams, a separate session covers mapping physical spaces, persisting 3D placements across sessions and syncing shared multi-user experiences with Spatial Entities, Cloud Anchors and the ARCore Geospatial APIs.</p>
+
+      <h2>Android XR Engine Hub</h2>
+      <p>If your content lives in a game engine, the <strong>Android XR Engine Hub</strong> is now stable. It targets Unity, Godot and Unreal Engine and does two things:</p>
+      <ul>
+        <li><strong>Project scaffolding</strong> with pre-configured OpenXR extensions and validated project settings.</li>
+        <li><strong>Native profiling workflows</strong> to capture and inspect system traces, thermal limits and frame budgets across CPU and GPU cores from inside the engine UI.</li>
+      </ul>
+      <p>Setup is a plugin install for your engine of choice. A related session shows embedding Godot and Unity as libraries inside native Jetpack Compose apps using OpenXR Spatial Containers. As a proof point, Contract XR ported its Unity game Jigsaw Night to XREAL AURA as a collaborative multi-user experience.</p>
+
+      <div class="callout-green"><p>Frame budget and thermals are the real constraint on glasses with a tethered puck. Having traces and thermal data inside the engine tooling, rather than a separate profiler, shortens the loop you will spend most of your time in.</p></div>
+
+      <h2>Audio-first: ML Kit Text to Speech and earcons</h2>
+      <p>As the lineup includes audio-oriented eyewear, the team introduced the <strong>ML Kit GenAI Text to Speech API</strong> for natural-sounding on-device voices, plus new design guidance on sound, including <strong>earcons</strong> for guiding users through audio-first environments. The session "Building audio-first experiences for intelligent eyewear with Gemini Nano 4" combines <strong>Jetpack Projected</strong>, ML Kit and on-device Gemini Nano for hands-free conversational apps. For the on-device model side, see my <a href="gemma-4-aicore-mlkit-genai-android.html">Gemma 4 and ML Kit GenAI post</a>.</p>
+
+      <h2>Existing apps on day one</h2>
+      <p>The post states that XREAL AURA shares a common Android foundation, so existing Android apps work out of the box on day one. That is the cheap first step: install what you have, see how it behaves on glasses, then decide where spatial UI is worth the investment.</p>
+
+      <h2>What I would do this week</h2>
+      <ul>
+        <li>Update Android Studio to the latest stable and create a glasses virtual device.</li>
+        <li>Run your current app on it and note which screens assume a touchscreen or a large window.</li>
+        <li>Pick one glanceable surface (a notification, a status card) as a Glimmer prototype.</li>
+        <li>If you ship a 3D title, install the Engine Hub plugin and baseline thermals and frame time before optimizing.</li>
+        <li>Move any XR dependencies from beta to the stable releases listed on the Android XR developer site.</li>
+      </ul>
+
+      <p>Sources: the Android Developers Blog post "Build for an expanding lineup of Android XR devices with production-ready tools from Android Developer Summit" (Nov 6, 2026), retrieved Nov 7, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-xr-xreal-aura-stable-jetpack-xr-engine-hub');
+  </script>
+</body>
+</html>

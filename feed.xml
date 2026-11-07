@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 06 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 07 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub</title>
+      <link>https://bytevikas.com/blog/android-xr-xreal-aura-stable-jetpack-xr-engine-hub.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-xr-xreal-aura-stable-jetpack-xr-engine-hub.html</guid>
+      <pubDate>Sat, 07 Nov 2026 08:00:00 +0530</pubDate>
+      <category>XR</category>
+      <description>XREAL AURA wired glasses launch with stable Jetpack SceneCore, ARCore and XR Runtime, stable Geospatial APIs, the Android XR Engine Hub for Unity, Godot and Unreal, and ML Kit Text to Speech for audio-first eyewear.</description>
+    </item>
     <item>
       <title>The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs</title>
       <link>https://bytevikas.com/blog/android-intelligence-system-appfunctions-mcp-computer-control.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Thu, 30 Jul 2026 08:00:00 +0530</pubDate>
       <category>Nav</category>
       <description>Alpha07 adds BackStackMatcher — a declarative way to build a synthetic back stack when handling deep links — plus DeepLinkSerializer for complex argument types, five targeted bug fixes, and Navigation3 1.1.5 stable on the same day.</description>
-    </item>
-    <item>
-      <title>5 Years of Jetpack Compose: Views Enter Maintenance Mode, and What That Actually Means for Your App</title>
-      <link>https://bytevikas.com/blog/jetpack-compose-5-years-views-maintenance-mode.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/jetpack-compose-5-years-views-maintenance-mode.html</guid>
-      <pubDate>Wed, 29 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Compose</category>
-      <description>Google officially moved the Views toolkit to maintenance mode — bug fixes only, no new features. 68% of the top 1,000 Play apps already use Compose. Here's what the announcement means for teams still on View-based UI and how to think about the migration now.</description>
     </item>
   </channel>
 </rss>
