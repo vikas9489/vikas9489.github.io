@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sat, 07 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 08 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist</title>
+      <link>https://bytevikas.com/blog/compose-dev-summit-2026-performance-skill-adaptive-checklist.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-dev-summit-2026-performance-skill-adaptive-checklist.html</guid>
+      <pubDate>Sun, 08 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Dev Summit Compose round-up: Compose 1.13 Grid and FlexBox, rewritten BasicTextField, AppState and Navigation 3 deep links, plus the new Compose performance Android skill turned into a seven-category code-review checklist with Kotlin examples.</description>
+    </item>
     <item>
       <title>Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub</title>
       <link>https://bytevikas.com/blog/android-xr-xreal-aura-stable-jetpack-xr-engine-hub.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Fri, 31 Jul 2026 08:00:00 +0530</pubDate>
       <category>Design</category>
       <description>Alpha25 lands six API renames and two deprecations as M3 Expressive hardens toward stable — trailingIcon becomes trailingContent, TonalToggleButton becomes FilledTonalToggleButton, SplitButtonLayout is deprecated, and ComponentOverride is removed entirely. Plus alpha24's new material3-ripple artifact for inset focus rings.</description>
-    </item>
-    <item>
-      <title>Navigation3 1.2.0-alpha07: BackStackMatcher Solves the Deep Link Back-Stack Problem</title>
-      <link>https://bytevikas.com/blog/navigation3-1-2-alpha07-backstack-matcher-deep-link-serializer.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/navigation3-1-2-alpha07-backstack-matcher-deep-link-serializer.html</guid>
-      <pubDate>Thu, 30 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Nav</category>
-      <description>Alpha07 adds BackStackMatcher — a declarative way to build a synthetic back stack when handling deep links — plus DeepLinkSerializer for complex argument types, five targeted bug fixes, and Navigation3 1.1.5 stable on the same day.</description>
     </item>
   </channel>
 </rss>

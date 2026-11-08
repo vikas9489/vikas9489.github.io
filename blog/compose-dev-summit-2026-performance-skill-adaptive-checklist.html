@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist — bytevikas</title>
+  <meta name="description" content="Android Dev Summit Compose round-up (Nov 4, 2026): Compose 1.13 adaptive Grid and FlexBox, rewritten BasicTextField, AppState, Navigation 3 deep links, and the new Compose performance Android skill read as a human code-review checklist with Kotlin examples." />
+  <link rel="canonical" href="https://bytevikas.com/blog/compose-dev-summit-2026-performance-skill-adaptive-checklist.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist — bytevikas" />
+  <meta property="og:description" content="Android Dev Summit Compose round-up (Nov 4, 2026): Compose 1.13 adaptive Grid and FlexBox, rewritten BasicTextField, AppState, Navigation 3 deep links, and the new Compose performance Android skill read as a human code-review checklist with Kotlin examples." />
+  <meta property="og:url" content="https://bytevikas.com/blog/compose-dev-summit-2026-performance-skill-adaptive-checklist.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist — bytevikas" />
+  <meta name="twitter:description" content="Android Dev Summit Compose round-up (Nov 4, 2026): Compose 1.13 adaptive Grid and FlexBox, rewritten BasicTextField, AppState, Navigation 3 deep links, and the new Compose performance Android skill read as a human code-review checklist with Kotlin examples." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat compose">Compose</span>
+      <span class="post-date">Nov 8, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist</h1>
+
+    <div class="post-body">
+      <p>On Nov 4, 2026 the Android team published its Android Developer Summit Compose round-up. Most of the headline items are previews of things already in flight: the upcoming <strong>Compose 1.13</strong> stable, <strong>Jetpack AppState</strong> in alpha, and <strong>Navigation 3 1.2</strong> deep links. The part I think is underrated is smaller: a new <strong>Compose performance</strong> entry in the official Android skills repo, last updated 2026-10-22. It is written for coding agents, but it is also the most compact statement of Google's current Compose performance advice I have seen, and it reads well as a human code-review checklist.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">Compose skills listed: Adaptive, Performance, XML-to-Compose, Ink</div></div>
+        <div class="announce-card"><div class="announce-num">7</div><div class="announce-lbl">audit categories in the performance skill</div></div>
+        <div class="announce-card"><div class="announce-num">1.13</div><div class="announce-lbl">upcoming Compose stable the post points to</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Scope note:</strong> the blog post links to Summit session videos and does not publish API signatures or artifact versions for Compose 1.13. I only state what the post and the skill file say, and I have not invented version numbers.</p></div>
+
+      <h2>What the round-up announced</h2>
+      <ul>
+        <li><strong>Compose 1.13 (upcoming stable):</strong> built-in adaptive layout support through <strong>Grid</strong> and <strong>FlexBox</strong>, plus Progressive Blur and Formatted Text. I covered the pre-release APIs in the <a href="compose-1-13-0-alpha01-flexbox-stable-selection-api.html">1.13 alpha01</a> and <a href="compose-1-13-0-beta-polygonshape-slider-border.html">beta</a> posts.</li>
+        <li><strong>Text editing:</strong> a rewritten <code>BasicTextField</code> with a buffer-driven architecture and <code>TextFieldState</code>, which the post says removes IME race conditions and supports rich-text formatted editing.</li>
+        <li><strong>Jetpack AppState (alpha):</strong> <code>Transform</code> derives reactive state from State and Flow inputs, and <code>StateStore</code> is a keyed container shared across activities, services, widgets and App Functions, with optional DataStore persistence. See my <a href="appstate-transform-statestore-compose-state-beyond-ui.html">AppState deep dive</a>.</li>
+        <li><strong>Navigation 3 1.2:</strong> type-safe deep linking with Kotlin Serialization, custom argument parsing, and lazily built synthetic back stacks.</li>
+        <li><strong>Input:</strong> the layered input system extends to trackpads, mice and physical controls, relevant to Googlebook and large screens.</li>
+      </ul>
+
+      <h2>The four Compose skills</h2>
+      <p>The post lists what currently exists in the Android skills repo for Compose: an updated <strong>Adaptive</strong> skill (now adds foldable and desktop support, handling windowing, keyboard shortcuts, tooltips and trackpad hover states), a new <strong>Compose performance</strong> skill, an <strong>XML to Compose migration</strong> skill, and a new <strong>Ink</strong> skill. If skills are new to you, my <a href="android-skills-built-for-deprecation.html">Android Skills post</a> explains the model.</p>
+
+      <h2>The performance skill, read as a checklist</h2>
+      <p>The skill starts with prerequisites that no amount of code review can replace: profile <strong>release builds only</strong> (debuggable builds degrade ART performance), keep <strong>R8</strong> minification on, and generate <strong>baseline profiles</strong> for critical journeys such as cold start and key scrolling feeds. Then it audits seven categories. These are the rules I would put in a PR template.</p>
+
+      <h3>1. State: defer reads, derive cheaply</h3>
+      <p>Defer state reads to the layout or draw phase by passing lambdas, so a fast-changing value does not recompose its parent. The skill also says to prefer <code>computedStateOf</code> on Compose 1.13+ for fast-changing simple conditions, and <code>derivedStateOf</code> for heavier calculations.</p>
+<pre><code class="language-kotlin">// Reads scroll offset during composition: recomposes on every frame
+@Composable
+fun Header(scroll: ScrollState) {
+    val alpha = 1f - (scroll.value / 300f).coerceIn(0f, 1f)
+    Box(Modifier.alpha(alpha)) { /* ... */ }
+}
+
+// Reads it in the draw phase: no recomposition
+@Composable
+fun Header(scroll: ScrollState) {
+    Box(
+        Modifier.graphicsLayer {
+            alpha = 1f - (scroll.value / 300f).coerceIn(0f, 1f)
+        }
+    ) { /* ... */ }
+}</code></pre>
+      <p>On stability, the guidance is deliberately restrained: Strong Skipping Mode already handles most cases, so do not sprinkle <code>@Stable</code>, <code>@Immutable</code> or <code>ImmutableList</code> over collection models. Focus on making composables cheap rather than maximizing skips.</p>
+
+      <h3>2. Layouts and measurement</h3>
+      <p>Avoid <code>onGloballyPositioned</code>; use <code>onVisibilityChanged</code>, <code>onPlaced</code>, <code>onLayoutRectChanged</code> or <code>requireLayoutCoordinates()</code>. Anchor floating content with a custom <code>Layout</code> rather than coordinates stored in state, use the lambda form of <code>Modifier.offset</code>, and keep <code>BoxWithConstraints</code> and <code>SubcomposeLayout</code> out of hot paths.</p>
+
+      <h3>3. Lazy layouts</h3>
+      <p>Always provide primitive <code>key</code> and <code>contentType</code>, replace <code>indexOf</code> lookups with <code>itemsIndexed</code>, use a <code>Set</code> for selection state, resolve CompositionLocals in the parent, and collect shared flows once in the parent instead of per item. Do not fire analytics from pre-fetched items; use visibility-based tracking.</p>
+<pre><code class="language-kotlin">LazyColumn {
+    itemsIndexed(
+        items = messages,
+        key = { _, m -&gt; m.id },
+        contentType = { _, m -&gt; m.kind }
+    ) { index, message -&gt;
+        MessageRow(
+            message = message,
+            selected = message.id in selectedIds,
+            onClick = { onSelect(message.id) }
+        )
+    }
+}</code></pre>
+
+      <h3>4. Animation and shared transitions</h3>
+      <p>Read animated alpha, scale, rotation and color inside <code>graphicsLayer</code>; use <code>offset {}</code>, <code>layout {}</code> or <code>animateBounds</code> for position and size; attach shared transitions only when the item is visible.</p>
+
+      <h3>5. Effects and threading</h3>
+      <p>No side effects in the composable body. Do not use <code>LaunchedEffect</code> for synchronous work, and do not leave an empty <code>onDispose</code> in a <code>DisposableEffect</code>. Use <code>collectAsStateWithLifecycle()</code> for UI flows, <code>rememberUpdatedState</code> for stale captures, and replace <code>Handler.postDelayed</code> or <code>TimerTask</code> with <code>LaunchedEffect</code> plus <code>delay()</code>.</p>
+
+      <h3>6. Graphics and custom drawing</h3>
+      <p>Replace decorative <code>Canvas</code> nodes with <code>drawWithCache</code> so paths, paints and brushes are built once. Remember <code>RuntimeShader</code> and <code>ShaderBrush</code>, prefer <code>Path.rewind()</code> over <code>reset()</code> in hot loops, and avoid <code>Pair</code>, <code>Triple</code> and <code>HashSet&lt;Long&gt;</code> in drawing code in favor of <code>MutableLongSet</code>.</p>
+<pre><code class="language-kotlin">fun Modifier.badgeBackground(color: Color) = this.drawWithCache {
+    val path = Path().apply {
+        addRoundRect(RoundRect(size.toRect(), CornerRadius(12.dp.toPx())))
+    }
+    onDrawBehind { drawPath(path, color) }
+}</code></pre>
+
+      <h3>7. Custom modifiers</h3>
+      <p>Migrate legacy <code>Modifier.composed</code> to <code>ModifierNodeElement</code> plus <code>Modifier.Node</code> (or <code>DelegatingNode</code> when delegating), using capability interfaces such as <code>DrawModifierNode</code> and <code>LayoutModifierNode</code>. Query <code>requireLayoutCoordinates()</code> on demand instead of implementing <code>GlobalPositionAwareModifierNode</code>.</p>
+<pre><code class="language-kotlin">private data class CircleElement(val color: Color) : ModifierNodeElement&lt;CircleNode&gt;() {
+    override fun create() = CircleNode(color)
+    override fun update(node: CircleNode) { node.color = color }
+}
+
+private class CircleNode(var color: Color) : Modifier.Node(), DrawModifierNode {
+    override fun ContentDrawScope.draw() {
+        drawCircle(color)
+        drawContent()
+    }
+}
+
+fun Modifier.circle(color: Color) = this then CircleElement(color)</code></pre>
+
+      <div class="callout-green"><p>The sample code above follows the patterns the skill describes; the skill file itself only paraphrases the modifier example, so treat my snippets as illustrations and check them against your Compose version.</p></div>
+
+      <h2>Why it matters beyond agents</h2>
+      <p>Two things stand out. First, the skill tells an agent to read a per-category reference file before flagging or editing anything, which is exactly how a good reviewer should work: know the approved fix and its scope limits before commenting. Second, the guidance is notably anti-cargo-cult. No blanket stability annotations, no wrapping everything in <code>remember</code>, and a plain getter for trivial values. If you inherited a codebase full of defensive annotations, that is a useful permission slip to simplify.</p>
+
+      <h2>What I would do this week</h2>
+      <ul>
+        <li>Turn the seven categories into a short PR checklist and run it against your two hottest screens.</li>
+        <li>Grep for <code>onGloballyPositioned</code>, <code>Modifier.composed</code>, <code>Handler.postDelayed</code> and lazy items without a <code>key</code>.</li>
+        <li>Confirm your benchmark runs use a release build with R8 and a baseline profile.</li>
+        <li>If you use coding agents, install the Android skills through the Android CLI and compare the agent's findings with your own review.</li>
+        <li>Read the Summit sessions on Compose performance and recomposition tracing with Perfetto before you pick what to optimize.</li>
+      </ul>
+
+      <p>Sources: the Android Developers Blog post "Build for every screen with the latest Jetpack Compose updates from Android Developer Summit" (Nov 4, 2026) and the <code>jetpack-compose-performance</code> SKILL.md in the android/skills repository, both retrieved Nov 8, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-dev-summit-2026-performance-skill-adaptive-checklist');
+  </script>
+</body>
+</html>
