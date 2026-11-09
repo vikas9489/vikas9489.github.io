@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sun, 08 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 09 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks</title>
+      <link>https://bytevikas.com/blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html</guid>
+      <pubDate>Mon, 09 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Biometric</category>
+      <description>AndroidX Biometric 1.4.0-beta01 (Nov 4, 2026): registerForAuthenticationResult(), the biometric-compose launcher, up to four custom fallback options on Android 36.1, KeyAgreement CryptoObject, minSdk 23.</description>
+    </item>
     <item>
       <title>Compose at Android Dev Summit 2026: The Performance Skill as a Code-Review Checklist</title>
       <link>https://bytevikas.com/blog/compose-dev-summit-2026-performance-skill-adaptive-checklist.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sat, 01 Aug 2026 08:00:00 +0530</pubDate>
       <category>Security</category>
       <description>Seven security and privacy behavior changes in Android 17 that aren't in the other posts: ACCESS_LOCAL_NETWORK permission for LAN access, banned static-final reflection, enforced ECH and Certificate Transparency, stricter native DCL, Contacts Provider 2 PII removal, and more.</description>
-    </item>
-    <item>
-      <title>Compose Material3 1.5.0-alpha25: The Expressive API Cleans House</title>
-      <link>https://bytevikas.com/blog/compose-material3-1-5-alpha25-api-renames-expressive-graduation.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/compose-material3-1-5-alpha25-api-renames-expressive-graduation.html</guid>
-      <pubDate>Fri, 31 Jul 2026 08:00:00 +0530</pubDate>
-      <category>Design</category>
-      <description>Alpha25 lands six API renames and two deprecations as M3 Expressive hardens toward stable — trailingIcon becomes trailingContent, TonalToggleButton becomes FilledTonalToggleButton, SplitButtonLayout is deprecated, and ComponentOverride is removed entirely. Plus alpha24's new material3-ripple artifact for inset focus rings.</description>
     </item>
   </channel>
 </rss>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks — bytevikas</title>
+  <meta name="description" content="AndroidX Biometric 1.4.0-beta01 (Nov 4, 2026): registerForAuthenticationResult(), the biometric-compose launcher, up to four custom fallback options on Android 36.1, KeyAgreement CryptoObject, minSdk 23." />
+  <link rel="canonical" href="https://bytevikas.com/blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks — bytevikas" />
+  <meta property="og:description" content="AndroidX Biometric 1.4.0-beta01 (Nov 4, 2026): registerForAuthenticationResult(), the biometric-compose launcher, up to four custom fallback options on Android 36.1, KeyAgreement CryptoObject, minSdk 23." />
+  <meta property="og:url" content="https://bytevikas.com/blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks — bytevikas" />
+  <meta name="twitter:description" content="AndroidX Biometric 1.4.0-beta01 (Nov 4, 2026): registerForAuthenticationResult(), the biometric-compose launcher, up to four custom fallback options on Android 36.1, KeyAgreement CryptoObject, minSdk 23." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#e9c46a;--accent-dim:rgba(233,196,106,.1);--accent-border:rgba(233,196,106,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(233,196,106,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+
+    .callout{
+      background:rgba(233,196,106,.06);border:1px solid rgba(233,196,106,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(233,196,106,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat biometric">Biometric</span>
+      <span class="post-date">Nov 9, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks</h1>
+
+    <div class="post-body">
+      <p>On Nov 4, 2026 AndroidX shipped <strong>androidx.biometric 1.4.0-beta01</strong> together with <strong>biometric-compose 1.4.0-beta01</strong>. The beta release notes only link to a commit log, but the 1.4 alpha series that leads to it adds up to a different way of calling <code>BiometricPrompt</code>: an Activity Result style registration, a Compose launcher, and support for several custom fallback options. This post walks through what the alphas added, so you know what you are adopting when you move to the beta.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">1.4.0-beta01</div><div class="announce-lbl">released Nov 4, 2026 (biometric and biometric-compose)</div></div>
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">custom fallback options on Android 36.1 and up</div></div>
+        <div class="announce-card"><div class="announce-num">API 23</div><div class="announce-lbl">new default minSdk (was API 21)</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Scope note:</strong> the 1.4.0-beta01 entry itself lists no per-change notes, only a commit range. Everything below comes from the 1.4.0-alpha03, alpha05 and alpha06 notes on the official release page. I did not diff the beta against alpha07, so check the commit log before relying on an API staying exactly as it was in an alpha.</p></div>
+
+      <h2>1. registerForAuthenticationResult()</h2>
+      <p>Alpha03 (Mar 26, 2025) introduced a new entry point modeled on the Activity Result API. It replaces the old <code>biometric-ktx</code> module and the classic <code>BiometricPrompt</code> constructor dance. You register a callback once, get back an <code>AuthenticationResultLauncher</code>, and start authentication with an <code>AuthenticationRequest</code>.</p>
+      <p>There are two request types: <code>BiometricRequest</code>, which takes a biometric <code>Strength</code> and an optional <code>Fallback</code>, and <code>CredentialRequest</code> for device-credential-only authentication. Alpha06 also relaxed registration to take a <code>ComponentActivity</code> instead of a <code>FragmentActivity</code>.</p>
+      <p>The exact builder signatures are not in the release notes, so the sketch below shows the shape of the flow and not copy-paste code. Check the API reference for your artifact version.</p>
+<pre><code class="language-kotlin">class LoginActivity : ComponentActivity() {
+
+    private val authLauncher = registerForAuthenticationResult(
+        resultCallback = { result -&gt;
+            // AuthenticationResult: success, error, or CustomFallbackSelected
+            handleAuthResult(result)
+        }
+    )
+
+    private fun onUnlockClicked() {
+        // Build a BiometricRequest (Strength + optional Fallback)
+        // or a CredentialRequest, then start it through the launcher.
+        authLauncher.launch(buildRequest())
+    }
+}</code></pre>
+      <p>Two details from alpha05 matter for real screens. The failure callback moved into <code>AuthenticationResultCallback</code> and was renamed <code>onAuthAttemptFailed</code>, apps can now pass their own executor for callbacks, and a single Activity or Fragment can hold multiple launchers because results are routed to the launcher that requested them.</p>
+
+      <h2>2. biometric-compose</h2>
+      <p>Alpha05 (Dec 17, 2025) added the new <code>biometric-compose</code> library. Its entry point is <code>rememberAuthenticationLauncher</code>, which handles requests and callbacks inside a composable so you do not have to reach for the host Activity.</p>
+<pre><code class="language-kotlin">@Composable
+fun UnlockButton(onAuthenticated: () -&gt; Unit) {
+    val launcher = rememberAuthenticationLauncher(/* result callback */)
+
+    Button(onClick = { launcher.launch(buildRequest()) }) {
+        Text("Unlock with biometrics")
+    }
+}</code></pre>
+      <div class="callout-green"><p>Both snippets are illustrations of the documented flow (register, build a request, launch, receive a result). The parameter lists are my approximation, not copied from the API reference.</p></div>
+
+      <h2>3. Up to four custom fallbacks</h2>
+      <p>Alpha06 (Mar 25, 2026) added what the notes call multiple fallback options. Starting with Android 36.1 (Baklava), the biometric prompt supports up to four custom fallback options instead of a single negative button. You describe them, with icons on supported Android versions, through <code>AuthenticationRequest.Biometric.Fallback</code>.</p>
+      <p>The behavior change to plan for: a tap on one of these options is delivered as <code>AuthenticationResult.CustomFallbackSelected</code>, <strong>not as an error code</strong>. If your current code treats the negative button as <code>ERROR_NEGATIVE_BUTTON</code> and shows a password screen, that logic needs a second branch for the new result type.</p>
+
+      <h2>4. Other API and behavior changes worth knowing</h2>
+      <ul>
+        <li><strong>KeyAgreement in CryptoObject (alpha06):</strong> <code>BiometricPrompt.CryptoObject</code> now supports <code>KeyAgreement</code>, useful for key-exchange flows gated on biometrics.</li>
+        <li><strong>minSdk 21 to 23 (alpha05):</strong> the default minSdk moved to API 23. Check your own minSdk before bumping.</li>
+        <li><strong>FingerprintManagerCompat deprecated (alpha05):</strong> <code>androidx.core.hardware.fingerprint.FingerprintManagerCompat</code> is now a no-op that does nothing or returns false. If you still call it directly, migrate to BiometricPrompt.</li>
+        <li><strong>Fixes:</strong> a lock-out error returned unintentionally from <code>canAuthenticate()</code> (alpha05), the fingerprint icon disappearing on rotation (alpha06), and fingerprint dialog destruction moved to <code>onDestroy()</code> (alpha06). Alpha03 also fixed <code>BiometricPrompt</code> not being dismissed when the home button is pressed.</li>
+        <li><strong>Nullness:</strong> the library uses JSpecify type-use annotations; Kotlin 2.1.0+ enforces them by default.</li>
+      </ul>
+
+      <h2>Migration checklist</h2>
+      <ul>
+        <li>Pin <code>biometric</code> and <code>biometric-compose</code> to the same 1.4.0-beta01 version.</li>
+        <li>Move new screens to the launcher style first; leave stable flows on the classic API until the 1.4 line is stable.</li>
+        <li>Add a <code>CustomFallbackSelected</code> branch before you adopt multi-fallback prompts.</li>
+        <li>Replace any direct <code>FingerprintManagerCompat</code> usage.</li>
+        <li>Re-test rotation, home-button dismissal and lock-out on real devices.</li>
+      </ul>
+
+      <p>Sources: the AndroidX Biometric release notes page (<code>developer.android.com/jetpack/androidx/releases/biometric</code>) and the AndroidX all-channel release list, both retrieved Nov 9, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks');
+  </script>
+</body>
+</html>
