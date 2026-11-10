@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes — bytevikas</title>
+  <meta name="description" content="AndroidX Web 1.0.0-alpha01 (Nov 4, 2026): WebContent holds web engine session state that outlives Activities, plus WebContentView and DetachedWebContentView. WebKit 1.19.0-alpha01 adds NavigationState/PageState, captureState and an Executor startUpWebView overload." />
+  <link rel="canonical" href="https://bytevikas.com/blog/androidx-web-webcontent-webview-session-webkit-1-19.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes — bytevikas" />
+  <meta property="og:description" content="AndroidX Web 1.0.0-alpha01 (Nov 4, 2026): WebContent holds web engine session state that outlives Activities, plus WebContentView and DetachedWebContentView. WebKit 1.19.0-alpha01 adds NavigationState/PageState, captureState and an Executor startUpWebView overload." />
+  <meta property="og:url" content="https://bytevikas.com/blog/androidx-web-webcontent-webview-session-webkit-1-19.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes — bytevikas" />
+  <meta name="twitter:description" content="AndroidX Web 1.0.0-alpha01 (Nov 4, 2026): WebContent holds web engine session state that outlives Activities, plus WebContentView and DetachedWebContentView. WebKit 1.19.0-alpha01 adds NavigationState/PageState, captureState and an Executor startUpWebView overload." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#8ecae6;--accent-dim:rgba(142,202,230,.1);--accent-border:rgba(142,202,230,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(142,202,230,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.webview{color:#8ecae6;}
+
+    .callout{
+      background:rgba(142,202,230,.06);border:1px solid rgba(142,202,230,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(142,202,230,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat webview">WebView</span>
+      <span class="post-date">Nov 10, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes</h1>
+
+    <div class="post-body">
+      <p>On Nov 4, 2026 AndroidX published a brand new library, <strong>androidx.web:web:1.0.0-alpha01</strong>, and the same day <strong>androidx.webkit:webkit:1.19.0-alpha01</strong>. The Web release is small, three API entries, but it targets a problem every Android developer who embeds a WebView knows: the web engine state dies with the view, and the view dies with the Activity.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">web 1.0.0-alpha01</div><div class="announce-lbl">new library, released Nov 4, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">3</div><div class="announce-lbl">new types: WebContent, WebContentView, DetachedWebContentView</div></div>
+        <div class="announce-card"><div class="announce-num">webkit 1.19.0-alpha01</div><div class="announce-lbl">NavigationState, PageState, captureState, Executor overload</div></div>
+      </div>
+
+      <div class="callout"><p><strong>Scope note:</strong> the Web release notes list only three one-line API entries and give no sample code. The Kotlin below is a sketch of how I would wire those types together; constructor and method names beyond the three type names are my assumptions, not documented API. Check the reference before copying.</p></div>
+
+      <h2>1. What androidx.web adds</h2>
+      <p>The release notes describe three new types, all introduced in one change:</p>
+      <ul>
+        <li><strong><code>WebContent</code></strong>: an API to hold a persistent web engine session state that can safely outlive individual UI views or Activities.</li>
+        <li><strong><code>WebContentView</code></strong>: a new specialized <code>WebView</code> designed to integrate with <code>WebContent</code>.</li>
+        <li><strong><code>DetachedWebContentView</code></strong>: a specialized <code>WebContentView</code> that <code>WebContent</code> attaches to when it is not attached to an Activity.</li>
+      </ul>
+      <p>Read together, the design is: your page, its session and its history live in <code>WebContent</code>; a <code>WebContentView</code> is just a window onto it; and when no Activity is showing it, the content parks itself in a detached view instead of being torn down. That is a different ownership model from a plain <code>WebView</code>, which is both the renderer host and the screen widget.</p>
+
+      <h2>2. Why this matters in practice</h2>
+      <p>Today, surviving a configuration change or a navigation away from a hybrid screen means one of the usual workarounds: handle <code>configChanges</code> yourself, keep a WebView in a singleton and re-parent it, or save and restore state with <code>saveState()</code> and lose scroll, media or JS state. A first-party type for session state that outlives the view is aimed squarely at those hacks.</p>
+<pre><code class="language-kotlin">// Sketch only: WebContent/WebContentView are real types, the wiring is assumed.
+class BrowserViewModel : ViewModel() {
+    // Owned by the ViewModel so it survives rotation and back-stack changes.
+    val content: WebContent = createWebContent()
+}
+
+class BrowserActivity : ComponentActivity() {
+    private val vm: BrowserViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Attach the long-lived content to a view for this Activity instance.
+        val view = WebContentView(this)
+        setContentView(view)
+        attach(vm.content, view)
+    }
+}</code></pre>
+      <p>Because this is alpha01 and a brand new artifact, expect names and lifecycle rules to move. Do not put it on a production screen yet; prototype it on one internal browser or login flow and file feedback on the issue tracker component linked from the release page.</p>
+
+      <h2>3. WebKit 1.19.0-alpha01</h2>
+      <p>The companion webkit alpha is API-only and mostly tightens the Navigation and Page listener surface that arrived in the 1.1x line:</p>
+      <ul>
+        <li><strong>Immutable snapshots:</strong> new <code>NavigationState</code> and <code>PageState</code> classes are immutable copies of <code>Navigation</code> and <code>Page</code> at a point in time, passed to new <code>NavigationListener</code> callbacks in place of the live objects.</li>
+        <li><strong>Rename:</strong> <code>Navigation/Page#snapshotState</code> became <code>#captureState</code>. The notes are inconsistent about the old name in one sentence, so verify against the reference.</li>
+        <li><strong>New getters:</strong> <code>NavigationState#getNavigationStartUptimeMillis</code>, and response headers exposed through <code>onNavigationRedirect(NavigationState, NavigationRedirectParameters)</code>.</li>
+        <li><strong>Hidden callback fixed:</strong> a <code>NavigationListener</code> callback that was accidentally hidden is now visible.</li>
+        <li><strong>Startup on your executor:</strong> <code>WebViewCompat#startUpWebView</code> gains an overload taking an <code>Executor</code> for the <code>WebViewOutcomeReceiver</code> callback, so completion can be handled off the main looper.</li>
+        <li><strong>QUIC hints:</strong> <code>Profile#addQuicHints</code> accepts wildcard URLs such as <code>https://*.example.com</code>.</li>
+      </ul>
+<pre><code class="language-kotlin">// Overload described in the 1.19.0-alpha01 notes: callback runs on your Executor.
+val executor = Executors.newSingleThreadExecutor()
+WebViewCompat.startUpWebView(applicationContext, executor, receiver)</code></pre>
+      <div class="callout-green"><p>The parameter order in the startUpWebView sketch is assumed. The release notes only say an overload accepting an Executor was added.</p></div>
+
+      <h2>4. A deprecation to act on now</h2>
+      <p><code>WebSettingsCompat.getAttributionRegistrationBehavior</code>, <code>setAttributionRegistrationBehavior</code> and the related constants are deprecated. The notes state that WebView no longer supports Attribution Reporting in version 152 and later. If your ad or measurement stack relied on that setting, plan an alternative rather than waiting for a removal.</p>
+
+      <h2>Adoption checklist</h2>
+      <ul>
+        <li>Treat <code>androidx.web</code> as an experiment: alpha01, three types, no samples yet.</li>
+        <li>Inventory your current WebView survival hacks (singleton, configChanges, saveState) to know what <code>WebContent</code> could replace.</li>
+        <li>If you use the webkit navigation listeners, plan the move to <code>NavigationState</code>/<code>PageState</code> and <code>captureState</code> before bumping to 1.19.</li>
+        <li>Remove uses of the deprecated attribution-registration settings.</li>
+      </ul>
+
+      <p>Sources: the AndroidX Web and WebKit release notes pages (<code>developer.android.com/jetpack/androidx/releases/web</code> and <code>.../releases/webkit</code>) and the AndroidX all-channel release list, retrieved Nov 10, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('androidx-web-webcontent-webview-session-webkit-1-19');
+  </script>
+</body>
+</html>

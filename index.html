@@ -352,6 +352,7 @@
     .blog-cat.subscriptions { color:#b5e48c; }
     .blog-cat.intelligence { color:#ff99c8; }
     .blog-cat.biometric { color:#e9c46a; }
+    .blog-cat.webview { color:#8ecae6; }
     .blog-cat.casestudy { color:#caffbf; }
     .blog-cat.agentic { color:#e5989b; }
     .blog-card h3 { font-family:'Outfit',sans-serif; font-size:17px; font-weight:700; line-height:1.35; margin-bottom:12px; color:white; }
@@ -951,6 +952,12 @@
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
+          <a href="blog/androidx-web-webcontent-webview-session-webkit-1-19.html" class="blog-card reveal delay-1">
+            <div class="blog-cat webview">WebView</div>
+            <h3>AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes</h3>
+            <p>AndroidX Web 1.0.0-alpha01 (Nov 4, 2026): WebContent holds web engine session state that outlives Activities, plus WebContentView and DetachedWebContentView. WebKit 1.19.0-alpha01 adds NavigationState/PageState, captureState and an Executor startUpWebView overload.</p>
+            <div class="blog-meta"><span>Nov 10, 2026 &nbsp;·&nbsp; 5 min</span><span class="read-more">Read →</span></div>
+          </a>
           <a href="blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html" class="blog-card reveal delay-1">
             <div class="blog-cat biometric">Biometric</div>
             <h3>Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks</h3>
@@ -968,12 +975,6 @@
             <h3>Android XR Goes Production: XREAL AURA, Stable Jetpack XR, Geospatial APIs and the Engine Hub</h3>
             <p>XREAL AURA wired glasses launch with stable Jetpack SceneCore, ARCore and XR Runtime, stable Geospatial APIs, the Android XR Engine Hub for Unity, Godot and Unreal, and ML Kit Text to Speech for audio-first eyewear.</p>
             <div class="blog-meta"><span>Nov 7, 2026 &nbsp;·&nbsp; 5 min</span><span class="read-more">Read →</span></div>
-          </a>
-          <a href="blog/android-intelligence-system-appfunctions-mcp-computer-control.html" class="blog-card reveal delay-1">
-            <div class="blog-cat intelligence">Intelligence</div>
-            <h3>The Android Intelligence System: AppFunctions, Remote MCP or Computer Control, and Which One Your App Needs</h3>
-            <p>Three ways system agents like Gemini can act in your app: AppFunctions (Android MCP), a remote MCP server and OEM Computer Control. What each demands, when to pick which, plus on-device agents with ML Kit and Gemini Nano 4.</p>
-            <div class="blog-meta"><span>Nov 6, 2026 &nbsp;·&nbsp; 6 min</span><span class="read-more">Read →</span></div>
           </a>
                             </div>
         <a href="blog/index.html" class="view-all reveal">View all articles &nbsp;→</a>

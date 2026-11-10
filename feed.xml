@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Mon, 09 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>AndroidX Web 1.0.0-alpha01: WebContent, WebContentView and the webkit 1.19 Navigation Changes</title>
+      <link>https://bytevikas.com/blog/androidx-web-webcontent-webview-session-webkit-1-19.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/androidx-web-webcontent-webview-session-webkit-1-19.html</guid>
+      <pubDate>Tue, 10 Nov 2026 08:00:00 +0530</pubDate>
+      <category>WebView</category>
+      <description>AndroidX Web 1.0.0-alpha01 (Nov 4, 2026): WebContent holds web engine session state that outlives Activities, plus WebContentView and DetachedWebContentView. WebKit 1.19.0-alpha01 adds NavigationState/PageState, captureState and an Executor startUpWebView overload.</description>
+    </item>
     <item>
       <title>Biometric 1.4.0-beta01: The Activity-Result API, Compose Launcher and Multiple Fallbacks</title>
       <link>https://bytevikas.com/blog/biometric-1-4-0-beta01-compose-launcher-multiple-fallbacks.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sun, 02 Aug 2026 08:00:00 +0530</pubDate>
       <category>Policy</category>
       <description>Google's Play Age Signals API expands to Australia and Canada in mid-August, then globally by year-end. Integration guide with AgeSignalsManager, the four default age tiers, testing with FakeAgeSignalsManager, and the strict policy restrictions that govern what you can actually do with the data.</description>
-    </item>
-    <item>
-      <title>Android 17's Security Hardening: The Behavior Changes That Will Break Your Production App</title>
-      <link>https://bytevikas.com/blog/android-17-security-behavior-changes.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/android-17-security-behavior-changes.html</guid>
-      <pubDate>Sat, 01 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Security</category>
-      <description>Seven security and privacy behavior changes in Android 17 that aren't in the other posts: ACCESS_LOCAL_NETWORK permission for LAN access, banned static-final reflection, enforced ECH and Certificate Transparency, stricter native DCL, Contacts Provider 2 PII removal, and more.</description>
     </item>
   </channel>
 </rss>
