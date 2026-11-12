@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmileID and CameraX: ResolutionSelector, Backpressure and 18,000+ Device Types for On-Device Liveness — bytevikas</title>
+  <meta name="description" content="How SmileID moved its identity-verification SDKs to CameraX (Android Developers Blog, Nov 11, 2026): Preview plus ImageAnalysis, ResolutionSelector with a fallback rule, STRATEGY_KEEP_ONLY_LATEST, built-in device quirks, and the CameraX Skill." />
+  <link rel="canonical" href="https://bytevikas.com/blog/smileid-camerax-resolutionselector-identity-verification.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="SmileID and CameraX: ResolutionSelector, Backpressure and 18,000+ Device Types for On-Device Liveness — bytevikas" />
+  <meta property="og:description" content="How SmileID moved its identity-verification SDKs to CameraX (Android Developers Blog, Nov 11, 2026): Preview plus ImageAnalysis, ResolutionSelector with a fallback rule, STRATEGY_KEEP_ONLY_LATEST, built-in device quirks, and the CameraX Skill." />
+  <meta property="og:url" content="https://bytevikas.com/blog/smileid-camerax-resolutionselector-identity-verification.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SmileID and CameraX: ResolutionSelector, Backpressure and 18,000+ Device Types for On-Device Liveness — bytevikas" />
+  <meta name="twitter:description" content="How SmileID moved its identity-verification SDKs to CameraX (Android Developers Blog, Nov 11, 2026): Preview plus ImageAnalysis, ResolutionSelector with a fallback rule, STRATEGY_KEEP_ONLY_LATEST, built-in device quirks, and the CameraX Skill." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#caffbf;--accent-dim:rgba(202,255,191,.1);--accent-border:rgba(202,255,191,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(202,255,191,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.casestudy{color:#caffbf;}
+
+    .callout{
+      background:rgba(202,255,191,.06);border:1px solid rgba(202,255,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(202,255,191,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat casestudy">Case Study</span>
+      <span class="post-date">Nov 12, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>SmileID and CameraX: ResolutionSelector, Backpressure and 18,000+ Device Types for On-Device Liveness</h1>
+
+    <div class="post-body">
+      <p>On Nov 11, 2026 the Android Developers Blog published a case study on <strong>SmileID</strong>, an identity-verification SDK vendor in Africa, and how moving its Android SDKs to CameraX changed its numbers. Beyond the headline figures, the article shows a compact, reusable camera configuration for face capture on weak hardware. All figures below are SmileID's own, as reported in that post.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">18,000+</div><div class="announce-lbl">Android device types supported</div></div>
+        <div class="announce-card"><div class="announce-num">4x</div><div class="announce-lbl">selfie/liveness pixels, same upload size</div></div>
+        <div class="announce-card"><div class="announce-num">160M+</div><div class="announce-lbl">verifications processed</div></div>
+      </div>
+
+      <h2>1. The problem: fragmented hardware</h2>
+      <p>Android represents 85% of SmileID's target device market share, including entry-level phones, obscure regional models and ruggedized POS terminals. Under Camera1 and Camera2 they hit three recurring problems:</p>
+      <ul>
+        <li><strong>OEM quirks:</strong> sensor orientation reported differently per manufacturer, giving rotated previews or wrongly oriented face captures.</li>
+        <li><strong>Aspect-ratio distortion:</strong> on budget devices a requested frame size could stretch the preview, distorting the face and making biometric checks useless.</li>
+        <li><strong>OOM crashes:</strong> processing raw high-resolution frames on devices with 1 GB of RAM or less caused fatal allocation failures.</li>
+      </ul>
+      <p>Adoption growth was limited to 2-3x, and many verifications fell back to uploading a static photo over REST instead of running real-time on-device liveness.</p>
+
+      <h2>2. The pipeline: Preview plus ImageAnalysis</h2>
+      <p>SmileID rebuilt its SDKs on two CameraX use cases: <code>Preview</code> to show a correctly proportioned live feed, and <code>ImageAnalysis</code> to run liveness and face-in-frame detection locally and pull out the verified selfie frame. The key is how <code>ImageAnalysis</code> is configured: a <code>ResolutionSelector</code> with a target size and a fallback rule, plus a backpressure strategy.</p>
+<pre><code class="language-kotlin">fun configureCameraX(
+    cameraProvider: ProcessCameraProvider,
+    lifecycleOwner: LifecycleOwner,
+    surfaceProvider: Preview.SurfaceProvider,
+    executor: Executor,
+    analyzer: ImageAnalysis.Analyzer,
+) {
+    val resolutionSelector = ResolutionSelector.Builder()
+        .setResolutionStrategy(
+            ResolutionStrategy(
+                Size(1200, 900),
+                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+            )
+        )
+        .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+        .build()
+
+    val imageAnalysis = ImageAnalysis.Builder()
+        .setResolutionSelector(resolutionSelector)
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+        .build()
+        .also { it.setAnalyzer(executor, analyzer) }
+
+    val preview = Preview.Builder().build().also { it.surfaceProvider = surfaceProvider }
+
+    try {
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner, CameraSelector.DEFAULT_FRONT_CAMERA, preview, imageAnalysis
+        )
+    } catch (exc: Exception) {
+        // surface the binding failure to the caller
+    }
+}</code></pre>
+      <p>This mirrors the sample in the post. Two choices matter. <code>FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER</code> prioritizes sharpness when 1200x900 is not supported; the post says to use <code>FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER</code> instead if you need to cap memory. And <code>STRATEGY_KEEP_ONLY_LATEST</code> drops older frames while the analyzer is still busy, which keeps the pipeline responsive on slow processors.</p>
+
+      <div class="callout"><p><strong>Why the 4x matters:</strong> SmileID crops the face region and compresses it on-device, so the upload size stayed identical to the previous system. Sharper input for the ML models, no extra cellular data cost for users.</p></div>
+
+      <h2>3. Why it works across 18,000+ devices</h2>
+      <ul>
+        <li><strong>Camera and Media Test Lab:</strong> per the post, an automated suite runs daily across more than 190 physical Android device models, catching library regressions before they reach your app.</li>
+        <li><strong>Built-in device quirks:</strong> CameraX keeps internal quirk classes (<code>DeviceQuirks</code>, <code>CameraQuirks</code> in camera-camera2) and injects a workaround when it detects a known-bad device, so your code carries no manufacturer-specific branches.</li>
+      </ul>
+
+      <h2>4. Reported results</h2>
+      <ul>
+        <li>20% increase in verification pass rates for apps using the SDKs.</li>
+        <li>SDK adoption: 15x in the first year, 20x by year two, versus 2-3x before.</li>
+        <li>160 million+ identity verifications processed to date.</li>
+      </ul>
+      <div class="callout-green"><p>These are vendor-reported results from a Google-published case study. Treat the adoption multiples as directional; the portable lesson is the configuration, not the percentages.</p></div>
+
+      <h2>5. The CameraX Skill</h2>
+      <p>The post also points to a CameraX Skill for AI coding agents, covering Camera1 migration, lifecycle binding, <code>ConcurrentCamera</code> and <code>MlKitAnalyzer</code>, and both <code>PreviewView</code> and <code>CameraXViewfinder</code>. Add it with <code>android skills add camerax</code> in the Android CLI.</p>
+
+      <h2>Takeaways for your own camera code</h2>
+      <ul>
+        <li>For analysis, request a target size with <code>ResolutionSelector</code> and choose the fallback rule deliberately: sharpness or memory.</li>
+        <li>Always pair <code>ImageAnalysis</code> with <code>STRATEGY_KEEP_ONLY_LATEST</code> if you can afford dropped frames.</li>
+        <li>Downscale or crop on-device before upload instead of lowering capture resolution.</li>
+        <li>Delete manufacturer-specific camera workarounds before adopting CameraX; its quirk handling already covers many of them.</li>
+      </ul>
+
+      <p>Source: "How SmileID Scaled Identity Verification to 18,000+ Android Device Types with CameraX", Android Developers Blog, Nov 11, 2026, retrieved Nov 12, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('smileid-camerax-resolutionselector-identity-verification');
+  </script>
+</body>
+</html>
