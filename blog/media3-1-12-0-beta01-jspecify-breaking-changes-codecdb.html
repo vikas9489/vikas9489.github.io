@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade — bytevikas</title>
+  <meta name="description" content="Media3 1.12.0-beta01 (Nov 11, 2026): JSpecify replaces NullableType and UnknownNull, Gradle minSdk rises to 24, CodecDB recommends encoder settings, a subtitles slot lands in the Compose Player, and a list of removed deprecated symbols with their replacements." />
+  <link rel="canonical" href="https://bytevikas.com/blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade — bytevikas" />
+  <meta property="og:description" content="Media3 1.12.0-beta01 (Nov 11, 2026): JSpecify replaces NullableType and UnknownNull, Gradle minSdk rises to 24, CodecDB recommends encoder settings, a subtitles slot lands in the Compose Player, and a list of removed deprecated symbols with their replacements." />
+  <meta property="og:url" content="https://bytevikas.com/blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade — bytevikas" />
+  <meta name="twitter:description" content="Media3 1.12.0-beta01 (Nov 11, 2026): JSpecify replaces NullableType and UnknownNull, Gradle minSdk rises to 24, CodecDB recommends encoder settings, a subtitles slot lands in the Compose Player, and a list of removed deprecated symbols with their replacements." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#0ea5e9;--accent-dim:rgba(14,165,233,.1);--accent-border:rgba(14,165,233,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(14,165,233,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.media{color:#0ea5e9;}
+
+    .callout{
+      background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(14,165,233,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat media">Media</span>
+      <span class="post-date">Nov 13, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade</h1>
+
+    <div class="post-body">
+      <p>Media3 <strong>1.12.0-beta01</strong> shipped on Nov 11, 2026, following 1.12.0-alpha01 (Oct 21) and alpha02 (Oct 26). A beta usually means "safe to try"; this one also carries a batch of source-breaking changes, a new build floor, and a clean-up of long-deprecated APIs. Everything below comes from the official AndroidX release notes for Media3, retrieved today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">minSdk 24</div><div class="announce-lbl">new Gradle minSdk for the library</div></div>
+        <div class="announce-card"><div class="announce-num">65520</div><div class="announce-lbl">new DEFAULT_BUFFER_SEGMENT_SIZE (was 65536)</div></div>
+        <div class="announce-card"><div class="announce-num">JSpecify</div><div class="announce-lbl">replaces NonNullApi / NullableType / UnknownNull</div></div>
+      </div>
+
+      <h2>1. Breaking changes first</h2>
+      <p>If you only read one section, read this one. These are the changes that can fail a build or change behavior:</p>
+      <ul>
+        <li><strong>Nullability annotations:</strong> alpha01 replaced <code>NonNullApi</code> with JSpecify <code>org.jspecify.annotations.NullMarked</code>. Beta01 replaces <code>androidx.media3.common.util.NullableType</code> with <code>org.jspecify.annotations.Nullable</code> and removes <code>UnknownNull</code>.</li>
+        <li><strong>Kotlin subclasses with nullable types:</strong> subclasses of <code>RunnableFutureTask</code> with a nullable result must now declare a nullable type argument, and subclasses of <code>CompositeMediaSource</code> with nullable child IDs must use <code>CompositeMediaSource&lt;Void?&gt;</code>.</li>
+        <li><strong>Gradle minSdk is now 24.</strong></li>
+        <li><strong>Muxers:</strong> repeated <code>Muxer.close()</code> is now a no-op in all library muxers, while calling any other method after <code>close()</code> throws <code>IllegalStateException</code>. The notes call this a behavior change.</li>
+        <li><strong>Compose UI (unstable API):</strong> in <code>media3-ui-compose-material3</code>, <code>Player</code> now animates all control slots including custom ones, and the <code>visible</code> parameter is removed from <code>PlayerDefaults.TopControls</code>, <code>CenterControls</code> and <code>BottomControls</code>.</li>
+      </ul>
+<pre><code class="language-kotlin">// Before: nullable result inferred loosely
+class MyTask : RunnableFutureTask&lt;Void, Exception&gt;()
+
+// After: say the result is nullable
+class MyTask : RunnableFutureTask&lt;Void?, Exception&gt;()
+
+// Custom composite source with nullable child IDs
+class MySource : CompositeMediaSource&lt;Void?&gt;() { /* ... */ }</code></pre>
+
+      <div class="callout"><p><strong>Alpha01 also removed</strong> the experimental <code>DefaultMediaCodecAdapterFactory.setAsyncCryptoSynchronizationEnabled(boolean)</code>, and the four <code>FLAG_READ_WITHIN_GOP_SAMPLE_DEPENDENCIES</code> / <code>_H265</code> flags on <code>Mp4Extractor</code> and <code>FragmentedMp4Extractor</code>. That parsing is now always on for H.264 and H.265, so delete any code passing those flags.</p></div>
+
+      <h2>2. Removed deprecated symbols and their replacements</h2>
+      <p>Beta01 deletes a set of deprecated APIs. Each one has a documented replacement:</p>
+      <ul>
+        <li><code>TextureAssetLoader</code> becomes <code>RawAssetLoader</code>.</li>
+        <li>Public <code>DefaultDecoderFactory</code> constructors become <code>DefaultDecoderFactory.Builder</code>.</li>
+        <li><code>DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS</code> becomes <code>DEFAULT_TRACK_EXCLUSION_MS</code>.</li>
+        <li><code>setRequireRegisteringAllInputFrames(boolean)</code> becomes <code>VideoFrameProcessor.INPUT_TYPE_SURFACE_AUTOMATIC_FRAME_REGISTRATION</code>.</li>
+        <li><code>EditedMediaItemSequence.forceAudioTrack</code> / <code>forceVideoTrack</code> become <code>trackTypes.contains(...)</code>, and the experimental builder setters are replaced by <code>EditedMediaItemSequence.Builder(Set)</code>.</li>
+        <li><code>ExportResult.durationMs</code> and <code>setDurationMs</code> become <code>approximateDurationMs</code> / <code>setApproximateDurationMs</code>.</li>
+        <li><code>SilenceSkippingAudioProcessor.DEFAULT_PADDING_SILENCE_US</code> is replaced by <code>silenceRetentionRatio</code>.</li>
+        <li><code>Timeline.getPeriodPosition(Window, Period, int, long, long)</code> becomes <code>getPeriodPositionUs(...)</code>.</li>
+      </ul>
+
+      <h2>3. Memory: a 16-byte change that matters</h2>
+      <p><code>C.DEFAULT_BUFFER_SEGMENT_SIZE</code> drops from 65536 to 65520 so segments fit ART large-object-space pages. According to the notes, this cuts sample buffer memory by about 6% on 4 KiB-page devices and about 20% on 16 KiB-page devices. If you hardcoded 65536 anywhere to size your own buffers around the default, revisit it.</p>
+
+      <h2>4. New in the Compose player UI</h2>
+      <p>Beta01 adds a <code>subtitles</code> composable slot to <code>ContentFrame</code> and <code>Player</code>, with default bitmap and horizontal-text cue rendering in <code>media3-ui-compose-material3</code>. Alpha01 laid the groundwork: <code>CuesState</code> and <code>rememberCuesState</code>, <code>TrackSelectionState</code>, <code>PlaybackState</code>, a standalone <code>BufferingIndicator</code>, a <code>LiveButton</code>, and <code>alignment</code> on <code>ContentFrame</code>. Slots no longer receive the player or visibility as parameters, so capture them from the calling scope:</p>
+<pre><code class="language-kotlin">Player(
+    player = player,
+    topControls = {            // now a BoxScope.() -> Unit
+        Text(title, modifier = Modifier.align(Alignment.TopStart))
+    },
+    subtitles = { /* optional: default cue rendering is provided */ },
+)</code></pre>
+      <p>Treat the snippet as a shape, not a copy-paste: the Compose UI artifacts are flagged unstable in these notes, so check the exact parameter list against your version.</p>
+
+      <h2>5. CodecDB for Transformer</h2>
+      <p>Transformer gets <code>androidx.media3.transformer.codecdb</code>, which recommends video encoder configurations (codec, encoder settings, bitrate) for the device, based on measured encoder quality data. For apps that export user video, this is a principled alternative to hand-tuned bitrate tables per device tier. Alpha02 also added a <code>media3-effect-play-services</code> module with <code>EnhancementSessionDecorator</code> for video enhancement and <code>StudioSoundAudioProcessor</code> for audio source separation.</p>
+
+      <h2>6. Playback fixes worth knowing</h2>
+      <ul>
+        <li>HLS: fixed reloading of failed or canceled chunks that kept partially buffered samples, and several issues when switching pathways with Content Steering.</li>
+        <li>DASH: fixed duplicated or garbled CEA-608 subtitles with multiple embedded caption tracks.</li>
+        <li>MP4: fixed gapless AAC playback when a muxer shortens the last <code>stts</code> entry, which had made padding derive as 0.</li>
+        <li>Video: HEVC decoder fallback is allowed for backward-compatible Dolby Vision Profile 7.</li>
+        <li><code>Player.listen</code> / <code>listenTo</code> no longer throw "Player is accessed on the wrong thread" when cancelled off the application thread.</li>
+        <li>Session: media button preferences APIs are stabilized.</li>
+        <li>Cast: <code>CastParams.Builder.setSystemOutputSwitcherEnabled(boolean)</code> is added, enabled by default for apps targeting API 37 on API 37+ devices.</li>
+        <li>IMA: <code>ImaAdsLoader.requestAds(DataSpec, Object, AdViewProvider)</code> is added and the <code>ViewGroup</code> overload is deprecated.</li>
+      </ul>
+
+      <h2>Upgrade checklist</h2>
+      <ol>
+        <li>Confirm your own <code>minSdk</code> is 24 or higher.</li>
+        <li>Build once and fix JSpecify and Kotlin nullable-type errors in custom <code>MediaSource</code> or task subclasses.</li>
+        <li>Grep for the removed symbols in section 2 and the removed MP4 extractor flags.</li>
+        <li>If you use the Compose <code>Player</code>, re-check custom control slots against the new signatures.</li>
+        <li>Audit muxer code for calls after <code>close()</code>.</li>
+        <li>Run on a 16 KiB-page device or emulator image to see the memory change for yourself.</li>
+      </ol>
+
+      <div class="callout-green"><p>This is a beta. If you ship a media app, move a branch to 1.12.0-beta01 now: the breaking changes are mechanical, and finding them early beats finding them at stable.</p></div>
+
+      <p>Source: AndroidX Media3 release notes (1.12.0-beta01, 1.12.0-alpha02, 1.12.0-alpha01), developer.android.com, retrieved Nov 13, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('media3-1-12-0-beta01-jspecify-breaking-changes-codecdb');
+  </script>
+</body>
+</html>

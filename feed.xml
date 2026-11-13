@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 12 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Fri, 13 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade</title>
+      <link>https://bytevikas.com/blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html</guid>
+      <pubDate>Fri, 13 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Media</category>
+      <description>Media3 1.12.0-beta01 (Nov 11, 2026): JSpecify replaces NullableType and UnknownNull, Gradle minSdk rises to 24, CodecDB recommends encoder settings, a subtitles slot lands in the Compose Player, and a list of removed deprecated symbols with their replacements.</description>
+    </item>
     <item>
       <title>SmileID and CameraX: ResolutionSelector, Backpressure and 18,000+ Device Types for On-Device Liveness</title>
       <link>https://bytevikas.com/blog/smileid-camerax-resolutionselector-identity-verification.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Wed, 05 Aug 2026 08:00:00 +0530</pubDate>
       <category>Layout</category>
       <description>Three new experimental layout primitives bring CSS-inspired adaptive layouts to Jetpack Compose: FlexBox for flowing content sections, a structural Grid for 2D panels without lazy loading, and mediaQuery() for branching on device posture, pointer precision, and viewing distance — not just window width.</description>
-    </item>
-    <item>
-      <title>Jetpack Navigation 2.10 Beta: KMP on 9 Platforms, Richer Predictive Back, and the Maintenance Mode Signal</title>
-      <link>https://bytevikas.com/blog/navigation-2-10-kmp-predictive-back-maintenance-mode.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/navigation-2-10-kmp-predictive-back-maintenance-mode.html</guid>
-      <pubDate>Tue, 04 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Nav</category>
-      <description>Navigation 2.10.0-beta01 ships multiplatform support for Desktop, macOS, iOS, WASM, tvOS, and watchOS; NavBackStackEntryInfo for custom predictive back animations; NavUri replacing android.net.Uri; and a deep link security fix. Plus the honest maintenance mode reality check and a decision tree for Navigation 2.x vs Navigation3.</description>
     </item>
   </channel>
 </rss>
