@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes — bytevikas</title>
+  <meta name="description" content="CameraX 1.7.0-rc01 (Oct 21, 2026) and rc02 (Nov 4, 2026): bind use cases to physical cameras, Camera2Interop interfaces become abstract classes, Low Light Boost and Torch follow last-setting-wins, plus fixes for SurfaceTexture crashes, ImageAnalysis and VideoCapture leaks." />
+  <link rel="canonical" href="https://bytevikas.com/blog/camerax-1-7-0-rc-physical-cameras-leak-fixes.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes — bytevikas" />
+  <meta property="og:description" content="CameraX 1.7.0-rc01 (Oct 21, 2026) and rc02 (Nov 4, 2026): bind use cases to physical cameras, Camera2Interop interfaces become abstract classes, Low Light Boost and Torch follow last-setting-wins, plus fixes for SurfaceTexture crashes, ImageAnalysis and VideoCapture leaks." />
+  <meta property="og:url" content="https://bytevikas.com/blog/camerax-1-7-0-rc-physical-cameras-leak-fixes.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes — bytevikas" />
+  <meta name="twitter:description" content="CameraX 1.7.0-rc01 (Oct 21, 2026) and rc02 (Nov 4, 2026): bind use cases to physical cameras, Camera2Interop interfaces become abstract classes, Low Light Boost and Torch follow last-setting-wins, plus fixes for SurfaceTexture crashes, ImageAnalysis and VideoCapture leaks." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ef4444;--accent-dim:rgba(239,68,68,.1);--accent-border:rgba(239,68,68,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(239,68,68,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.camera{color:#ef4444;}
+
+    .callout{
+      background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(239,68,68,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat camera">Camera</span>
+      <span class="post-date">Nov 14, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes</h1>
+
+    <div class="post-body">
+      <p>CameraX <strong>1.7.0</strong> skipped beta entirely: after the alphas it went straight to <strong>1.7.0-rc01</strong> (Oct 21, 2026) and <strong>1.7.0-rc02</strong> (Nov 4, 2026). Release candidates are where API shape freezes, so this is the moment to check your Camera2 interop code and your lifecycle handling. Everything below comes from the official AndroidX Camera release notes, retrieved today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">rc01</div><div class="announce-lbl">Oct 21, 2026: API changes and most fixes</div></div>
+        <div class="announce-card"><div class="announce-num">rc02</div><div class="announce-lbl">Nov 4, 2026: two bug fixes, no API changes</div></div>
+        <div class="announce-card"><div class="announce-num">Physical</div><div class="announce-lbl">cameras can now be bound directly</div></div>
+      </div>
+
+      <h2>1. Physical cameras are first-class</h2>
+      <p>rc01 adds support for physical cameras. <code>CameraInfo.getPhysicalCameraInfos()</code> now returns physical camera info, apps can bind <code>UseCase</code>s to physical cameras, and querying <code>CameraInfo</code> with a physical <code>CameraSelector</code> returns the physical <code>CameraInfo</code> instead of the logical one. That last point is a behavior change: if you previously passed a physical selector and relied on getting the logical camera back, re-test.</p>
+<pre><code class="language-kotlin">val provider = ProcessCameraProvider.awaitInstance(context)
+val logical = provider.availableCameraInfos.first()
+
+// One entry per physical sensor behind the logical camera (wide, ultrawide, tele...)
+val physical = logical.physicalCameraInfos
+physical.forEach { info -&gt;
+    Log.d("Cam", "physical camera: $info, zoom=${info.intrinsicZoomRatio}")
+}</code></pre>
+      <p>The snippet only shows the discovery call named in the notes; the notes do not spell out the selector construction for binding, so check the CameraX reference for your version before wiring it into a lens switcher. Also in rc01, <code>CameraInfo.getIntrinsicZoomRatio()</code> now rounds its result to two decimal places, which is handy when you display zoom labels.</p>
+
+      <h2>2. Camera2Interop: interfaces become abstract classes</h2>
+      <p>rc01 converts four types from interfaces into abstract classes: <code>UseCaseCamera2Interop</code>, <code>ImageCaptureCamera2Interop</code>, <code>SessionConfigCamera2Interop</code> and <code>CameraControlCamera2Interop</code>. It also fixes the Camera2Interop V2 ambiguity issue. If your code implements one of these as an interface, it will no longer compile as written; this is the main source-breaking item in the release.</p>
+      <div class="callout"><p><strong>Why it matters:</strong> abstract classes let the library add methods without breaking implementers. It is a signal that these interop surfaces are being stabilized for 1.7.0 final, so migrating now is cheaper than migrating after release.</p></div>
+
+      <h2>3. Low Light Boost and Torch: last setting wins</h2>
+      <p>Previously, enabling one of these while the other was active could be rejected. In rc01 they follow a "last setting wins" policy: enabling one automatically disables the other instead of rejecting the request. The notes also say flash can fire during image capture while Low Light Boost is active. If your UI shows both toggles, observe camera state instead of assuming both stay on.</p>
+
+      <h2>4. Crash and leak fixes you should care about</h2>
+      <ul>
+        <li><strong>OpenGL thread SIGSEGV:</strong> a native crash occurred when a <code>SurfaceProcessor</code> released an input <code>SurfaceTexture</code> whose <code>SurfaceRequest</code> had been garbage-collected before completion. Fixed in rc01.</li>
+        <li><strong>CameraEffect shutdown:</strong> a Surface leak and native OpenGL crash during garbage collection happened when a <code>CameraEffect</code>'s executor or <code>HandlerThread</code> shut down before the effect's <code>SurfaceOutput</code> was closed. Fixed in rc01.</li>
+        <li><strong>ImageAnalysis:</strong> a Surface/<code>ImageReader</code> resource leak when output rotation changed dynamically or the use case was unbound. Fixed in rc01.</li>
+        <li><strong>PRIVATE format check:</strong> the <code>HardwareBuffer.isSupported</code> check for <code>PRIVATE</code> format in <code>ImageAnalysis</code> was relaxed to avoid false negatives on some devices. Relevant if you adopted the GPU-native analysis path from the alphas.</li>
+        <li><strong>VideoCapture:</strong> a native thread leak on unbind, which left one media framework thread behind per bind. Fixed in rc02.</li>
+        <li><strong>API 30 overlay apps:</strong> an <code>UnsupportedOperationException</code> when apps holding <code>SYSTEM_ALERT_WINDOW</code> repeatedly bind camera use cases. Fixed in rc02.</li>
+      </ul>
+      <p>The VideoCapture and ImageAnalysis leaks share a pattern: they accumulate with repeated bind/unbind cycles. Apps that rebind on every screen visit or rotation were the most exposed.</p>
+
+      <h2>5. Smaller items</h2>
+      <ul>
+        <li>The <code>androidx.lifecycle:lifecycle-runtime</code> dependency moves to 2.10.0, required for bundled lifecycle runtime lint checks with AGP 9.5.0-alpha04 or later.</li>
+        <li>A compilation crash on newer JDK versions, when resolving transitively imported JSpecify annotations on CameraX internal fields, is fixed.</li>
+        <li><code>OutputOptions.Builder.setLocation</code> Javadoc now states that only latitude and longitude are stored in video metadata.</li>
+      </ul>
+
+      <h2>Upgrade checklist</h2>
+      <ol>
+        <li>Bump all <code>androidx.camera:camera-*</code> artifacts to <code>1.7.0-rc02</code> together.</li>
+        <li>Search for implementations of the four Camera2Interop types and convert them to subclasses.</li>
+        <li>Re-test any code that uses a physical <code>CameraSelector</code> with <code>CameraInfo</code> queries.</li>
+        <li>Remove workarounds you added for the VideoCapture thread leak or the ImageAnalysis rotation leak.</li>
+        <li>Check torch and Low Light Boost toggles against the last-setting-wins behavior.</li>
+      </ol>
+
+      <div class="callout-green"><p>If you ship camera features, rc02 is a sensible target: the only differences from rc01 are two bug fixes, so the API surface you migrate to now is the one you should expect at 1.7.0.</p></div>
+
+      <p>Source: AndroidX Camera release notes (1.7.0-rc01, 1.7.0-rc02) and the AndroidX release listing, developer.android.com, retrieved Nov 14, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('camerax-1-7-0-rc-physical-cameras-leak-fixes');
+  </script>
+</body>
+</html>

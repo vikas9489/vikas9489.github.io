@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 13 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 14 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes</title>
+      <link>https://bytevikas.com/blog/camerax-1-7-0-rc-physical-cameras-leak-fixes.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/camerax-1-7-0-rc-physical-cameras-leak-fixes.html</guid>
+      <pubDate>Sat, 14 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Camera</category>
+      <description>CameraX 1.7.0-rc01 (Oct 21, 2026) and rc02 (Nov 4, 2026): bind use cases to physical cameras, Camera2Interop interfaces become abstract classes, Low Light Boost and Torch follow last-setting-wins, plus fixes for SurfaceTexture crashes, ImageAnalysis and VideoCapture leaks.</description>
+    </item>
     <item>
       <title>Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade</title>
       <link>https://bytevikas.com/blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Thu, 06 Aug 2026 08:00:00 +0530</pubDate>
       <category>Compose</category>
       <description>RC01 shipped July 29 — stable is weeks away. Beyond the visual APIs covered in beta, 1.12 adds SoundEffectOnInteraction for accessibility-aware click sounds, credentialRequest Semantics for passkey-ready Compose login forms, a breaking TextObfuscationMode rename in BasicSecureTextField, and InterceptPlatformTextInput promoted to stable.</description>
-    </item>
-    <item>
-      <title>Compose's New Adaptive Layout APIs: FlexBox, Grid, and mediaQuery() Explained</title>
-      <link>https://bytevikas.com/blog/compose-adaptive-layout-flexbox-grid-mediaquery.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/compose-adaptive-layout-flexbox-grid-mediaquery.html</guid>
-      <pubDate>Wed, 05 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Layout</category>
-      <description>Three new experimental layout primitives bring CSS-inspired adaptive layouts to Jetpack Compose: FlexBox for flowing content sections, a structural Grid for 2D panels without lazy loading, and mediaQuery() for branching on device posture, pointer precision, and viewing distance — not just window width.</description>
     </item>
   </channel>
 </rss>
