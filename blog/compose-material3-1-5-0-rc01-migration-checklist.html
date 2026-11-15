@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose Material3 1.5.0-rc01: The alpha26 to RC Migration Checklist for Sliders, TimePicker, Menus and Toggle Buttons — bytevikas</title>
+  <meta name="description" content="Material3 1.5.0-rc01 (Nov 4, 2026) is bug fixes only, which makes it the freeze point. A checklist of every source-breaking change since alpha25: Slider and RangeSlider state, Vibrant TimePicker renames, ExposedDropdownMenu import, ToggleButton, carousel and SearchBar scroll APIs." />
+  <link rel="canonical" href="https://bytevikas.com/blog/compose-material3-1-5-0-rc01-migration-checklist.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Compose Material3 1.5.0-rc01: The alpha26 to RC Migration Checklist for Sliders, TimePicker, Menus and Toggle Buttons — bytevikas" />
+  <meta property="og:description" content="Material3 1.5.0-rc01 (Nov 4, 2026) is bug fixes only, which makes it the freeze point. A checklist of every source-breaking change since alpha25: Slider and RangeSlider state, Vibrant TimePicker renames, ExposedDropdownMenu import, ToggleButton, carousel and SearchBar scroll APIs." />
+  <meta property="og:url" content="https://bytevikas.com/blog/compose-material3-1-5-0-rc01-migration-checklist.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Compose Material3 1.5.0-rc01: The alpha26 to RC Migration Checklist for Sliders, TimePicker, Menus and Toggle Buttons — bytevikas" />
+  <meta name="twitter:description" content="Material3 1.5.0-rc01 (Nov 4, 2026) is bug fixes only, which makes it the freeze point. A checklist of every source-breaking change since alpha25: Slider and RangeSlider state, Vibrant TimePicker renames, ExposedDropdownMenu import, ToggleButton, carousel and SearchBar scroll APIs." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ff6b6b;--accent-dim:rgba(255,107,107,.1);--accent-border:rgba(255,107,107,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(255,107,107,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.design{color:#ff6b6b;}
+
+    .callout{
+      background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(255,107,107,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat design">Design</span>
+      <span class="post-date">Nov 15, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>Compose Material3 1.5.0-rc01: The alpha26 to RC Migration Checklist for Sliders, TimePicker, Menus and Toggle Buttons</h1>
+
+    <div class="post-body">
+      <p>Compose Material3 <strong>1.5.0-rc01</strong> shipped on Nov 4, 2026, and the release notes list bug fixes only: no API changes and no breaking changes. That is exactly why it matters. A release candidate with no API delta means the surface you see now is the surface of 1.5.0, so the breaking changes accumulated across alpha26 to beta01 are the ones you must absorb. Everything below comes from the official Compose Material 3 release notes, fetched today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">rc01</div><div class="announce-lbl">Nov 4, 2026: bug fixes only</div></div>
+        <div class="announce-card"><div class="announce-num">alpha26-beta01</div><div class="announce-lbl">where the breaking changes landed</div></div>
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">slider and toggle bug fixes in rc01</div></div>
+      </div>
+
+      <h2>1. What rc01 actually fixes</h2>
+      <ul>
+        <li>The hardcoded pressed shape in <code>ToggleButton</code> now uses the design token <code>ButtonSmallTokens.PressedContainerShape</code>.</li>
+        <li><code>RangeSlider</code> did not update values on tap when its thumbs overlapped (b/352467346).</li>
+        <li>Floating-point precision loss in discrete <code>Slider</code> and <code>RangeSlider</code> when snapping to integer ticks (b/237634010).</li>
+        <li><code>RangeSlider</code> inside a horizontally scrollable container scrolled the container while dragging a thumb (b/415838608).</li>
+      </ul>
+
+      <h2>2. Sliders: stateful API and required onValueChange</h2>
+      <p>alpha28 deprecated the stateless <code>Slider</code> and <code>RangeSlider</code> overloads in favor of stateful ones, and renamed <code>RangeSliderState</code>'s <code>activeRangeStart</code> and <code>activeRangeEnd</code> to <code>startValue</code> and <code>endValue</code>. alpha29 then made <code>onValueChange</code> a required parameter and changed its position. beta01 restored <code>DraggableState</code> on <code>SliderState</code> and kept the nullable-<code>onValueChange</code> overloads as hidden deprecated APIs for binary compatibility. Release notes migration example:</p>
+<pre><code class="language-kotlin">// Before
+var value by remember { mutableFloatStateOf(0.5f) }
+Slider(value = value, onValueChange = { value = it })
+
+// After
+val state = remember { SliderState(value = 0.5f) }
+Slider(state = state)
+
+// RangeSlider
+val range = remember { RangeSliderState(startValue = 0.2f, endValue = 0.8f) }
+RangeSlider(state = range)</code></pre>
+      <div class="callout"><p><strong>Watch out:</strong> hidden deprecated overloads keep old binaries linking, but source that passes a nullable <code>onValueChange</code> will not compile against the final API. Fix call sites now rather than at the 1.5.0 bump.</p></div>
+
+      <h2>3. TimePicker: Rich becomes Vibrant</h2>
+      <p>alpha27 renamed <code>RichTimePickerDialog</code> to <code>VibrantTimePickerDialog</code>, <code>richColors</code> to <code>vibrantColors</code> in <code>TimePickerDefaults</code> and <code>TimeInputDefaults</code>, and <code>richContainerColor</code> and <code>richShape</code> to <code>vibrantContainerColor</code> and <code>vibrantShape</code> in <code>TimePickerDialogDefaults</code>. The unselected color properties became <code>periodSelectorContainerColor</code>, <code>periodSelectorContentColor</code>, <code>timeSelectorContainerColor</code>, <code>timeSelectorContentColor</code> and <code>clockDialContentColor</code>. alpha27 also added <code>TimeInputDefaults</code> and <code>TimeInputColors</code>, and alpha26 saves the active selection mode across state restoration with a new <code>initialSelection</code> parameter on the <code>TimePickerState</code> factory.</p>
+
+      <h2>4. Menus and dropdowns</h2>
+      <ul>
+        <li><strong>alpha26 (breaking):</strong> <code>ExposedDropdownMenu</code> is now an extension function on <code>ExposedDropdownMenuBoxScope</code> rather than a member. You may only need a new import.</li>
+        <li><strong>alpha27:</strong> added <code>SelectableDropdownMenuItem</code> and <code>CheckableDropdownMenuItem</code>; <code>DropdownMenuItem</code> now takes a shape and uses <code>MenuItemColors</code>; added <code>MenuDefaults.itemVibrantColors()</code>.</li>
+        <li><strong>alpha26 fix:</strong> partial color customization in <code>MenuDefaults.itemColors</code> no longer overwrites unprovided colors with <code>Color.Unspecified</code>.</li>
+      </ul>
+
+      <h2>5. Toggle buttons, app bars, carousel and search</h2>
+      <ul>
+        <li><strong>ToggleButton:</strong> alpha27 added expressive overloads with <code>ButtonSize</code> and an <code>icon</code> slot for <code>ToggleButton</code>, <code>ElevatedToggleButton</code>, <code>FilledTonalToggleButton</code> and <code>OutlinedToggleButton</code>; alpha28 removed the deprecated overloads and added <code>contentPaddingFor</code> and <code>shapesFor</code>.</li>
+        <li><strong>TopAppBar:</strong> alpha27 removed the deprecated <code>pinnedScrollBehavior</code> and <code>enterAlwaysScrollBehavior</code> overloads from <code>TopAppBarDefaults</code>; use the ones taking <code>ScrollableState</code>. beta01 restored the <code>enterAlwaysScrollBehavior</code> overload with <code>reverseLayout</code> for 1.4 compatibility.</li>
+        <li><strong>Theme:</strong> alpha27 removed the deprecated experimental <code>LocalMotionScheme</code>; use <code>MaterialTheme.motionScheme</code>.</li>
+        <li><strong>Carousel:</strong> alpha28 collapsed the multi-aspect API into a global <code>carouselParallaxScrollEffect</code> modifier; beta01 renamed <code>HorizontalCenteredHeroCarousel</code>'s <code>maxItemWidth</code> to <code>preferredItemWidth</code> and added <code>CarouselDefaults.ItemSpacing</code> and <code>CarouselDefaults.ContentPadding</code>.</li>
+        <li><strong>SearchBar:</strong> alpha26 removed the scroll offset variables from <code>SearchBarScrollBehavior</code>; use the new <code>SearchBarScrollState</code>. <code>BottomAppBar</code> was promoted to stable.</li>
+      </ul>
+
+      <h2>6. Behavior changes that compile fine</h2>
+      <p>These will not fail the build, so they are the easy ones to miss:</p>
+      <ul>
+        <li><code>SecureTextField</code>, <code>OutlinedSecureTextField</code> and the deprecated <code>BasicSecureTextField</code> overloads now default to <code>TextObfuscationMode.System</code> instead of <code>RevealLastTyped</code> (alpha28).</li>
+        <li>Wide navigation rail content bottom padding is now 0 (alpha26). To revert, set <code>contentPadding = PaddingValues(0.dp, 44.dp, 0.dp, 44.dp)</code>.</li>
+        <li>The horizontal <code>NavigationItem</code> label in high-contrast themes now matches <code>selectedIconColor</code> through <code>selectedTextColorStartIconPosition</code> (alpha26). Revert by copying the item colors with <code>MaterialTheme.colorScheme.secondary</code>.</li>
+        <li><code>TimeInput</code> and <code>DateInput</code> now use the <code>TextFieldState</code> text field APIs (alpha29).</li>
+      </ul>
+
+      <h2>Upgrade checklist</h2>
+      <ol>
+        <li>Bump <code>material3</code> to <code>1.5.0-rc01</code> and read compiler errors top to bottom; most are renames.</li>
+        <li>Move every <code>Slider</code> and <code>RangeSlider</code> to the state-based form.</li>
+        <li>Rename <code>Rich*</code> time picker APIs to <code>Vibrant*</code>.</li>
+        <li>Fix the <code>ExposedDropdownMenu</code> import.</li>
+        <li>Replace removed <code>TopAppBarDefaults</code> overloads and <code>LocalMotionScheme</code> usages.</li>
+        <li>Visually check secure text fields, wide navigation rails and high-contrast nav items.</li>
+      </ol>
+
+      <div class="callout-green"><p>The pattern across these releases is consistent: the expressive surface is being cleaned up before 1.5.0 stable. Doing the migration at rc01, when nothing else moves, is cheaper than doing it in one jump later.</p></div>
+
+      <p>Source: Compose Material 3 release notes (1.5.0-alpha26 through 1.5.0-rc01) and the Compose UI release notes (1.13.0-rc01 listed Nov 4, 2026 with no notes), developer.android.com, retrieved Nov 15, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-material3-1-5-0-rc01-migration-checklist');
+  </script>
+</body>
+</html>
