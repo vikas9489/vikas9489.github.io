@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sun, 15 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 16 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Sign in with Google for Unity: The Open-Source Credential Manager Plugin, Setup Gotchas and Backend Token Handling</title>
+      <link>https://bytevikas.com/blog/sign-in-with-google-unity-plugin-credential-manager.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/sign-in-with-google-unity-plugin-credential-manager.html</guid>
+      <pubDate>Mon, 16 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Games</category>
+      <description>Google open-sourced a Sign in with Google plugin for Unity (Nov 10, 2026): Credential Manager on Android, GIDSignIn on iOS, an idToken event API, plus the Kotlin, API 34 and no-scopes gotchas to know before adopting it.</description>
+    </item>
     <item>
       <title>Compose Material3 1.5.0-rc01: The alpha26 to RC Migration Checklist for Sliders, TimePicker, Menus and Toggle Buttons</title>
       <link>https://bytevikas.com/blog/compose-material3-1-5-0-rc01-migration-checklist.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sat, 08 Aug 2026 08:00:00 +0530</pubDate>
       <category>Media</category>
       <description>Media3 1.11.0 graduated to stable on August 5. Beyond what alpha01 and beta01 shipped, stable adds OggMuxer and WavMuxer for audio output, MP4 chapter extraction, enablePerStreamMediaProgression() for startup latency, HLS Content Steering, and five API removals to fix before you upgrade.</description>
-    </item>
-    <item>
-      <title>Android Skills: Why Google Built an AI Knowledge Layer Designed to Disappear</title>
-      <link>https://bytevikas.com/blog/android-skills-built-for-deprecation.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/android-skills-built-for-deprecation.html</guid>
-      <pubDate>Fri, 07 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Skills</category>
-      <description>Google's official Android Skills are built for deprecation by design — every skill should eventually make itself obsolete as models improve. The philosophy, the evaluation framework (think integration tests for AI knowledge), when skills actually add value, and why only ~20 official ones exist.</description>
     </item>
   </channel>
 </rss>
