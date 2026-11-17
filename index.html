@@ -355,6 +355,7 @@
     .blog-cat.webview { color:#8ecae6; }
     .blog-cat.casestudy { color:#caffbf; }
     .blog-cat.games { color:#ffafcc; }
+    .blog-cat.runtime { color:#fcd5ce; }
     .blog-cat.agentic { color:#e5989b; }
     .blog-card h3 { font-family:'Outfit',sans-serif; font-size:17px; font-weight:700; line-height:1.35; margin-bottom:12px; color:white; }
     .blog-card p { font-size:13px; color:var(--muted-light); line-height:1.65; flex:1; margin-bottom:24px; }
@@ -953,6 +954,12 @@
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
+          <a href="blog/compose-runtime-1-13-rc01-computedstateof-read-only-nan-skipping.html" class="blog-card reveal delay-1">
+            <div class="blog-cat runtime">Runtime</div>
+            <h3>Compose Runtime 1.13.0-rc01: Read-Only computedStateOf, NaN Skipping Fix and the State Leak Fixes Worth Knowing</h3>
+            <p>Compose Runtime 1.13.0-rc01 (Nov 4, 2026) needs Kotlin 2.2, makes the computedStateOf block read-only, fixes recomposition skipping for NaN and Dp.Unspecified, and closes ComputedState and movableContent leaks. What to check before upgrading.</p>
+            <div class="blog-meta"><span>Nov 17, 2026 &nbsp;·&nbsp; 4 min</span><span class="read-more">Read →</span></div>
+          </a>
           <a href="blog/sign-in-with-google-unity-plugin-credential-manager.html" class="blog-card reveal delay-1">
             <div class="blog-cat games">Games</div>
             <h3>Sign in with Google for Unity: The Open-Source Credential Manager Plugin, Setup Gotchas and Backend Token Handling</h3>
@@ -970,12 +977,6 @@
             <h3>CameraX 1.7.0-rc01 and rc02: Physical Camera Binding, Camera2Interop Abstract Classes and the Leak and Crash Fixes</h3>
             <p>CameraX 1.7.0-rc01 (Oct 21, 2026) and rc02 (Nov 4, 2026): bind use cases to physical cameras, Camera2Interop interfaces become abstract classes, Low Light Boost and Torch follow last-setting-wins, plus fixes for SurfaceTexture crashes, ImageAnalysis and VideoCapture leaks.</p>
             <div class="blog-meta"><span>Nov 14, 2026 &nbsp;·&nbsp; 5 min</span><span class="read-more">Read →</span></div>
-          </a>
-          <a href="blog/media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html" class="blog-card reveal delay-1">
-            <div class="blog-cat media">Media</div>
-            <h3>Media3 1.12.0-beta01: JSpecify Nullability, minSdk 24, CodecDB and the Removed APIs to Fix Before You Upgrade</h3>
-            <p>Media3 1.12.0-beta01 (Nov 11, 2026): JSpecify replaces NullableType and UnknownNull, Gradle minSdk rises to 24, CodecDB recommends encoder settings, a subtitles slot lands in the Compose Player, and a list of removed deprecated symbols with their replacements.</p>
-            <div class="blog-meta"><span>Nov 13, 2026 &nbsp;·&nbsp; 6 min</span><span class="read-more">Read →</span></div>
           </a>
           
                             </div>

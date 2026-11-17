@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose Runtime 1.13.0-rc01: Read-Only computedStateOf, NaN Skipping Fix and the State Leak Fixes Worth Knowing — bytevikas</title>
+  <meta name="description" content="Compose Runtime 1.13.0-rc01 (Nov 4, 2026) needs Kotlin 2.2, makes the computedStateOf block read-only, fixes recomposition skipping for NaN and Dp.Unspecified, and closes ComputedState and movableContent leaks. What to check before upgrading." />
+  <link rel="canonical" href="https://bytevikas.com/blog/compose-runtime-1-13-rc01-computedstateof-read-only-nan-skipping.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Compose Runtime 1.13.0-rc01: Read-Only computedStateOf, NaN Skipping Fix and the State Leak Fixes Worth Knowing — bytevikas" />
+  <meta property="og:description" content="Compose Runtime 1.13.0-rc01 (Nov 4, 2026) needs Kotlin 2.2, makes the computedStateOf block read-only, fixes recomposition skipping for NaN and Dp.Unspecified, and closes ComputedState and movableContent leaks. What to check before upgrading." />
+  <meta property="og:url" content="https://bytevikas.com/blog/compose-runtime-1-13-rc01-computedstateof-read-only-nan-skipping.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Compose Runtime 1.13.0-rc01: Read-Only computedStateOf, NaN Skipping Fix and the State Leak Fixes Worth Knowing — bytevikas" />
+  <meta name="twitter:description" content="Compose Runtime 1.13.0-rc01 (Nov 4, 2026) needs Kotlin 2.2, makes the computedStateOf block read-only, fixes recomposition skipping for NaN and Dp.Unspecified, and closes ComputedState and movableContent leaks. What to check before upgrading." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#fcd5ce;--accent-dim:rgba(252,213,206,.1);--accent-border:rgba(252,213,206,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(252,213,206,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.runtime{color:#fcd5ce;}
+
+    .callout{
+      background:rgba(252,213,206,.06);border:1px solid rgba(252,213,206,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(252,213,206,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat runtime">Runtime</span>
+      <span class="post-date">Nov 17, 2026</span>
+      <span class="read-time">4 min read</span>
+    </div>
+
+    <h1>Compose Runtime 1.13.0-rc01: Read-Only computedStateOf, NaN Skipping Fix and the State Leak Fixes Worth Knowing</h1>
+
+    <div class="post-body">
+      <p>Compose Runtime <strong>1.13.0-rc01</strong> is listed on Nov 4, 2026 with a single change: a dependency bump of <code>androidx.tracing:tracing-wire</code> to 2.0.5. The substance of 1.13 is in the beta notes before it, and since the RC freezes the API surface, this is the moment to check your code. Everything here comes from the official Compose Runtime release notes, fetched today. Stable 1.13.0 is not listed yet; the current stable is 1.12.1.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">rc01</div><div class="announce-lbl">Nov 4, 2026: tracing-wire 2.0.5 only</div></div>
+        <div class="announce-card"><div class="announce-num">Kotlin 2.2</div><div class="announce-lbl">required since 1.13.0-beta01</div></div>
+        <div class="announce-card"><div class="announce-num">1.12.1</div><div class="announce-lbl">current stable runtime</div></div>
+      </div>
+
+      <h2>1. Kotlin 2.2 is the entry ticket</h2>
+      <p>1.13.0-beta01 (Oct 7, 2026) moved the libraries to target Kotlin 2.2 and require kotlinc 2.2. If your build is still on an older Kotlin toolchain, that upgrade comes before anything else, and it is the most likely reason a bump to the RC fails to compile.</p>
+
+      <h2>2. The computedStateOf block is now read-only</h2>
+      <p>The notes call this a behavior change: the <code>computedStateOf</code> calculation block is read-only, and writing to a state inside it throws an <code>IllegalStateException</code>. The same discipline has always applied to <code>derivedStateOf</code>; the new enforcement makes the failure loud instead of a source of subtle invalidation loops. The pattern to remove looks like this:</p>
+<pre><code class="language-kotlin">var lastSeenMax by mutableIntStateOf(0)
+
+// Smell: side effect inside a calculation block
+val isNearEnd by remember {
+    derivedStateOf {
+        val idx = listState.firstVisibleItemIndex
+        lastSeenMax = maxOf(lastSeenMax, idx) // write inside a derived calculation
+        idx >= itemCount - 3
+    }
+}
+
+// Fix: keep the calculation pure, record the side effect separately
+val isNearEnd by remember {
+    derivedStateOf { listState.firstVisibleItemIndex >= itemCount - 3 }
+}
+LaunchedEffect(listState) {
+    snapshotFlow { listState.firstVisibleItemIndex }
+        .collect { lastSeenMax = maxOf(lastSeenMax, it) }
+}</code></pre>
+      <div class="callout"><p><strong>Watch out:</strong> the release note names <code>computedStateOf</code> specifically. I could not verify from the notes that <code>derivedStateOf</code> got the same enforcement, so treat the snippet above as a hygiene fix, not a claim about <code>derivedStateOf</code> behavior.</p></div>
+
+      <h2>3. NaN no longer defeats skipping</h2>
+      <p>Passing <code>Float.NaN</code> or <code>Double.NaN</code> into a <code>@Composable</code> function used to prevent it from skipping recomposition, because NaN does not equal itself. The notes say this affected functions receiving <code>Dp.Unspecified</code>, which is common in layout and animation parameters. beta01 fixes it, so composables with unspecified dimension defaults can now skip as expected. If you worked around this by adding manual guards or <code>remember</code> wrappers, they can be removed after you measure.</p>
+<pre><code class="language-kotlin">@Composable
+fun Thumb(size: Dp = Dp.Unspecified, modifier: Modifier = Modifier) {
+    // Before the fix, an unchanged Dp.Unspecified argument could still force recomposition
+    Box(modifier.then(if (size.isSpecified) Modifier.size(size) else Modifier))
+}</code></pre>
+
+      <h2>4. Leaks and invalidation bugs fixed</h2>
+      <ul>
+        <li><strong>beta02 (Oct 21, 2026):</strong> a memory leak in <code>ComputedState</code> that could keep recorded state values from being released is fixed, along with a failure to invalidate when the calculation block called <code>Snapshot.withoutReadObservation</code>.</li>
+        <li><strong>beta01:</strong> a leak in <code>LinkComposer</code> where moving <code>movableContent</code> retained wrapper group slots.</li>
+        <li><strong>beta01 (external contribution):</strong> unexpected invalidations in <code>computedStateOf</code> when read with <code>SnapshotStateObserver</code>.</li>
+        <li><strong>1.12.0-beta01:</strong> a potential leak in how <code>derivedStateOf()</code> values are tracked in composition, and snapshot apply observers not being notified when a state object was created in one snapshot and modified in a concurrent one before the first applied.</li>
+      </ul>
+      <p>If your heap dumps show retained state values behind long-lived screens, these are worth reading against your LeakCanary traces before blaming your own code.</p>
+
+      <h2>5. Observer and tracing changes</h2>
+      <ul>
+        <li><code>CompositionObserver</code> is now resolved once per composition pass, so <code>setObserver</code> changes apply on the next pass. Movable content insertion now reports <code>onBeginComposition</code> and <code>onEndComposition</code>.</li>
+        <li><code>ComposeTracer</code> gained off-main-thread support.</li>
+        <li><code>lifecycle-runtime</code> was updated to 2.10.0 for bundled lint checks with AGP 9.5.0-alpha04 or later.</li>
+        <li>1.13.0-alpha01 (Aug 12, 2026): <code>produceState()</code> and <code>Flow.collectAsState()</code> now accept a <code>SnapshotMutationPolicy</code>, so you can control equality and merging of the underlying <code>State</code>. It also fixed <code>SnapshotStateSet.writeToParcel</code>, which serialized only the first entry.</li>
+      </ul>
+
+      <h2>Upgrade checklist</h2>
+      <ol>
+        <li>Confirm the toolchain is on Kotlin 2.2 before touching the Compose BOM.</li>
+        <li>Search for state writes inside <code>derivedStateOf</code> and <code>computedStateOf</code> blocks and move them to effects.</li>
+        <li>Remove NaN or <code>Dp.Unspecified</code> workarounds only after re-measuring recomposition counts.</li>
+        <li>If you implement a <code>CompositionObserver</code>, re-test anything that assumed mid-pass observer swaps.</li>
+        <li>Re-run leak checks on screens using <code>movableContent</code>.</li>
+      </ol>
+
+      <div class="callout-green"><p>An RC with a one-line change is a gift: nothing moves between now and 1.13.0 stable except what you fix. The read-only enforcement is the item most likely to surface in your own code.</p></div>
+
+      <p>Source: Compose Runtime release notes (1.12.0-beta01 through 1.13.0-rc01) and the AndroidX release index, developer.android.com, retrieved Nov 17, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-runtime-1-13-rc01-computedstateof-read-only-nan-skipping');
+  </script>
+</body>
+</html>
