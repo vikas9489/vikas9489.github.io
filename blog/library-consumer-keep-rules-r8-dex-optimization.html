@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumer Keep Rules for Library Authors: Unblocking R8 and DEX Code Optimization in Your SDK — bytevikas</title>
+  <meta name="description" content="Google Play now measures DEX code optimization, and the keep rules your library bundles count against every app that ships it. Narrow rules, codegen over reflection, conditional rules for adapters, and why keepnames is not needed to read stack traces." />
+  <link rel="canonical" href="https://bytevikas.com/blog/library-consumer-keep-rules-r8-dex-optimization.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Consumer Keep Rules for Library Authors: Unblocking R8 and DEX Code Optimization in Your SDK — bytevikas" />
+  <meta property="og:description" content="Google Play now measures DEX code optimization, and the keep rules your library bundles count against every app that ships it. Narrow rules, codegen over reflection, conditional rules for adapters, and why keepnames is not needed to read stack traces." />
+  <meta property="og:url" content="https://bytevikas.com/blog/library-consumer-keep-rules-r8-dex-optimization.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Consumer Keep Rules for Library Authors: Unblocking R8 and DEX Code Optimization in Your SDK — bytevikas" />
+  <meta name="twitter:description" content="Google Play now measures DEX code optimization, and the keep rules your library bundles count against every app that ships it. Narrow rules, codegen over reflection, conditional rules for adapters, and why keepnames is not needed to read stack traces." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#b8c0ff;--accent-dim:rgba(184,192,255,.1);--accent-border:rgba(184,192,255,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(184,192,255,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.libraries{color:#b8c0ff;}
+
+    .callout{
+      background:rgba(184,192,255,.06);border:1px solid rgba(184,192,255,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(184,192,255,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat libraries">Libraries</span>
+      <span class="post-date">Nov 18, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Consumer Keep Rules for Library Authors: Unblocking R8 and DEX Code Optimization in Your SDK</h1>
+
+    <div class="post-body">
+      <p>The Android Developers Blog published a guide on Nov 17, 2026 aimed at <strong>library providers</strong>: how to ship consumer keep rules that do not block R8 from optimizing the apps that depend on you. The reason it matters now is that Google Play introduced DEX code optimization thresholds for apps and games, and those metrics reflect the combined effect of the app's rules and every rule bundled in its libraries. If your SDK ships a package-wide keep, every customer pays for it. Everything below comes from the official post and the docs it links, fetched today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">Consumer rules</div><div class="announce-lbl">bundled in AARs and JARs, applied during whole-app R8</div></div>
+        <div class="announce-card"><div class="announce-num">Entry points</div><div class="announce-lbl">keep only what you reflect on; R8 follows the graph</div></div>
+        <div class="announce-card"><div class="announce-num">analyze</div><div class="announce-lbl">Android CLI command to audit an AAR or JAR</div></div>
+      </div>
+
+      <h2>1. Why your rules are everyone's problem</h2>
+      <p>Consumer keep rules tell R8 which parts of your library it must not optimize during the app's compilation. They exist so that reflection targets and native interfaces survive without the app developer hunting for them. The trade-off is that broad rules preserve unused code, which the post links to slower startup, larger downloads, more memory use and higher ANR rates. Worse, performance-minded apps may write custom rules that replace the ones bundled with your library, which discourages them from adopting your future releases.</p>
+
+      <h2>2. Prefer codegen over reflection</h2>
+      <p>Runtime reflection hides code usage from R8, so it forces keep rules. Code generation happens at build time, so R8 sees the real call graph and needs minimal rules. The post names serialization and dependency injection as good fits, with Hilt as an example of a codegen-based library. Where reflection is unavoidable, such as optional dependencies, pair it with narrow rules protecting only the required entry points.</p>
+<pre><code class="language-kotlin">// Optional dependency resolved reflectively: only this one entry point is reached
+fun tryCreateAdapter(): Adapter? = try {
+    Class.forName("com.example.sdk.optional.AnalyticsAdapter")
+        .getDeclaredConstructor()
+        .newInstance() as Adapter
+} catch (e: ClassNotFoundException) {
+    null
+}</code></pre>
+<pre><code class="language-text"># consumer-rules.pro: narrow, names exactly what the reflection above touches
+-keep class com.example.sdk.optional.AnalyticsAdapter {
+    &lt;init&gt;();
+}
+
+# Avoid: forces everything under the package to survive in every app
+# -keep class com.example.sdk.** { *; }</code></pre>
+      <p>The rule above is illustrative, written to show the pattern the guide describes: name the entry point and let R8 build the reachable graph from there. It is not copied from the post.</p>
+
+      <h2>3. Do not blanket-keep third-party packages</h2>
+      <p>The post calls out this common pattern:</p>
+<pre><code class="language-text">-keep public class com.google.android.gms.** { *; }</code></pre>
+      <p>If an app also uses another GMS library and has its own rule to limit what is kept, your broad rule supersedes it. It can also subsume the carefully scoped consumer rules that library already ships. When calling into external libraries, keep only the specific elements you access reflectively.</p>
+
+      <h2>4. Conditional rules for ad mediation adapters</h2>
+      <p>For ad libraries loaded through mediation adapters, the guide recommends conditional keep rules so features and formats are preserved only when the app includes the matching adapter. Everything else stays shrinkable. The alternative it offers is to annotate reflective calls in source with <strong>Jetpack Keep annotations</strong> (currently alpha) and have the build generate the conditional consumer rules, including for optional add-on modules.</p>
+<pre><code class="language-text"># Illustrative shape of a conditional rule: keep the format loader
+# only if the adapter class is present in the final app
+-if class com.example.mediation.BannerAdapter
+-keep class com.example.sdk.banner.BannerLoader { &lt;init&gt;(); }</code></pre>
+
+      <h2>5. Native code and JNI</h2>
+      <p>If your SDK talks to native code, as in games and photo or video editors, provide rules for every class used through JNI. Game engines such as Unity and Unreal compile to native code and call into the Android framework over JNI, so these classes must be protected explicitly.</p>
+
+      <h2>6. Ship rules inside the artifact, not in docs</h2>
+      <p>Bundled consumer rules have been supported in AARs and JARs for years. Documenting rules for customers to paste adds setup friction, and every refactor or rename means remembering to update the docs. Apps that upgrade across several versions of your library accumulate legacy rules that are no longer needed, which is more bloat. This also holds if you pre-optimize or obfuscate your own build: because your rules apply during the app's compile step, R8 can still optimize your code further based on what the app actually uses.</p>
+
+      <h2>7. Do not keep names just to read stack traces</h2>
+      <p>It is tempting to use <code>keepnames</code> so obfuscated traces from customers are readable. That permits shrinking but blocks renaming in the consuming app, which is exactly what costs optimization. You do not need it: Firebase Crashlytics, the Play Console and Logcat in Android Studio deobfuscate for app developers, and uploading your library's mapping file to the SDK Console gives you deobfuscated traces for your own SDK.</p>
+
+      <h2>8. Testing narrow rules before you ship them</h2>
+      <ul>
+        <li>Build a sample app with R8 enabled and walk the critical user journeys, following the "Test your optimization" guidance.</li>
+        <li>Run the <strong>R8 Configuration Analyzer</strong> on that sample to see what your customers see: optimization, shrinking and obfuscation percentages, plus inefficient keep rules including those from consumer rules.</li>
+        <li>Use the <strong>Android CLI <code>analyze</code> command</strong> on your AAR or JAR to see kept methods, classes and fields, and compare the numbers release to release to catch regressions. It also surfaces used and unused package-wide keep rules.</li>
+        <li>Watch library version adoption and crashes in the Google Play SDK Console after rollout.</li>
+      </ul>
+
+      <h2>Library audit checklist</h2>
+      <ol>
+        <li>Grep your consumer rules for <code>**</code> wildcards and <code>{ *; }</code> bodies, and justify each one.</li>
+        <li>Replace reflection with codegen where the use case allows (serialization, DI).</li>
+        <li>For the reflection that remains, keep only the entry point you instantiate or call.</li>
+        <li>Remove any package-wide keeps on third-party dependencies.</li>
+        <li>Make adapter-specific rules conditional, or annotate with Jetpack Keep.</li>
+        <li>Delete rules-in-documentation and ship them as consumer rules.</li>
+        <li>Run the Configuration Analyzer and <code>analyze</code> on every release candidate.</li>
+      </ol>
+
+      <div class="callout"><p><strong>For app developers:</strong> if your R8 Configuration Analyzer report shows blocked optimization from a dependency, the culprit may be a consumer rule you never wrote. Open an issue with the library maintainer pointing at the specific rule rather than overriding it locally, since local overrides can make you reluctant to upgrade.</p></div>
+
+      <div class="callout-green"><p>The app-side half of this story, phased R8 rollout with measured ANR, size and startup wins, is in the <a href="grab-r8-full-mode-baseline-profiles-anr-startup.html">Grab case study</a>.</p></div>
+
+      <p>Source: "Ship smarter keep rules: How library providers can unblock app-level DEX code optimization" by Breana Tate, Android Developers Blog, Nov 17, 2026, and the linked R8 library optimization docs, retrieved Nov 18, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('library-consumer-keep-rules-r8-dex-optimization');
+  </script>
+</body>
+</html>
