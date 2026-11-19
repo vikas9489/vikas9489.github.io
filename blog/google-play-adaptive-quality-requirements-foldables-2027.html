@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027 — bytevikas</title>
+  <meta name="description" content="Google Play will require apps to meet Tier 3 adaptive quality and ship foldable screenshots from April 2027, with games following in August 2027 and API 37 targeting in August 2027. What each tier means, the screenshot formats, and how to prepare in Compose." />
+  <link rel="canonical" href="https://bytevikas.com/blog/google-play-adaptive-quality-requirements-foldables-2027.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027 — bytevikas" />
+  <meta property="og:description" content="Google Play will require apps to meet Tier 3 adaptive quality and ship foldable screenshots from April 2027, with games following in August 2027 and API 37 targeting in August 2027. What each tier means, the screenshot formats, and how to prepare in Compose." />
+  <meta property="og:url" content="https://bytevikas.com/blog/google-play-adaptive-quality-requirements-foldables-2027.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027 — bytevikas" />
+  <meta name="twitter:description" content="Google Play will require apps to meet Tier 3 adaptive quality and ship foldable screenshots from April 2027, with games following in August 2027 and API 37 targeting in August 2027. What each tier means, the screenshot formats, and how to prepare in Compose." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#52b788;--accent-dim:rgba(82,183,136,.1);--accent-border:rgba(82,183,136,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(82,183,136,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.adaptive{color:#52b788;}
+
+    .callout{
+      background:rgba(82,183,136,.06);border:1px solid rgba(82,183,136,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(82,183,136,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat adaptive">Adaptive</span>
+      <span class="post-date">Nov 19, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027</h1>
+
+    <div class="post-body">
+      <p>On Nov 18, 2026, Google Play published two posts that turn adaptive design from a recommendation into a store requirement: one for apps, one for games. Starting <strong>April 2027</strong>, apps must meet at least Tier 3 of the Android adaptive app quality guidelines for foldables, and must upload dedicated foldable screenshots. Apps that miss the bar can no longer publish or update on Google Play and may lose store visibility. Everything below comes from the two official posts, fetched today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">Apr 2027</div><div class="announce-lbl">Tier 3 adaptive baseline + foldable screenshots required for apps</div></div>
+        <div class="announce-card"><div class="announce-num">Aug 2027</div><div class="announce-lbl">Games must meet Tier 3 (Ready); all new and updated apps target API 37</div></div>
+        <div class="announce-card"><div class="announce-num">580M+</div><div class="announce-lbl">large screen Android devices in users' hands, per Google</div></div>
+      </div>
+
+      <h2>1. The three tiers</h2>
+      <ul>
+        <li><strong>Tier 3, Adaptive ready (the new floor):</strong> the app fills the available display without letterboxing or compatibility modes, preserves state (scroll position, text input, media playback) through rotation, folding and unfolding, and resizing, and supports multi-window.</li>
+        <li><strong>Tier 2, Adaptive optimized:</strong> responsive multi-pane layouts with no stretched UI, plus basic external keyboard, mouse, trackpad and stylus support.</li>
+        <li><strong>Tier 1, Adaptive differentiated:</strong> tabletop and book postures, camera continuity, interactive picture-in-picture and multi-instance support for media, video, reading and multitasking apps.</li>
+      </ul>
+      <p>Google says the framework will progressively expand to Tier 2 and Tier 1 across foldables, tablets, Googlebooks and Android XR. Apps meeting Tier 2 and Tier 1 can already apply for badging and enhanced merchandising.</p>
+
+      <h2>2. The timeline</h2>
+      <ul>
+        <li><strong>Nov 2026 (live):</strong> foldable screenshots can be uploaded in Play Console; they appear in listings over the following weeks.</li>
+        <li><strong>Apr 2027:</strong> new apps and updates must include foldable screenshots, and Tier 3 takes effect for standard apps. Existing un-updated apps remain downloadable.</li>
+        <li><strong>Aug 2027:</strong> new and updated apps must target API level 37 (Android 17), which removes developer opt-outs for orientation and resizability restrictions on large screens. Games must meet their own Tier 3 (Ready) baseline.</li>
+      </ul>
+
+      <h2>3. Screenshot requirements</h2>
+      <p>From April 2027 apps need <strong>3 foldable screenshots in addition to the standard 2 phone screenshots</strong>. Games need at least 3 foldable screenshots plus 1 phone screenshot in the primary orientation. Upload under <code>Grow &gt; Store presence &gt; Store listings</code>. The formats:</p>
+      <ul>
+        <li><strong>Standard phone:</strong> portrait 9:16, with an optional 16:9 landscape for apps.</li>
+        <li><strong>Foldable with 1:1 inner display</strong> (examples named: Galaxy Z Fold8 Ultra, Pixel 11 Pro Fold): at least one 1:1 unfolded screenshot. Games need no separate outer-screen shot, since it matches a standard phone.</li>
+        <li><strong>Foldable with 4:3 inner display</strong> (example: Galaxy Z Fold8): at least one 4:3 unfolded screenshot and one folded outer-screen shot, 10:16 portrait for apps; 16:10 landscape or 10:16 portrait for games.</li>
+      </ul>
+      <p>Screenshots from the foldable 1:1 and 4:3 Android Emulator images are explicitly compliant, and Android CLI can capture Play Console-ready screenshots.</p>
+
+      <h2>4. What Tier 3 means in code</h2>
+      <p>The cheapest way to fail Tier 3 is a hard-coded orientation or resizability restriction, or state held only in the Activity instance. A minimal baseline is window-size-class-driven layout with state that survives configuration changes. This sketch is illustrative, not from the Google posts:</p>
+<pre><code class="language-kotlin">@Composable
+fun AppRoot(viewModel: FeedViewModel = viewModel()) {
+    val sizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+
+    if (sizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
+        Row(Modifier.fillMaxSize()) {
+            FeedList(state, listState, Modifier.weight(1f))
+            DetailPane(state.selected, Modifier.weight(1f))
+        }
+    } else {
+        FeedList(state, listState, Modifier.fillMaxSize())
+    }
+}</code></pre>
+      <p>The two-pane branch is Tier 2 territory; the point for Tier 3 is that content fills the window and the scroll position (<code>rememberLazyListState</code> is saveable) plus ViewModel state survive folding and rotation. Remove any <code>screenOrientation</code> locks in the manifest and avoid <code>android:resizeableActivity="false"</code> workarounds, because API 37 targeting removes those opt-outs anyway.</p>
+
+      <h2>5. Testing and preparation</h2>
+      <ol>
+        <li>Review the adaptive app quality guidelines, UI design guidelines and Figma templates.</li>
+        <li>Use the Jetpack Compose adaptive skill from Android Studio or Android CLI with your agent of choice to optimize the app.</li>
+        <li>Test on physical devices, devices on Android Device Streaming, or emulators covering both 1:1 and 4:3 foldables, verifying continuity while folding, unfolding and rotating.</li>
+        <li>Capture and upload the screenshots early; you do not need to wait for April.</li>
+      </ol>
+
+      <h2>6. Games</h2>
+      <p>Games get a separate guideline set built around engine viewports and touch controls. Tier 3 (Ready) means full-screen rendering in supported orientations with unobstructed HUD safe areas, in-engine letterboxing or pillarboxing in unsupported orientations, and preserved state and touch alignment across fold, rotation and multi-window resizing. Tier 1 targets sustained 60 FPS, and 120 FPS on supported displays. Google notes it worked with Unity and Unreal on native resizing and configuration-change handling.</p>
+
+      <div class="callout"><p><strong>Why it matters:</strong> this is the first time adaptive quality gates publishing itself. If your app still locks orientation or leans on compatibility mode, the April 2027 and August 2027 dates give you roughly two release trains to fix it. Treat Tier 3 as a regression suite: fold, unfold, rotate, resize, multi-window, and assert state survives.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="samsung-galaxy-foldable-adaptive-window-2026.html">Samsung's foldable lineup and the Window and Adaptive APIs</a>, and <a href="compose-adaptive-layout-flexbox-grid-mediaquery.html">Compose's new adaptive layout APIs</a>.</p></div>
+
+      <p>Sources: "Elevating apps: New adaptive quality standards on Google Play" (Mekka Okereke) and "Elevating games: New large screens and foldables quality standards on Google Play" (Aurash Mahbod), Android Developers Blog, Nov 18, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('google-play-adaptive-quality-requirements-foldables-2027');
+  </script>
+</body>
+</html>
