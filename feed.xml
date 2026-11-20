@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Thu, 19 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First</title>
+      <link>https://bytevikas.com/blog/compose-1-13-0-stable-1-14-alpha01-what-to-adopt.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-13-0-stable-1-14-alpha01-what-to-adopt.html</guid>
+      <pubDate>Fri, 20 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Compose</category>
+      <description>Compose 1.13.0 went stable on Nov 18, 2026 alongside Material3 1.5.0 and 1.14.0-alpha01. The cumulative breaking changes since 1.12, the TextFieldState migration, Modifier.border and LazyLayoutCacheWindow changes, and what the first 1.14 alpha adds: lighting modifiers, BorderRenderer, DrawAnnotation.</description>
+    </item>
     <item>
       <title>Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027</title>
       <link>https://bytevikas.com/blog/google-play-adaptive-quality-requirements-foldables-2027.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Wed, 12 Aug 2026 08:00:00 +0530</pubDate>
       <category>Compose</category>
       <description>Compose 1.12.0 hit stable August 12 alongside Fragment 1.9.0, Tracing 2.0.0, and Navigation3 1.1.6. What's genuinely new vs RC01 (WCG, variable fonts, Dialog blur), what breaks on upgrade, and the exact migration checklist before you bump the BOM.</description>
-    </item>
-    <item>
-      <title>X Rebuilt Its Android App from Scratch in Kotlin + Compose — What a Year of Clean-Slate Engineering Looks Like</title>
-      <link>https://bytevikas.com/blog/x-android-app-kotlin-compose-rebuild-kmp.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/x-android-app-kotlin-compose-rebuild-kmp.html</guid>
-      <pubDate>Tue, 11 Aug 2026 08:00:00 +0530</pubDate>
-      <category>KMP</category>
-      <description>X shipped a fully rebuilt Android app on July 20, 2026 — 100% Kotlin, Jetpack Compose end to end, and Kotlin Multiplatform powering X Chat's E2E encryption across Android, iOS, and Web. Here's what a year-long clean-slate rewrite looks like and what every Android engineer can take from it.</description>
     </item>
   </channel>
 </rss>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First — bytevikas</title>
+  <meta name="description" content="Compose 1.13.0 went stable on Nov 18, 2026 alongside Material3 1.5.0 and 1.14.0-alpha01. The cumulative breaking changes since 1.12, the TextFieldState migration, Modifier.border and LazyLayoutCacheWindow changes, and what the first 1.14 alpha adds: lighting modifiers, BorderRenderer, DrawAnnotation." />
+  <link rel="canonical" href="https://bytevikas.com/blog/compose-1-13-0-stable-1-14-alpha01-what-to-adopt.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First — bytevikas" />
+  <meta property="og:description" content="Compose 1.13.0 went stable on Nov 18, 2026 alongside Material3 1.5.0 and 1.14.0-alpha01. The cumulative breaking changes since 1.12, the TextFieldState migration, Modifier.border and LazyLayoutCacheWindow changes, and what the first 1.14 alpha adds: lighting modifiers, BorderRenderer, DrawAnnotation." />
+  <meta property="og:url" content="https://bytevikas.com/blog/compose-1-13-0-stable-1-14-alpha01-what-to-adopt.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First — bytevikas" />
+  <meta name="twitter:description" content="Compose 1.13.0 went stable on Nov 18, 2026 alongside Material3 1.5.0 and 1.14.0-alpha01. The cumulative breaking changes since 1.12, the TextFieldState migration, Modifier.border and LazyLayoutCacheWindow changes, and what the first 1.14 alpha adds: lighting modifiers, BorderRenderer, DrawAnnotation." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#2dd4bf;--accent-dim:rgba(45,212,191,.1);--accent-border:rgba(45,212,191,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(45,212,191,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.compose{color:#2dd4bf;}
+
+    .callout{
+      background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(45,212,191,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat compose">Compose</span>
+      <span class="post-date">Nov 20, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First</h1>
+
+    <div class="post-body">
+      <p>Compose 1.13.0 is stable. The release landed on <strong>Nov 18, 2026</strong> for Animation, Foundation, Material, Runtime and UI, with Material3 reaching <strong>1.5.0</strong>, and the 1.14 cycle opened the same day with <strong>1.14.0-alpha01</strong> (Material3 <strong>1.6.0-alpha01</strong>). One caveat up front: the stable entries on the official release pages carry no itemized notes of their own and point to the release blog. The details below are therefore the cumulative changes from the 1.13 alpha, beta and rc notes, plus the 1.14.0-alpha01 notes, all fetched from the AndroidX release pages today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">1.13.0</div><div class="announce-lbl">Compose stable, Nov 18, 2026 (Material3 1.5.0)</div></div>
+        <div class="announce-card"><div class="announce-num">Kotlin 2.2</div><div class="announce-lbl">minimum compiler for 1.13 libraries</div></div>
+        <div class="announce-card"><div class="announce-num">37.1</div><div class="announce-lbl">compileSdk for Compose libraries since 1.13.0-alpha03</div></div>
+      </div>
+
+      <h2>1. Build requirements first</h2>
+      <ul>
+        <li><strong>Kotlin 2.2</strong> is required (from beta01).</li>
+        <li><strong>compileSdk 37.1</strong> for the Compose libraries (from alpha03). This is transitive, so apps and libraries consuming 1.13 need to update too.</li>
+        <li><strong>lifecycle-runtime 2.10.0</strong> (from beta01), needed for lifecycle lint checks with AGP 9.5.0-alpha04 and later.</li>
+      </ul>
+
+      <h2>2. Breaking changes since 1.12</h2>
+      <ul>
+        <li><strong>Sliders:</strong> <code>onValueChange</code> is now required on <code>Slider</code>, <code>VerticalSlider</code> and <code>RangeSlider</code>. Hidden deprecated APIs were removed, including <code>DraggableState</code> on <code>SliderState</code> and the legacy <code>Saver</code> overloads; <code>isVertical</code> left <code>SliderState</code>.</li>
+        <li><strong>Posture:</strong> <code>Posture</code> is replaced by <code>WindowPosture</code> (with <code>WindowFold</code>, <code>FoldState</code>, <code>FoldOrientation</code>, <code>isTabletop</code>, <code>isFlat</code>), and the Book posture is gone.</li>
+        <li><strong>Blur:</strong> <code>Modifier.blur</code>'s <code>radius</code> parameter and <code>BlurScope.radius</code> are renamed <code>blurRadiusSpec</code>.</li>
+        <li><strong>Line height:</strong> <code>LineHeight.Trim.isTrimFirstLineTop()</code> and <code>isTrimLastLineBottom()</code> became the properties <code>trimsFirstLineTop</code> and <code>trimsLastLineBottom</code>.</li>
+        <li><strong>Text obfuscation:</strong> <code>TextObfuscationMode.Default</code> is now <code>System</code>, and <code>SecureTextField</code> defaults to it.</li>
+        <li><strong>Focus bounds:</strong> <code>Modifier.onFocusedBoundsChanged</code> is a no-op; use <code>FocusTargetModifierNode.getFocusedRect()</code>.</li>
+        <li><strong>Tests:</strong> Compose tests default to <code>InputMode.Touch</code> unless you pass <code>ComposeUiTestConfig(inputMode = InputMode.Keyboard)</code>.</li>
+      </ul>
+      <p>The slider change is the one most likely to fail a compile in a mature codebase, because the old call sites that omitted the callback were silently allowed before:</p>
+<pre><code class="language-kotlin">var volume by remember { mutableFloatStateOf(0.5f) }
+
+Slider(
+    value = volume,
+    onValueChange = { volume = it },
+    valueRange = 0f..1f
+)</code></pre>
+
+      <h2>3. Text fields: the deprecation wave is real now</h2>
+      <p>Across Foundation, UI and Material the value-plus-callback text field overloads are deprecated in favor of <code>TextFieldState</code>, and <code>VisualTransformation</code> is deprecated in favor of <code>OutputTransformation</code>. <code>InputTransformation.maxLength</code> is deprecated in favor of <code>maxLengthTrim</code> and <code>maxLengthReject</code>. The 1.14 alpha adds Material 3 <code>TextField</code> and <code>OutlinedTextField</code> to the deprecated list, plus <code>TextFieldDefaults.DecorationBox</code> in favor of the <code>decorator</code> APIs. Migrating now is cheaper than doing it under a wall of warnings:</p>
+<pre><code class="language-kotlin">@Composable
+fun PriceField() {
+    val state = rememberTextFieldState()
+
+    BasicTextField(
+        state = state,
+        inputTransformation = InputTransformation.maxLength(8),
+        outputTransformation = {
+            if (length &gt; 0) insert(0, "\u20B9")
+        }
+    )
+}</code></pre>
+      <p>Note that <code>InputTransformation.maxLength</code> is the form the 1.13 notes mark deprecated; swap it for <code>maxLengthTrim</code> or <code>maxLengthReject</code> depending on whether you want over-length input trimmed or refused. Also new in the cycle: <code>TextFieldState</code> now saves and restores its text style, and <code>BasicTextField</code> waits for window focus before starting the input session, so requesting focus in <code>onCreate</code> shows the keyboard (revert via <code>ComposeFoundationFlags.isTextFieldWaitWindowFocusForInputSessionEnabled</code>).</p>
+
+      <h2>4. Rendering and layout changes that move pixels</h2>
+      <ul>
+        <li><strong>Modifier.border</strong> has a new, more performant implementation (beta02) that also supports generic and polygon shapes via a runtime shader, and rc01 made it use the outline size. Each change has a <code>ComposeFoundationFlags</code> escape hatch, and screenshot tests may show minor differences.</li>
+        <li><strong>Single-line height optimization</strong> is on by default (alpha03) and may shift some text metrics by a pixel.</li>
+        <li><strong>VectorPainter</strong> shares <code>ImageBitmap</code> resources across composables drawing the same <code>ImageVector</code>; disable with <code>ComposeUiFlags.isVectorDrawCacheSharingEnabled</code>.</li>
+        <li><strong>Lazy layouts:</strong> <code>LazyLayoutCacheWindow</code> is stable and you pass it to the composable. Providing it, or a <code>LazyListPrefetchStrategy</code>, through <code>LazyListState</code> is deprecated. A dynamic default cache window prefetches 10% to 50% of the viewport ahead, and staggered grids gained a cache window.</li>
+      </ul>
+      <p>If you run screenshot tests, expect to re-record goldens for borders and text once, then review the diff rather than blindly accepting it.</p>
+
+      <h2>5. New in 1.13 worth using</h2>
+      <ul>
+        <li><strong>FlexBox</strong> and <strong>Grid</strong> APIs are stable, including <code>Modifier.gridItem</code>, <code>Fr</code> and <code>GridTrackSize</code>; FlexBox gained <code>maxItemsInEachLine</code>.</li>
+        <li><strong>Modifier.blur { ... }</strong> supports progressive blurs such as gradients and custom shaders; <code>LocalWindow</code> and <code>WindowInfo.isCrossWindowBlurEnabled</code> help you fall back when cross-window blur is off.</li>
+        <li><strong>LineHeightStyle.Mode.PerLine</strong> stops mixed font sizes in one paragraph from overlapping.</li>
+        <li><strong>PolygonShape</strong> and <strong>MorphPolygonShape</strong>, with a top-level <code>CornerRounding</code> and in-place <code>transform()</code> and <code>copy()</code>.</li>
+        <li><strong>Testing:</strong> <code>onDescendants()</code>, <code>captureToImage(timeoutMillis)</code> and <code>ComposeUiTestConfig</code>.</li>
+      </ul>
+
+      <h2>6. What 1.14.0-alpha01 adds</h2>
+      <p>Not for production, but it shows the direction:</p>
+      <ul>
+        <li><strong>Lighting:</strong> <code>Modifier.illuminate</code>, <code>IlluminationScope</code> and <code>Modifier.lightAnchor</code>, with <code>DirectionalLight</code>, <code>SpotLight</code>, <code>PointLight</code> and <code>SurfaceMaterial</code>.</li>
+        <li><strong>Text drawing:</strong> <code>DrawAnnotation</code> for custom drawing behind or over <code>AnnotatedString</code> ranges, <code>TextLayoutResult.getBoundingBoxesForRange</code> and <code>fillPathForRange</code>, and <code>BasicText</code> overloads taking a <code>styleProvider</code> so dynamic styles can skip recomposition.</li>
+        <li><strong>BorderRenderer</strong> draws borders identical to <code>Modifier.border</code> from any draw scope, such as a <code>DrawModifierNode</code>.</li>
+        <li><strong>TextFieldState.onTextChanged</strong> callback, also available on <code>rememberTextFieldState</code>.</li>
+        <li><strong>LazyGridItemScope.crossAxisCellCount</strong>, <code>rememberStyleResolver()</code>, and <code>computedMediaQuery</code> replacing the now-deprecated <code>derivedMediaQuery</code>.</li>
+        <li><strong>Deprecations:</strong> the <code>styleable()</code> modifier with <code>Style</code> and <code>StyleScope</code> (use the <code>styleResolver</code> API), and <code>MutableVector</code> in favor of <code>androidx.collection.MutableObjectList</code>.</li>
+      </ul>
+      <p>Bug fixes in the alpha worth noting: screen reader focus in <code>LazyRow</code>, <code>LazyColumn</code> and <code>LazyGrid</code> no longer resets, nested scroll jitter with <code>AndroidView</code> and <code>AndroidFragment</code> under a collapsing app bar is fixed behind <code>AndroidComposeUiFlags.isNestedScrollInteropMeasureAndLayoutEnabled</code>, and changing lazy grid item spans through state no longer throws.</p>
+
+      <h2>7. Suggested upgrade order</h2>
+      <ol>
+        <li>Move to Kotlin 2.2 and compileSdk 37.1 in a branch with no other changes.</li>
+        <li>Fix the compile breaks: sliders, <code>WindowPosture</code>, <code>blurRadiusSpec</code>, line-height trim properties, <code>TextObfuscationMode.System</code>.</li>
+        <li>Re-record screenshot goldens and review border and text diffs.</li>
+        <li>Retire deprecated text field and cache window usages in a follow-up so the diff stays reviewable.</li>
+        <li>Stay on stable for production; try 1.14 alphas only in a spike branch.</li>
+      </ol>
+
+      <div class="callout"><p><strong>Takeaway:</strong> 1.13.0 is mostly a cleanup release. The risky parts are the toolchain bump and a handful of source-breaking renames, not new runtime behavior, and every pixel-affecting change shipped with a flag you can use to bisect a regression.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="compose-1-13-0-beta-polygonshape-slider-border.html">the 1.13.0-beta notes</a> and <a href="compose-runtime-1-13-rc01-computedstateof-read-only-nan-skipping.html">Runtime 1.13.0-rc01</a>.</p></div>
+
+      <p>Sources: AndroidX release notes for Compose Foundation, Compose UI and the Compose overview page (developer.android.com/jetpack/androidx), plus the all-channel release list, fetched Nov 20, 2026. The stable entries link to the official 1.13 release blog, which I could not reach from this environment, so anything only in that post is not covered here.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('compose-1-13-0-stable-1-14-alpha01-what-to-adopt');
+  </script>
+</body>
+</html>
