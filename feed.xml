@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 20 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 21 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI</title>
+      <link>https://bytevikas.com/blog/android-developer-verification-global-rollout-2027.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/android-developer-verification-global-rollout-2027.html</guid>
+      <pubDate>Sat, 21 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Security</category>
+      <description>Android developer verification expands globally from January 2027 with seven distributors. What changed since the Sep 30 launch in four countries, limited distribution accounts at 50 devices, and how to automate package registration checks in CI with the Developer ID Status API and Developer Console API.</description>
+    </item>
     <item>
       <title>Compose 1.13.0 Stable and 1.14.0-alpha01: What Actually Changed, What Breaks, and What to Adopt First</title>
       <link>https://bytevikas.com/blog/compose-1-13-0-stable-1-14-alpha01-what-to-adopt.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Thu, 13 Aug 2026 08:00:00 +0530</pubDate>
       <category>Compose</category>
       <description>Compose 1.12.0 went stable August 12, and alpha01 of 1.13 dropped the same day. FlexBox graduates from experimental (no more @OptIn), a new SelectionState API gives you programmatic text selection control, and click sounds are now automatic on Android.</description>
-    </item>
-    <item>
-      <title>Jetpack Compose 1.12.0 Is Stable — Wide Color Gamut, FlexBox, and the Production Upgrade Guide</title>
-      <link>https://bytevikas.com/blog/compose-1-12-0-stable.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-12-0-stable.html</guid>
-      <pubDate>Wed, 12 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Compose</category>
-      <description>Compose 1.12.0 hit stable August 12 alongside Fragment 1.9.0, Tracing 2.0.0, and Navigation3 1.1.6. What's genuinely new vs RC01 (WCG, variable fonts, Dialog blur), what breaks on upgrade, and the exact migration checklist before you bump the BOM.</description>
     </item>
   </channel>
 </rss>

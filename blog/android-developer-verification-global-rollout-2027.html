@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI — bytevikas</title>
+  <meta name="description" content="Android developer verification expands globally from January 2027 with seven distributors. What changed since the Sep 30 launch in four countries, limited distribution accounts at 50 devices, and how to automate package registration checks in CI with the Developer ID Status API and Developer Console API." />
+  <link rel="canonical" href="https://bytevikas.com/blog/android-developer-verification-global-rollout-2027.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI — bytevikas" />
+  <meta property="og:description" content="Android developer verification expands globally from January 2027 with seven distributors. What changed since the Sep 30 launch in four countries, limited distribution accounts at 50 devices, and how to automate package registration checks in CI with the Developer ID Status API and Developer Console API." />
+  <meta property="og:url" content="https://bytevikas.com/blog/android-developer-verification-global-rollout-2027.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI — bytevikas" />
+  <meta name="twitter:description" content="Android developer verification expands globally from January 2027 with seven distributors. What changed since the Sep 30 launch in four countries, limited distribution accounts at 50 devices, and how to automate package registration checks in CI with the Developer ID Status API and Developer Console API." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#f43f5e;--accent-dim:rgba(244,63,94,.1);--accent-border:rgba(244,63,94,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(244,63,94,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.security{color:#f43f5e;}
+
+    .callout{
+      background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(244,63,94,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat security">Security</span>
+      <span class="post-date">Nov 21, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI</h1>
+
+    <div class="post-body">
+      <p>Android developer verification is leaving its four-country pilot. Google's Nov 19, 2026 post says the user protections went live on <strong>September 30</strong> for participating stores in Brazil, Indonesia, Singapore and Thailand, and that the <strong>global rollout begins in January 2027</strong>, in partnership with seven distributors: Google Play, Galaxy Store, Honor, Oppo, Xiaomi, Transsion and Vivo. Protections then expand gradually to all countries, covering <strong>all installation sources</strong> on certified Android devices, over several months.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">Jan 2027</div><div class="announce-lbl">global rollout begins with seven distributors</div></div>
+        <div class="announce-card"><div class="announce-num">&lt; 10 min</div><div class="announce-lbl">Google's estimate to register one app</div></div>
+        <div class="announce-card"><div class="announce-num">20 &rarr; 50</div><div class="announce-lbl">device limit for limited distribution accounts</div></div>
+      </div>
+
+      <h2>1. What is new since the pilot</h2>
+      <ul>
+        <li><strong>Adoption:</strong> Google says millions of apps have been registered globally since verification opened to everyone in March, representing over 99% of all Android app installs globally.</li>
+        <li><strong>Limited distribution accounts:</strong> launched in August for students and hobbyists who want to share apps without registration fees or verifying a government ID. The sharing limit is now <strong>50 authorized devices</strong>, up from 20.</li>
+        <li><strong>Advanced flow:</strong> experienced users can install unregistered apps by accepting the risk, with guardrails kept in place against social engineering scams for everyday users.</li>
+        <li><strong>Automation APIs:</strong> the Android Developer ID Status API and the Android Developer Console API, aimed at teams managing many apps and at CI pipelines.</li>
+      </ul>
+
+      <h2>2. Which path applies to you</h2>
+      <ul>
+        <li><strong>Google Play developers:</strong> check package registration status in Play Console and register anything unregistered, including apps you distribute outside Play.</li>
+        <li><strong>Distributing only outside Play:</strong> create an Android Developer Console account to verify identity and register apps.</li>
+        <li><strong>Open-source registries and distributors:</strong> Google published new dedicated guides for both.</li>
+      </ul>
+      <p>If you ship a sideload APK, a beta channel or an enterprise build next to the Play version, the Play registration does not cover your mental checklist for those: register them too, or users on certified devices may hit the install block once their region goes live.</p>
+
+      <h2>3. Gate your release pipeline on registration status</h2>
+      <p>The Developer ID Status API is a server-to-server check at <code>https://androiddeveloperidstatus.googleapis.com</code>. It authenticates with an API key sent in the <code>X-Goog-Api-Key</code> header. <code>CheckPackageRegistrationStatus</code> returns one of three states: <code>REGISTERED</code>, <code>NOT_REGISTERED</code>, or, when you pass a certificate fingerprint, <code>REGISTERED_WITH_ANOTHER_CERTIFICATE_FINGERPRINT</code>. The default quota is 1,000 requests per project per day, so cache results rather than checking every build of every module.</p>
+      <p>The check accepts the SHA-256 fingerprint of the signing certificate as the <code>certificateFingerprint</code> query parameter. A small Kotlin helper that fails a release job on anything but a clean match:</p>
+<pre><code class="language-kotlin">import java.net.URI
+import java.net.URLEncoder
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+
+enum class RegistrationState {
+    REGISTERED, NOT_REGISTERED, REGISTERED_WITH_ANOTHER_CERTIFICATE_FINGERPRINT
+}
+
+fun checkRegistration(apiKey: String, packageName: String, sha256: String): RegistrationState {
+    val fp = URLEncoder.encode(sha256, Charsets.UTF_8)
+    val url = "https://androiddeveloperidstatus.googleapis.com/v1/packages/" +
+        "$packageName/packageRegistrationStatus:check?certificateFingerprint=$fp"
+    val request = HttpRequest.newBuilder(URI.create(url))
+        .header("Accept", "application/json")
+        .header("X-Goog-Api-Key", apiKey)
+        .GET()
+        .build()
+    val response = HttpClient.newHttpClient()
+        .send(request, HttpResponse.BodyHandlers.ofString())
+    check(response.statusCode() == 200) { "HTTP ${response.statusCode()}: ${response.body()}" }
+    val state = Regex("\"state\"\\s*:\\s*\"(\\w+)\"").find(response.body())!!.groupValues[1]
+    return RegistrationState.valueOf(state)
+}</code></pre>
+      <p>Treat the error <code>status</code> field, not the English <code>message</code>, as the stable contract: Google says the message text can change. <code>429</code> (<code>RESOURCE_EXHAUSTED</code>), <code>500</code> and <code>503</code> are retryable; <code>400</code>, <code>401</code> and <code>403</code> are not, and a <code>403</code> most often means the API is not enabled in your Cloud project.</p>
+
+      <h2>4. Registering from CI: the Developer Console API</h2>
+      <p>The Developer Console API registers package names and keys programmatically. Its authentication is the notable constraint: it requires <strong>OAuth 2.0</strong> because developer account data is tied to a user's Google Account, and the documentation states that service accounts, Workload Identity Federation and API keys cannot be used. The recommended CI setup is a one-time browser consent with <code>access_type=offline</code>, then storing the refresh token in a secret manager or CI secrets so pipelines can mint short-lived access tokens without a login or 2FA prompt. The scope is <code>https://www.googleapis.com/auth/androiddeveloperconsole</code>.</p>
+      <p>The flow the guide describes is: <code>CreateAndroidPackage</code>, then <code>GetAndroidPackageRegistrationPolicy</code> to learn the key eligibility rules, then <code>CreateAndroidPackageKey</code>. If the returned key state is <code>DRAFT</code>, you must prove ownership by putting the API-issued token in an <code>adi-registration.properties</code> file in the app's assets folder and uploading an APK signed with that key (<code>VerifyAndroidPackageKeyOwnership</code>). If it is <code>IN_REVIEW</code>, ownership checks were skipped because the package is new or the key was already verified for another package in the same account. A key marked as requiring justification needs a business rationale submitted through <code>JustifyAndroidPackageKeyRegistration</code>, and the guide says approval can take up to 24 hours.</p>
+
+      <h2>5. Existing package names and key eligibility</h2>
+      <p>For a package name already seen on Android, eligibility is decided by install share: a key holding over 50% of known installs gets priority; if none does, every key with 50 or more installs is eligible; below that threshold it is first come, first served. Other developers must justify their claim. The practical lesson for anyone who inherited an app, reuses a package name from a fork, or rotated keys: check the fingerprint pairing before release day, not on it.</p>
+
+      <div class="callout"><p><strong>Takeaway:</strong> verification is now a release-pipeline concern. Register every package name you ship through any channel, add a fingerprint-aware status check as a pre-release gate, and keep a CI-friendly OAuth refresh token for the Console API rather than relying on someone clicking through a web form before each launch.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="android-developer-verification-2026.html">the original enforcement and Limited Distribution tier post</a>.</p></div>
+
+      <p>Sources: Android Developers Blog, "Expanding Android developer verification in 2027" (Nov 19, 2026); Android Developer ID Status API and Android Developer Console API guides on developer.android.com, fetched Nov 21, 2026. The Kotlin helper above is my adaptation of the documented REST call, not code from the docs, and the regex response parsing is deliberately minimal.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('android-developer-verification-global-rollout-2027');
+  </script>
+</body>
+</html>
