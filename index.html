@@ -357,6 +357,7 @@
     .blog-cat.games { color:#ffafcc; }
     .blog-cat.runtime { color:#fcd5ce; }
     .blog-cat.libraries { color:#b8c0ff; }
+    .blog-cat.room { color:#c77dff; }
     .blog-cat.agentic { color:#e5989b; }
     .blog-card h3 { font-family:'Outfit',sans-serif; font-size:17px; font-weight:700; line-height:1.35; margin-bottom:12px; color:white; }
     .blog-card p { font-size:13px; color:var(--muted-light); line-height:1.65; flex:1; margin-bottom:24px; }
@@ -955,6 +956,12 @@
         <h2 class="section-title reveal">Writing</h2>
         <p class="section-subtitle reveal">Long-form articles on Android engineering — performance, architecture, video streaming, and career growth.</p>
         <div class="blog-grid">
+          <a href="blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html" class="blog-card reveal delay-1">
+            <div class="blog-cat room">Room</div>
+            <h3>Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery</h3>
+            <p>Room 3.1.0-alpha01 to alpha04 (Sep to Nov 18, 2026): property-centric annotations, setConnectionPoolTimeout, setPreparedStatementCacheSize, allowDataLossOnRecovery(), built-in kotlin.uuid.Uuid converter, and @DaoReturnTypeConverters on individual DAO functions with query arguments. What to try, and what to hold back for production.</p>
+            <div class="blog-meta"><span>Nov 22, 2026 &nbsp;·&nbsp; 6 min</span><span class="read-more">Read →</span></div>
+          </a>
           <a href="blog/android-developer-verification-global-rollout-2027.html" class="blog-card reveal delay-1">
             <div class="blog-cat security">Security</div>
             <h3>Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI</h3>
@@ -972,12 +979,6 @@
             <h3>Google Play Makes Adaptive Quality Mandatory: Foldable Screenshots and Tier 3 Requirements from April 2027</h3>
             <p>Google Play will require apps to meet Tier 3 adaptive quality and ship foldable screenshots from April 2027, with games following in August 2027 and API 37 targeting in August 2027. What each tier means, the screenshot formats, and how to prepare in Compose.</p>
             <div class="blog-meta"><span>Nov 19, 2026 &nbsp;·&nbsp; 6 min</span><span class="read-more">Read →</span></div>
-          </a>
-          <a href="blog/library-consumer-keep-rules-r8-dex-optimization.html" class="blog-card reveal delay-1">
-            <div class="blog-cat libraries">Libraries</div>
-            <h3>Consumer Keep Rules for Library Authors: Unblocking R8 and DEX Code Optimization in Your SDK</h3>
-            <p>Google Play now measures DEX code optimization, and the keep rules your library bundles count against every app that ships it. Narrow rules, codegen over reflection, conditional rules for adapters, and why keepnames is not needed to read stack traces.</p>
-            <div class="blog-meta"><span>Nov 18, 2026 &nbsp;·&nbsp; 6 min</span><span class="read-more">Read →</span></div>
           </a>
           
                             </div>

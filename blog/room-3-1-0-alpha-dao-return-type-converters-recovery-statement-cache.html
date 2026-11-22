@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery — bytevikas</title>
+  <meta name="description" content="Room 3.1.0-alpha01 to alpha04 (Sep to Nov 18, 2026): property-centric annotations, setConnectionPoolTimeout, setPreparedStatementCacheSize, allowDataLossOnRecovery(), built-in kotlin.uuid.Uuid converter, and @DaoReturnTypeConverters on individual DAO functions with query arguments. What to try, and what to hold back for production." />
+  <link rel="canonical" href="https://bytevikas.com/blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery — bytevikas" />
+  <meta property="og:description" content="Room 3.1.0-alpha01 to alpha04 (Sep to Nov 18, 2026): property-centric annotations, setConnectionPoolTimeout, setPreparedStatementCacheSize, allowDataLossOnRecovery(), built-in kotlin.uuid.Uuid converter, and @DaoReturnTypeConverters on individual DAO functions with query arguments. What to try, and what to hold back for production." />
+  <meta property="og:url" content="https://bytevikas.com/blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery — bytevikas" />
+  <meta name="twitter:description" content="Room 3.1.0-alpha01 to alpha04 (Sep to Nov 18, 2026): property-centric annotations, setConnectionPoolTimeout, setPreparedStatementCacheSize, allowDataLossOnRecovery(), built-in kotlin.uuid.Uuid converter, and @DaoReturnTypeConverters on individual DAO functions with query arguments. What to try, and what to hold back for production." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#c77dff;--accent-dim:rgba(199,125,255,.1);--accent-border:rgba(199,125,255,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(199,125,255,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.room{color:#c77dff;}
+
+    .callout{
+      background:rgba(199,125,255,.06);border:1px solid rgba(199,125,255,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(199,125,255,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat room">Room</span>
+      <span class="post-date">Nov 22, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery</h1>
+
+    <div class="post-body">
+      <p>Room 3.0 went stable on July 1, 2026, and the <code>androidx.room3</code> 3.1 alpha line has been quietly adding the knobs people asked for since. The latest, <strong>3.1.0-alpha04 (Nov 18, 2026)</strong>, is the fourth alpha; the stable line is currently <strong>3.0.3</strong>. This post walks through what 3.1 adds so far, with the API names taken from the official release notes, and what I would and would not try in a production app today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">3.1.0-alpha04</div><div class="announce-lbl">latest alpha, Nov 18, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">3.0.3</div><div class="announce-lbl">current stable release</div></div>
+        <div class="announce-card"><div class="announce-num">Kotlin 2.2</div><div class="announce-lbl">required by 3.1 libraries since alpha03</div></div>
+      </div>
+
+      <h2>1. Property-centric entities (alpha01)</h2>
+      <p>The annotations <code>@ColumnInfo</code>, <code>@PrimaryKey</code>, <code>@Relation</code>, <code>@Embedded</code>, <code>@Ignore</code> and <code>@ColumnTypeConverters</code> now accept <code>AnnotationTarget.PROPERTY</code>. Room becomes property-centric rather than field-centric, so a property without a backing field can represent a column or a query result column. It still needs a usable getter and either a usable setter or a place in the primary constructor.</p>
+
+      <h2>2. Connection and statement tuning</h2>
+      <ul>
+        <li><strong>alpha01:</strong> <code>setConnectionPoolTimeout(timeout: Duration)</code> on <code>RoomDatabase.Builder</code>.</li>
+        <li><strong>alpha03:</strong> <code>setPreparedStatementCacheSize(maxCacheSize: Int)</code> on Android, to configure or disable the per-connection prepared statement cache.</li>
+        <li><strong>alpha03:</strong> <code>allowDataLossOnRecovery()</code>, to let Room recover from database opening and corruption failures.</li>
+      </ul>
+<pre><code class="language-kotlin">import androidx.room3.Room
+import kotlin.time.Duration.Companion.seconds
+
+val db = Room.databaseBuilder&lt;MusicDatabase&gt;(context, "music.db")
+    .setDriver(AndroidSQLiteDriver())
+    .setConnectionPoolTimeout(10.seconds)
+    .setPreparedStatementCacheSize(32)
+    .allowDataLossOnRecovery()
+    .build()</code></pre>
+      <p>Note the name: <code>allowDataLossOnRecovery()</code> is an explicit opt-in. For a cache database it is a sensible safety net; for a database holding user-authored data, I would rather surface the failure and restore from backup than silently start empty. The cache size value above is an arbitrary example, not a recommendation from the release notes.</p>
+
+      <h2>3. Built-in Uuid support (alpha01)</h2>
+      <p>Room now has a built-in column type converter for <code>kotlin.uuid.Uuid</code>, and the generated <code>_Impl</code> classes suppress <code>OPT_IN_USAGE_ERROR</code> and <code>OPT_IN_USAGE</code>. That means DAOs and entities can use <code>@RequiresOptIn</code> types like <code>Uuid</code> without adding <code>-opt-in</code> to <code>freeCompilerArgs</code>.</p>
+
+      <h2>4. DAO return type converters get finer-grained (alpha04)</h2>
+      <p>In Room 3.0, custom return types such as <code>PagingSource</code> are produced by <code>@DaoReturnTypeConverter</code> functions registered through <code>@DaoReturnTypeConverters</code>. Alpha04 makes the registration more flexible:</p>
+      <ul>
+        <li><code>@DaoReturnTypeConverters</code> is now supported on individual DAO functions and on <code>@Query</code> getter properties, not only on a <code>@Database</code> or <code>@Dao</code>.</li>
+        <li>A <code>@Dao</code>-scoped registration now takes priority over a <code>@Database</code>-scoped one.</li>
+        <li>Read converters can take an optional <code>Map&lt;String, Any?&gt;</code> parameter to access the DAO query arguments.</li>
+      </ul>
+<pre><code class="language-kotlin">@Dao
+interface MusicDao {
+    @Query("SELECT * FROM Song")
+    @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
+    fun pagedSongs(): PagingSource&lt;Int, Song&gt;
+
+    @Query("SELECT * FROM Song WHERE artistId = :artistId")
+    suspend fun songsBy(artistId: Long): List&lt;Song&gt;
+}</code></pre>
+      <p>The practical win is blast radius: you can scope an exotic converter to the one function that needs it instead of registering it for a whole database. Placing the annotation on a function is what alpha04 documents; the exact placement in my snippet follows that description and I have not compiled it against the alpha.</p>
+
+      <h2>5. Fixes worth knowing about</h2>
+      <ul>
+        <li>Collection query parameters with a custom <code>@ColumnTypeConverter</code> were being expanded into multiple parameters instead of converted as a single value inside <code>COALESCE</code> expressions (alpha04).</li>
+        <li>KSP silently ignored non-constant annotation arguments such as <code>@ColumnInfo.defaultValue</code>, which exported incomplete schemas and caused misleading auto-migration errors (alpha04). If an auto-migration failed oddly on an earlier build, this is a candidate cause.</li>
+        <li>Kotlin value classes with <code>@MapColumn</code> in multimap queries could emit false <code>equals()</code>/<code>hashCode()</code> warnings or fail to map the column (alpha04).</li>
+        <li>DAO queries with <code>@Relation</code> and non-deterministic clauses such as <code>ORDER BY RANDOM() LIMIT :count</code> re-executed on statement reset and broke relationship mapping (alpha03).</li>
+        <li>Cancelling a coroutine during a transaction on web and suspending drivers could leave the database and connection in a bad state (alpha01, also backported to 3.0.3).</li>
+        <li>Kotlin <code>object</code> implementations of <code>AutoMigrationSpec</code> are supported (alpha01).</li>
+        <li>The <code>watchosArm32</code> target was removed because Kotlin 2.5 no longer supports it (alpha04).</li>
+      </ul>
+
+      <h2>6. What I would do</h2>
+      <p>If you are on Room 2.x, the move to <code>androidx.room3</code> is still the big decision, and 3.0.3 is the version to evaluate. Stay off the 3.1 alphas in production, but try them in a branch if you hit one of the fixed issues above, mainly the KSP default-value schema bug or the transaction cancellation behavior. Remember 3.1 libraries target Kotlin 2.2 and require kotlinc 2.2.</p>
+
+      <div class="callout"><p><strong>Takeaway:</strong> Room 3.1 is about control and correctness: finer-scoped DAO converters, tunable connection and statement caches, an explicit recovery opt-in, and a set of KSP and transaction fixes. Evaluate on 3.0.3, track the alphas for the fixes you need.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="room-3-0-ksp-only-breaking-changes.html">Room 3.0 and its KSP-only breaking changes</a>.</p></div>
+
+      <p>Sources: AndroidX Room 3.0 release notes on developer.android.com (3.0.0 through 3.1.0-alpha04), and the AndroidX library release index, both fetched Nov 22, 2026. Code samples are my own illustrations of the documented APIs and were not compiled against the alpha.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache');
+  </script>
+</body>
+</html>

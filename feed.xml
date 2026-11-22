@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sat, 21 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 22 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery</title>
+      <link>https://bytevikas.com/blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html</guid>
+      <pubDate>Sun, 22 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Room</category>
+      <description>Room 3.1.0-alpha01 to alpha04 (Sep to Nov 18, 2026): property-centric annotations, setConnectionPoolTimeout, setPreparedStatementCacheSize, allowDataLossOnRecovery(), built-in kotlin.uuid.Uuid converter, and @DaoReturnTypeConverters on individual DAO functions with query arguments. What to try, and what to hold back for production.</description>
+    </item>
     <item>
       <title>Android Developer Verification Goes Global in January 2027: Developer ID Status API, Console API and What to Do in CI</title>
       <link>https://bytevikas.com/blog/android-developer-verification-global-rollout-2027.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sat, 24 Oct 2026 08:00:00 +0530</pubDate>
       <category>R8</category>
       <description>Grab's 10-million-line superapp went from legacy ProGuard config to R8 Full Mode in phases: ~32.5% fewer ANRs, ~30% smaller downloads and ~35% faster cold start. The sequencing, the reflection fixes and the CI guardrails worth copying.</description>
-    </item>
-    <item>
-      <title>Compose 1.13.0-alpha01: FlexBox Hits Stable, SelectionState API, and the Next Cycle Begins</title>
-      <link>https://bytevikas.com/blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-13-0-alpha01-flexbox-stable-selection-api.html</guid>
-      <pubDate>Thu, 13 Aug 2026 08:00:00 +0530</pubDate>
-      <category>Compose</category>
-      <description>Compose 1.12.0 went stable August 12, and alpha01 of 1.13 dropped the same day. FlexBox graduates from experimental (no more @OptIn), a new SelectionState API gives you programmatic text selection control, and click sounds are now automatic on Android.</description>
     </item>
   </channel>
 </rss>
