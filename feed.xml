@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Sun, 22 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 23 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>CameraX 1.7.0 Stable: Camera2Interop V2 Without Opt-In, Kotlin DSL Builders and What Else Shipped</title>
+      <link>https://bytevikas.com/blog/camerax-1-7-0-stable-camera2interop-v2-kotlin-dsl.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/camerax-1-7-0-stable-camera2interop-v2-kotlin-dsl.html</guid>
+      <pubDate>Mon, 23 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Camera</category>
+      <description>CameraX 1.7.0 went stable on Nov 18, 2026. Camera2Interop V2 drops the experimental opt-in, new Kotlin DSL builders (preview, imageCapture, sessionConfig), deprecated V1 classes, and the stable feature set: viewfinder gestures, QHD, GPU ImageAnalysis, physical cameras.</description>
+    </item>
     <item>
       <title>Room 3.1 Alpha: Per-DAO Return Type Converters, Prepared Statement Cache and allowDataLossOnRecovery</title>
       <link>https://bytevikas.com/blog/room-3-1-0-alpha-dao-return-type-converters-recovery-statement-cache.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Sun, 25 Oct 2026 08:00:00 +0530</pubDate>
       <category>Contacts</category>
       <description>Apps targeting the next Android release can no longer write contacts directly. The three standard intents, the Contact Picker and People Directory replace it, and MANAGE_CONTACTS covers the few apps that truly need broad access. Kotlin before/after and a migration checklist.</description>
-    </item>
-    <item>
-      <title>Grab Cut ANRs 32% and Startup 35% with R8 Full Mode and Baseline Profiles: The Playbook</title>
-      <link>https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/grab-r8-full-mode-baseline-profiles-anr-startup.html</guid>
-      <pubDate>Sat, 24 Oct 2026 08:00:00 +0530</pubDate>
-      <category>R8</category>
-      <description>Grab's 10-million-line superapp went from legacy ProGuard config to R8 Full Mode in phases: ~32.5% fewer ANRs, ~30% smaller downloads and ~35% faster cold start. The sequencing, the reflection fixes and the CI guardrails worth copying.</description>
     </item>
   </channel>
 </rss>

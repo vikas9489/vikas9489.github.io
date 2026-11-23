@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CameraX 1.7.0 Stable: Camera2Interop V2 Without Opt-In, Kotlin DSL Builders and What Else Shipped — bytevikas</title>
+  <meta name="description" content="CameraX 1.7.0 went stable on Nov 18, 2026. Camera2Interop V2 drops the experimental opt-in (Camera2Interop.forUseCase, setInterop, applyInteropAsync), new Kotlin DSL builders (preview, imageCapture, sessionConfig), the deprecated V1 classes, and the rest of the stable feature set: viewfinder gestures, QHD, GPU ImageAnalysis, physical cameras." />
+  <link rel="canonical" href="https://bytevikas.com/blog/camerax-1-7-0-stable-camera2interop-v2-kotlin-dsl.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="CameraX 1.7.0 Stable: Camera2Interop V2 Without Opt-In, Kotlin DSL Builders and What Else Shipped — bytevikas" />
+  <meta property="og:description" content="CameraX 1.7.0 went stable on Nov 18, 2026. Camera2Interop V2 drops the experimental opt-in (Camera2Interop.forUseCase, setInterop, applyInteropAsync), new Kotlin DSL builders (preview, imageCapture, sessionConfig), the deprecated V1 classes, and the rest of the stable feature set: viewfinder gestures, QHD, GPU ImageAnalysis, physical cameras." />
+  <meta property="og:url" content="https://bytevikas.com/blog/camerax-1-7-0-stable-camera2interop-v2-kotlin-dsl.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="CameraX 1.7.0 Stable: Camera2Interop V2 Without Opt-In, Kotlin DSL Builders and What Else Shipped — bytevikas" />
+  <meta name="twitter:description" content="CameraX 1.7.0 went stable on Nov 18, 2026. Camera2Interop V2 drops the experimental opt-in (Camera2Interop.forUseCase, setInterop, applyInteropAsync), new Kotlin DSL builders (preview, imageCapture, sessionConfig), the deprecated V1 classes, and the rest of the stable feature set: viewfinder gestures, QHD, GPU ImageAnalysis, physical cameras." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#ef4444;--accent-dim:rgba(239,68,68,.1);--accent-border:rgba(239,68,68,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(239,68,68,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.camera{color:#ef4444;}
+
+    .callout{
+      background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(239,68,68,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat camera">Camera</span>
+      <span class="post-date">Nov 23, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>CameraX 1.7.0 Stable: Camera2Interop V2 Without Opt-In, Kotlin DSL Builders and What Else Shipped</h1>
+
+    <div class="post-body">
+      <p>CameraX <strong>1.7.0</strong> went stable on <strong>November 18, 2026</strong>, after alpha01 in March, rc01 in October and rc02 on Nov 4. Earlier posts here covered the <a href="camerax-1-7-0-alpha02-gestures-night-mode-gpu.html">viewfinder gestures and GPU ImageAnalysis</a> and the <a href="camerax-1-7-0-rc-physical-cameras-leak-fixes.html">release-candidate fixes</a>. This one covers what the stable notes make official, with the focus on the change most likely to touch existing code: <strong>Camera2Interop V2</strong>.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">1.7.0</div><div class="announce-lbl">stable, Nov 18, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">No opt-in</div><div class="announce-lbl">Camera2Interop V2 APIs</div></div>
+        <div class="announce-card"><div class="announce-num">Java 11</div><div class="announce-lbl">target since 1.7.0-alpha01</div></div>
+      </div>
+
+      <h2>1. Camera2Interop V2 is stable</h2>
+      <p>The new interop surface no longer needs <code>@ExperimentalCamera2Interop</code>. Instead of the old <code>Camera2Interop.Extender</code> wrapped around a builder, you create an interop object with a factory and attach it with <code>setInterop()</code>. The release notes list factories <code>Camera2Interop.forUseCase()</code>, <code>forImageCapture()</code>, <code>forSessionConfig()</code> and <code>forCameraControl()</code>, and <code>setInterop()</code> on the <code>Preview</code>, <code>ImageCapture</code>, <code>ImageAnalysis</code>, <code>VideoCapture</code> and <code>SessionConfig</code> builders. Runtime control goes through <code>CameraControl.applyInteropAsync()</code>.</p>
+      <p>The granular scopes (<code>UseCaseCamera2Interop</code>, <code>ImageCaptureCamera2Interop</code>, <code>SessionConfigCamera2Interop</code>, <code>CameraControlCamera2Interop</code>) expose settings such as <code>streamUseCase</code>, <code>mirrorMode</code>, <code>dynamicRangeProfile</code>, <code>physicalCameraId</code>, <code>sensorPixelModesUsed</code>, <code>surfaceGroupId</code> and <code>timestampBase</code> on the output configuration, plus <code>sessionType</code>, <code>colorSpace</code>, <code>sessionParameter</code> and <code>sessionStateCallback</code> on the session.</p>
+      <p>Small helpers replace a lot of boilerplate: <code>Camera2Interop.getCameraId(CameraInfo)</code>, <code>getCameraCharacteristics(CameraInfo)</code>, and the Kotlin extensions <code>CameraInfo.cameraId</code>, <code>CameraInfo.cameraCharacteristics</code> and <code>String.toCameraSelector()</code>.</p>
+<pre><code class="language-kotlin">val cameraInfo = cameraProvider.availableCameraInfos.first()
+
+// V1 needed @ExperimentalCamera2Interop and Camera2CameraInfo.from(cameraInfo)
+val id: String = cameraInfo.cameraId
+val characteristics = cameraInfo.cameraCharacteristics
+val selector = id.toCameraSelector()</code></pre>
+      <p>The three property and function names above come straight from the release notes; I have not compiled this snippet against 1.7.0, so check the exact import packages in your IDE.</p>
+      <div class="callout"><p><strong>Deprecated:</strong> the V1 classes <code>Camera2Interop.Extender</code>, <code>Camera2CameraControl</code>, <code>Camera2CameraInfo</code> and <code>CaptureRequestOptions</code>. They still exist, so this is a planned migration, not a build break. If your app reads Camera2 characteristics or sets capture request options, put it on the list for the next sprint.</p></div>
+
+      <h2>2. Kotlin DSL builders</h2>
+      <p>1.7.0 adds top-level builder functions: <code>preview { }</code>, <code>imageCapture { }</code>, <code>imageAnalysis { }</code>, <code>videoCapture(videoOutput) { }</code>, <code>sessionConfig(useCases) { }</code>, <code>highSpeedVideoSessionConfig(videoCapture) { }</code> and <code>extensionSessionConfig(mode, extensionsManager) { }</code>. The session config builders are meant to be write-only: getters on them were deprecated in 1.7.0-alpha03. Also in the notes: <code>setAutoRotationEnabled(boolean)</code> on the session config builders and <code>CameraController</code>, and <code>CameraController.setSessionConfig(SessionConfig, CameraSelector)</code> for custom session configs.</p>
+      <p>Extensions users should note that <code>ExtensionsManager.getExtensionEnabledCameraSelector()</code> is deprecated in favor of <code>ExtensionSessionConfig</code>.</p>
+
+      <h2>3. The rest of the stable feature set</h2>
+      <ul>
+        <li><strong>Compose viewfinder:</strong> <code>CameraXViewfinder</code> has built-in pinch-to-zoom (<code>isPinchToZoomEnabled</code>, <code>onZoomRatioChanged</code>), tap-to-focus (<code>isTapToFocusEnabled</code>, <code>onTapToFocus</code>, <code>autoCancelDurationMillis</code>), <code>onScreenFlashReady</code>, <code>onStreamStateChanged</code> and <code>onRelease</code>. <code>FocusState</code> has <code>INACTIVE</code>, <code>STARTED</code>, <code>FOCUSED</code>, <code>NOT_FOCUSED</code> and <code>FAILED</code>. <code>TransformationMode</code> (<code>DEFERRED</code>, <code>PRE_APPLIED</code>) keeps <code>EMBEDDED</code> transforms correct when the OpenGL pipeline is active.</li>
+        <li><strong>Video:</strong> <code>Quality.QHD</code> (2560x1440) with <code>GroupableFeatures.QHD_RECORDING</code>; <code>Recorder.Builder.setVideoMimeType()</code> / <code>setAudioMimeType()</code>, <code>setTargetAudioChannelCount()</code> and <code>setTargetAudioEncodingBitRate()</code>; stable <code>Preview.Builder.setMirrorMode()</code> plus dynamic <code>Preview.setMirrorMode()</code> and <code>VideoCapture.setMirrorMode()</code>.</li>
+        <li><strong>Concurrent camera:</strong> <code>ConcurrentCamera.setCompositionSettings()</code> updates PiP or split-screen layout after binding; <code>CompositionSettings.Builder</code> gains <code>setZOrder()</code>, <code>setRoundedCornerRatio()</code>, <code>setBorderWidthRatio()</code> and <code>setBorderColor()</code>.</li>
+        <li><strong>GPU ImageAnalysis:</strong> <code>ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE</code>, <code>getImageAnalysisCapabilities(CameraInfo).isOutputFormatSupported()</code> and <code>ImageProxy.getHardwareBuffer()</code> for zero-copy pipelines. New <code>camera-common</code> artifacts add wrappers like <code>ImageWrapper</code> and <code>CaptureResultWrapper</code>.</li>
+        <li><strong>Scene and 3A:</strong> <code>CameraInfo.isNightModeIndicatorSupported()</code> and <code>getNightModeIndicator()</code> (<code>UNKNOWN</code>, <code>NOT_RECOMMENDED</code>, <code>RECOMMENDED</code>); <code>FocusMeteringAction.Builder.setLockingMode()</code> with <code>FLAG_AE</code>, <code>FLAG_AWB</code> and <code>FLAG_AF</code>.</li>
+        <li><strong>Physical cameras:</strong> bind use cases directly to physical cameras via <code>CameraInfo.getPhysicalCameraInfos()</code>. Low Light Boost and torch now follow "last setting wins".</li>
+      </ul>
+
+      <h2>4. Upgrade checks</h2>
+      <ul>
+        <li><code>ImagePlane.buffer</code> is non-nullable <code>ByteBuffer</code> (since alpha03); remove null handling in custom analyzers.</li>
+        <li>Libraries moved to a Java 11 target in alpha01, which may require desugaring in older build setups.</li>
+        <li>Compose <code>compileSdk</code> moved to API 37 in alpha02, which requires AGP 9.2.0 or later for the camera-compose artifact. The library itself dropped its compileSdk 37 requirement in the same alpha, so check which artifacts you actually depend on.</li>
+        <li>Among the pre-release fixes: a native thread leak when unbinding <code>VideoCapture</code> and an <code>UnsupportedOperationException</code> on API 30 with <code>SYSTEM_ALERT_WINDOW</code> (rc02), and OpenGL-thread crashes with <code>SurfaceProcessor</code> and <code>CameraEffect</code> (rc01).</li>
+      </ul>
+
+      <div class="callout"><p><strong>Takeaway:</strong> 1.7.0 is a good stable to move to for the fixes alone. The one code change to plan for is leaving Camera2Interop V1: the replacement is stable, opt-in free, and the V1 classes are deprecated.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="camerax-1-7-0-alpha02-gestures-night-mode-gpu.html">CameraX 1.7.0-alpha02</a> and <a href="camerax-1-7-0-rc-physical-cameras-leak-fixes.html">CameraX 1.7.0-rc physical cameras and leak fixes</a>.</p></div>
+
+      <p>Sources: AndroidX CameraX release notes and the AndroidX library release index on developer.android.com, fetched Nov 23, 2026. Code samples are my own illustrations of the documented APIs and were not compiled.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('camerax-1-7-0-stable-camera2interop-v2-kotlin-dsl');
+  </script>
+</body>
+</html>
