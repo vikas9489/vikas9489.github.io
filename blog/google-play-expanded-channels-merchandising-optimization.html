@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Play Expanded Channels: Merchandising and Optimization, Exclusion Groups and Billing Lab Previews — bytevikas</title>
+  <meta name="description" content="Google Play is taking in-app catalogs outside the app: Play Store featured products, cart abandonment reminders, purchase flow recommendations, Play Billing on external web stores and Gemini pilots. What Merchandising and optimization in Play Console does, the guardrails (exclusion groups, quantity limits, target audiences), and what an Android dev should wire up on the server." />
+  <link rel="canonical" href="https://bytevikas.com/blog/google-play-expanded-channels-merchandising-optimization.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Google Play Expanded Channels: Merchandising and Optimization, Exclusion Groups and Billing Lab Previews — bytevikas" />
+  <meta property="og:description" content="Google Play is taking in-app catalogs outside the app: Play Store featured products, cart abandonment reminders, purchase flow recommendations, Play Billing on external web stores and Gemini pilots. What Merchandising and optimization in Play Console does, the guardrails (exclusion groups, quantity limits, target audiences), and what an Android dev should wire up on the server." />
+  <meta property="og:url" content="https://bytevikas.com/blog/google-play-expanded-channels-merchandising-optimization.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Google Play Expanded Channels: Merchandising and Optimization, Exclusion Groups and Billing Lab Previews — bytevikas" />
+  <meta name="twitter:description" content="Google Play is taking in-app catalogs outside the app: Play Store featured products, cart abandonment reminders, purchase flow recommendations, Play Billing on external web stores and Gemini pilots. What Merchandising and optimization in Play Console does, the guardrails (exclusion groups, quantity limits, target audiences), and what an Android dev should wire up on the server." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#06b6d4;--accent-dim:rgba(6,182,212,.1);--accent-border:rgba(6,182,212,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(6,182,212,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.monetize{color:#06b6d4;}
+
+    .callout{
+      background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(6,182,212,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat monetize">Monetize</span>
+      <span class="post-date">Nov 24, 2026</span>
+      <span class="read-time">6 min read</span>
+    </div>
+
+    <h1>Google Play Expanded Channels: Merchandising and Optimization, Exclusion Groups and Billing Lab Previews</h1>
+
+    <div class="post-body">
+      <p>Google Play published a post on <strong>November 16, 2026</strong> about taking a product catalog beyond the in-app paywall. The idea: configure products once in Play Console, and Play surfaces them in the Play Store, in checkout, on web storefronts and, in early access pilots, inside Gemini conversations. It sits next to the earlier <a href="google-play-billing-choice-lower-fees-2026.html">billing choice and fee changes</a> and the <a href="google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace.html">subscriptions update</a>. This post covers what is actually in it and what it means for the Android code and backend you maintain.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">7,700+</div><div class="announce-lbl">developers already using Merchandising and optimization (Google internal data)</div></div>
+        <div class="announce-card"><div class="announce-num">+60%</div><div class="announce-lbl">user spend outside the game for MYBO Games (Google internal data)</div></div>
+        <div class="announce-card"><div class="announce-num">4</div><div class="announce-lbl">expansion surfaces</div></div>
+      </div>
+
+      <h2>1. One place to configure it: Merchandising and optimization</h2>
+      <p>The Merchandising and optimization page in Play Console combines product selection, surface placement and eligibility rules in one workflow. You opt your catalog in once, and Play decides where to show it. To start, go to <strong>Monetize with Play &gt; Merchandising and optimization</strong> and add your products. The post also mentions a new <strong>Manage with AI</strong> agent on key monetization pages that can opt products in.</p>
+      <p>Google frames the value differently for the two product types. For apps it is mainly acquisition: show introductory offers, seasonal passes or trials on Play Store search results and web landing pages, before the user ever reaches an in-app paywall. For games it is re-engagement and retention: time-limited event bundles, targeted drops for lapsed high-LTV players, and web-store-exclusive packs delivered through Google Play Billing.</p>
+
+      <h2>2. The four surfaces</h2>
+      <ul>
+        <li><strong>Play Store interventions.</strong> Featured products (in-app items, starter packs, seasonal passes) on your store listing and in search results; cart abandonment reminders for users who added a digital item or subscription and left; and the Google Play Web Store, integrated with Google Play Points. The post cites 2.5 billion active monthly users for the Play Store.</li>
+        <li><strong>Purchase flow recommendations.</strong> During native checkout, Play can suggest complementary add-ons or bundled consumables based on cart context, aimed at raising ARPPU.</li>
+        <li><strong>External and partner commerce with Play Billing.</strong> Play Billing checkout on external web storefronts and partner platforms via deep links and web stores, with reporting and compliance staying in Play Console.</li>
+        <li><strong>Contextual and agentic commerce in Gemini.</strong> Early access pilots let digital goods appear in a Gemini chat (the post's example is a question about music streaming plans) with 1-tap Play checkout without opening the app first.</li>
+      </ul>
+
+      <div class="callout"><p><strong>Why a client developer should care:</strong> a purchase can now start somewhere your app never ran. The entitlement has to be correct when the user next opens it, so the work moves from the paywall screen to purchase handling and server verification.</p></div>
+
+      <h2>3. Guardrails</h2>
+      <p>The post lists platform controls meant to stop discounts leaking to the wrong buyers:</p>
+      <ul>
+        <li><strong>Purchase quantity limits:</strong> cap how often one account can claim a product or offer, to curb grey-market resale and stockpiling.</li>
+        <li><strong>Target audiences for one-time products and offers:</strong> for example lapsed buyers, new buyers, or people who never purchased.</li>
+        <li><strong>Exclusion groups:</strong> exclude active subscribers, recent purchasers or high-tier spenders from entry-level acquisition discounts.</li>
+        <li><strong>Verified cross-platform account linking:</strong> tie web or external purchases to the in-app account using Play Billing account identifiers and server-side verification.</li>
+        <li><strong>Channel-level sales visibility:</strong> performance per expansion surface in the Play Console financial CSV reports.</li>
+      </ul>
+      <p>Status matters here. Multi-level exclusion groups, purchase quantity limits, one-time product target audiences, the Play Billing Lab preview and agentic catalog management are available or rolling out through the <strong>Early Access Program</strong>, meaning select partners only. Google suggests contacting your Google Play partner manager if you want in. Do not plan a launch around them yet.</p>
+
+      <h2>4. What to wire up in your app and backend</h2>
+      <p>The post gives no new client API for this, so the sketch below is my own illustration of the existing pattern, not code from Google. The point is that any purchase, wherever it started, should be acknowledged and granted from the same path, and verified on your server.</p>
+<pre><code class="language-kotlin">class PurchaseHandler(
+    private val billingClient: BillingClient,
+    private val backend: EntitlementApi,
+) : PurchasesUpdatedListener {
+
+    override fun onPurchasesUpdated(result: BillingResult, purchases: List&lt;Purchase&gt;?) {
+        if (result.responseCode != BillingClient.BillingResponseCode.OK) return
+        purchases?.forEach { scope.launch { process(it) } }
+    }
+
+    // Also call on app start and resume: purchases made off-app show up here.
+    suspend fun syncOutstanding() {
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+        billingClient.queryPurchasesAsync(params).purchasesList.forEach { process(it) }
+    }
+
+    private suspend fun process(purchase: Purchase) {
+        if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED) return
+        // Server verifies the token with the Play Developer API and grants the entitlement.
+        val granted = backend.verifyAndGrant(purchase.purchaseToken, purchase.products)
+        if (granted &amp;&amp; !purchase.isAcknowledged) {
+            billingClient.acknowledgePurchase(
+                AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
+                    .build()
+            )
+        }
+    }
+}</code></pre>
+      <p>I have not compiled this against a specific Play Billing Library version, so check class and method names against the version you ship. A practical checklist:</p>
+      <ul>
+        <li>Query outstanding purchases on every cold start and resume, not only when the paywall opens.</li>
+        <li>Make the server grant idempotent, keyed on the purchase token.</li>
+        <li>Map your own account ID to the Play Billing account identifiers now, since cross-platform linking depends on it.</li>
+        <li>Check that product and offer metadata (titles, images, descriptions) is good enough to be shown on surfaces outside your UI. The post points to the Play Billing documentation for asset formatting.</li>
+      </ul>
+
+      <h2>5. Test before going live: Play Billing Lab</h2>
+      <p>The Play Billing Lab companion app now previews out-of-app journeys. Per the post, you can check how featured products and cart abandonment reminders render across screen sizes, simulate granting a Play Games reward, test exclusion rules so protected cohorts are shielded, and validate entitlement delivery before a public launch. The rendering previews are labelled as simulated in the source, and features and availability may vary.</p>
+
+      <div class="callout"><p><strong>Takeaway:</strong> Merchandising and optimization is live in Play Console today, while the sharper guardrails and the Gemini surface are early access. The engineering work worth doing now is unglamorous: reliable purchase restoration, server-side verification and account linking.</p></div>
+
+      <div class="callout-green"><p>Related: <a href="google-play-billing-choice-lower-fees-2026.html">Google Play billing choice and lower fees</a> and <a href="google-play-subscriptions-multi-quantity-usage-billing-dynamic-grace.html">Google Play subscriptions: multi-quantity, usage-based billing, dynamic grace</a>.</p></div>
+
+      <p>Source: Android Developers Blog, "Beyond the app: Expanding buyer reach across new surfaces with Google Play" (Nov 16, 2026), fetched Nov 24, 2026. Usage and spend figures are Google internal data as cited there. The code sample is my own illustration and was not compiled.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('google-play-expanded-channels-merchandising-optimization');
+  </script>
+</body>
+</html>
