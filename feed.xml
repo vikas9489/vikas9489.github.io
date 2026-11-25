@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Tue, 24 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes</title>
+      <link>https://bytevikas.com/blog/paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes.html</guid>
+      <pubDate>Wed, 25 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Paging</category>
+      <description>Paging 3.6.0-alpha01 (Nov 18, 2026) adds ItemSnapshotList extensions that generate itemKey and contentType for Lazy layouts. Plus the 3.5.1 to 3.5.3 fixes: refresh key, Pager.append before refresh, maxSize page floor and a RemoteMediator separator crash.</description>
+    </item>
     <item>
       <title>Google Play Expanded Channels: Merchandising and Optimization, Exclusion Groups and Billing Lab Previews</title>
       <link>https://bytevikas.com/blog/google-play-expanded-channels-merchandising-optimization.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Tue, 27 Oct 2026 08:00:00 +0530</pubDate>
       <category>Compose</category>
       <description>Beta01 and beta02 of Compose 1.13 break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border with opt-out flags. What to fix before stable.</description>
-    </item>
-    <item>
-      <title>Gemini 4 Argon for Android: Self-Healing Builds, AGSL Shaders and the android-cli-plugin</title>
-      <link>https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/gemini-4-argon-android-antigravity-cli-agentic.html</guid>
-      <pubDate>Mon, 26 Oct 2026 08:00:00 +0530</pubDate>
-      <category>Agentic</category>
-      <description>Gemini 4 Argon arrives for Android developers through Antigravity, Android Studio Canary and Firebase AI Logic. Self-healing build loops, AGSL shaders in Compose, android-cli-plugin setup, and who actually has access.</description>
     </item>
   </channel>
 </rss>

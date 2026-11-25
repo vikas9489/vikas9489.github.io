@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes — bytevikas</title>
+  <meta name="description" content="Paging 3.6.0-alpha01 (Nov 18, 2026) adds ItemSnapshotList extensions that generate itemKey and contentType for Lazy layouts. What it means if you moved to asItemSnapshotListFlow, plus the three 3.5.x patch releases: refresh key fix, Pager.append no-op before refresh, maxSize page floor and the RemoteMediator separator crash." />
+  <link rel="canonical" href="https://bytevikas.com/blog/paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes — bytevikas" />
+  <meta property="og:description" content="Paging 3.6.0-alpha01 (Nov 18, 2026) adds ItemSnapshotList extensions that generate itemKey and contentType for Lazy layouts. What it means if you moved to asItemSnapshotListFlow, plus the three 3.5.x patch releases: refresh key fix, Pager.append no-op before refresh, maxSize page floor and the RemoteMediator separator crash." />
+  <meta property="og:url" content="https://bytevikas.com/blog/paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes — bytevikas" />
+  <meta name="twitter:description" content="Paging 3.6.0-alpha01 (Nov 18, 2026) adds ItemSnapshotList extensions that generate itemKey and contentType for Lazy layouts. What it means if you moved to asItemSnapshotListFlow, plus the three 3.5.x patch releases: refresh key fix, Pager.append no-op before refresh, maxSize page floor and the RemoteMediator separator crash." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#38a8e0;--accent-dim:rgba(3,105,161,.1);--accent-border:rgba(3,105,161,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(3,105,161,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.paging{color:#0369a1;}
+
+    .callout{
+      background:rgba(3,105,161,.06);border:1px solid rgba(3,105,161,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(3,105,161,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat paging">Paging</span>
+      <span class="post-date">Nov 25, 2026</span>
+      <span class="read-time">4 min read</span>
+    </div>
+
+    <h1>Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes</h1>
+
+    <div class="post-body">
+      <p>Paging 3.6.0-alpha01 shipped on <strong>November 18, 2026</strong>. The release notes list no new features and no bug fixes. There is exactly one API change, and it is small, but it finishes a story that started in <a href="paging-3-5-asitemsnapshotlistflow.html">Paging 3.5.0</a>. This post covers that change and the three 3.5.x patch releases you may have skipped.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">3.6.0-alpha01</div><div class="announce-lbl">released Nov 18, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">2</div><div class="announce-lbl">new ItemSnapshotList extensions: itemKey and itemContentType</div></div>
+        <div class="announce-card"><div class="announce-num">3.5.3</div><div class="announce-lbl">latest stable, Oct 12, 2026</div></div>
+      </div>
+
+      <h2>1. What 3.6.0-alpha01 adds</h2>
+      <p>The release notes say you can now call <code>ItemSnapshotList#itemKey</code> and <code>ItemSnapshotList#itemContentType</code> to auto-generate <code>itemKey</code> and <code>contentType</code> for Lazy layouts. The change was contributed externally by Kamal.</p>
+      <p>Why it matters: since 3.5.0 you can turn a <code>Flow&lt;PagingData&gt;</code> into a flow of <code>ItemSnapshotList</code> with <code>asItemSnapshotListFlow</code>, then <code>combine</code> it with other UI state. That path produces a plain list, and until now the helper that wires stable keys into a <code>LazyColumn</code> existed only on <code>LazyPagingItems</code>. The familiar pattern from the Paging docs looks like this:</p>
+<pre><code class="language-kotlin">LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+    items(
+        count = lazyPagingItems.itemCount,
+        key = lazyPagingItems.itemKey { it.uniqueId },
+        contentType = lazyPagingItems.itemContentType { "contentType" }
+    ) { index ->
+        val item = lazyPagingItems[index]
+        PagingItem(item = item)
+    }
+}</code></pre>
+      <p>The release notes do not include a sample for the new <code>ItemSnapshotList</code> extensions, so I cannot show their exact signatures. Based on the name and the description, expect them to mirror the <code>LazyPagingItems</code> versions above. Check the API reference for the 3.6.0-alpha01 artifact before relying on a specific shape.</p>
+
+      <div class="callout"><p><strong>Why bother:</strong> stable keys keep scroll position and item state correct when the list changes, and content types let Compose reuse item compositions. Writing these by hand for a snapshot list is easy to forget, which is why a built-in helper is welcome.</p></div>
+
+      <h2>2. The 3.5.x patches worth knowing</h2>
+      <p>If you adopted <code>asItemSnapshotListFlow</code>, <code>Pager.append</code> or <code>Pager.refresh</code> on 3.5.0, these fixes are for you:</p>
+      <ul>
+        <li><strong>3.5.1 (Aug 12, 2026):</strong> <code>PagingSource.getRefreshKey</code> no longer returns an <code>anchorPosition</code> that is too large when refreshing a page with separators while scrolling into placeholders.</li>
+        <li><strong>3.5.2 (Oct 7, 2026):</strong> <code>Pager.append()</code> calls made before the initial refresh completes no longer throw <code>NoSuchElementException</code>. They are now no-ops.</li>
+        <li><strong>3.5.3 (Oct 12, 2026):</strong> <code>ItemSnapshotListFlow</code> no longer throws <code>IllegalArgumentException</code> when a <code>RemoteMediator</code> has reached the end of pagination in either direction and a header or footer is converted to a terminal separator. Also, when loaded pages exceed <code>PagingConfig.maxSize</code>, loaded pages no longer drop below two, so the viewport stays populated. The <code>maxSize</code> fix came from an external contributor, Igor.</li>
+      </ul>
+
+      <h2>3. What I would do</h2>
+      <ul>
+        <li>Move to <strong>3.5.3</strong> if you are on any earlier 3.5.x. The 3.5.2 and 3.5.3 fixes turn crashes into defined behavior.</li>
+        <li>If you use a <code>RemoteMediator</code> with separators and <code>asItemSnapshotListFlow</code>, 3.5.3 is the one that matters.</li>
+        <li>Treat 3.6.0-alpha01 as something to try in a branch. It is an alpha, and its only change is the key helper.</li>
+        <li>Audit your lazy lists for missing <code>key</code> arguments regardless of version.</li>
+      </ul>
+
+      <div class="callout-green"><p>Related: <a href="paging-3-5-asitemsnapshotlistflow.html">Paging 3.5.0: asItemSnapshotListFlow</a>.</p></div>
+
+      <p>Source: AndroidX Paging release notes on developer.android.com and the AndroidX all-channel version list, fetched Nov 25, 2026. The Compose snippet is the pattern shown in those notes for LazyPagingItems; the ItemSnapshotList extension signatures were not documented there.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes');
+  </script>
+</body>
+</html>
