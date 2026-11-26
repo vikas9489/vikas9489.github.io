@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Wed, 25 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>SavedState 1.6 and Lifecycle 2.12 Alphas: SavedStateContainer, SavedStateProvider and SavedStateRestorer</title>
+      <link>https://bytevikas.com/blog/savedstate-1-6-lifecycle-2-12-savedstatecontainer-provider-restorer.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/savedstate-1-6-lifecycle-2-12-savedstatecontainer-provider-restorer.html</guid>
+      <pubDate>Thu, 26 Nov 2026 08:00:00 +0530</pubDate>
+      <category>SavedState</category>
+      <description>SavedState 1.6 and Lifecycle 2.12 alphas (through Nov 18, 2026): top-level SavedStateProvider and SavedStateRestorer, the SavedStateContainer base with child SavedStateHandles, AutoRecreated and lifecycle-compiler deprecations, and the Lifecycle 2.11.1 currentStateFlow fix.</description>
+    </item>
     <item>
       <title>Paging 3.6.0-alpha01: itemKey and itemContentType for ItemSnapshotList, Plus the 3.5.1 to 3.5.3 Fixes</title>
       <link>https://bytevikas.com/blog/paging-3-6-0-alpha01-itemsnapshotlist-itemkey-3-5-fixes.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Wed, 28 Oct 2026 08:00:00 +0530</pubDate>
       <category>A2UI</category>
       <description>AndroidX now ships an official Compose renderer for the A2UI protocol. The agent describes the UI in JSON, your catalog decides what can render. A2uiSurface, custom components, two-way bindings and what changed in alpha02.</description>
-    </item>
-    <item>
-      <title>Compose 1.13 Beta: PolygonShape Rewrite, Required Slider onValueChange and a Faster Modifier.border</title>
-      <link>https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/compose-1-13-0-beta-polygonshape-slider-border.html</guid>
-      <pubDate>Tue, 27 Oct 2026 08:00:00 +0530</pubDate>
-      <category>Compose</category>
-      <description>Beta01 and beta02 of Compose 1.13 break PolygonShape, Slider, Modifier.blur and MediaQuery posture APIs, require Kotlin 2.2, and ship a new Modifier.border with opt-out flags. What to fix before stable.</description>
     </item>
   </channel>
 </rss>

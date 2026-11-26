@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SavedState 1.6 and Lifecycle 2.12 Alphas: SavedStateContainer, SavedStateProvider and SavedStateRestorer — bytevikas</title>
+  <meta name="description" content="SavedState 1.6.0-alpha01 to alpha06 and Lifecycle 2.12.0-alpha01 to alpha06 (through Nov 18, 2026): top-level SavedStateProvider and SavedStateRestorer, the new SavedStateContainer base for SavedStateHandle and SavedStateRegistry, AutoRecreated deprecation, lifecycle-compiler deprecation, LocalLifecycleOwner changes and the 2.11.1 currentStateFlow fix." />
+  <link rel="canonical" href="https://bytevikas.com/blog/savedstate-1-6-lifecycle-2-12-savedstatecontainer-provider-restorer.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="SavedState 1.6 and Lifecycle 2.12 Alphas: SavedStateContainer, SavedStateProvider and SavedStateRestorer — bytevikas" />
+  <meta property="og:description" content="SavedState 1.6.0-alpha01 to alpha06 and Lifecycle 2.12.0-alpha01 to alpha06 (through Nov 18, 2026): top-level SavedStateProvider and SavedStateRestorer, the new SavedStateContainer base for SavedStateHandle and SavedStateRegistry, AutoRecreated deprecation, lifecycle-compiler deprecation, LocalLifecycleOwner changes and the 2.11.1 currentStateFlow fix." />
+  <meta property="og:url" content="https://bytevikas.com/blog/savedstate-1-6-lifecycle-2-12-savedstatecontainer-provider-restorer.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SavedState 1.6 and Lifecycle 2.12 Alphas: SavedStateContainer, SavedStateProvider and SavedStateRestorer — bytevikas" />
+  <meta name="twitter:description" content="SavedState 1.6.0-alpha01 to alpha06 and Lifecycle 2.12.0-alpha01 to alpha06 (through Nov 18, 2026): top-level SavedStateProvider and SavedStateRestorer, the new SavedStateContainer base for SavedStateHandle and SavedStateRegistry, AutoRecreated deprecation, lifecycle-compiler deprecation, LocalLifecycleOwner changes and the 2.11.1 currentStateFlow fix." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#bc6c25;--accent-dim:rgba(188,108,37,.1);--accent-border:rgba(188,108,37,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(188,108,37,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.savedstate{color:#bc6c25;}
+
+    .callout{
+      background:rgba(188,108,37,.06);border:1px solid rgba(188,108,37,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(188,108,37,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat savedstate">SavedState</span>
+      <span class="post-date">Nov 26, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>SavedState 1.6 and Lifecycle 2.12 Alphas: SavedStateContainer, SavedStateProvider and SavedStateRestorer</h1>
+
+    <div class="post-body">
+      <p>On <strong>November 18, 2026</strong> Jetpack shipped <code>androidx.savedstate</code> 1.6.0-alpha06 and <code>androidx.lifecycle</code> 2.12.0-alpha06 together with a Lifecycle 2.11.1 bug fix. Read in isolation each release note is a line or two, but across the six alphas of each library a pattern shows up: the state-saving machinery is being rebuilt around a small set of shared interfaces. This post walks through those changes in order and says what is worth acting on now. Everything here is alpha, so treat it as a preview, not a migration target. For the Lifecycle 2.11 stable features see <a href="lifecycle-2-11-scoped-viewmodels-compose-pager.html">Lifecycle 2.11 scoped ViewModels</a>.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">1.6.0-alpha06</div><div class="announce-lbl">savedstate, Nov 18, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">2.12.0-alpha06</div><div class="announce-lbl">lifecycle, Nov 18, 2026</div></div>
+        <div class="announce-card"><div class="announce-num">2.11.1</div><div class="announce-lbl">lifecycle stable bug fix</div></div>
+      </div>
+
+      <h2>1. Provider and Restorer become top-level interfaces</h2>
+      <p>SavedState 1.6.0-alpha02 (Aug 26, 2026) added a top-level <code>SavedStateProvider</code> interface and a top-level <code>SavedStateRestorer</code> interface with <code>restoreState(savedState: SavedState?)</code>. <code>SavedStateRegistry</code> gained public constructors and now implements both. The same release deprecated <code>AutoRecreated</code> and <code>runOnNextRecreation</code> in favor of the provider and restorer pair, and Lifecycle 2.12.0-alpha02 carried the same deprecation notice.</p>
+      <p>The release notes also describe a <code>SavedStateConsumer</code> on <code>SavedStateRegistry</code>: registered providers receive restored state automatically, or immediately on registration if state was already restored. The notes list it in the same alpha02 entry that mentions removing an unreleased <code>SavedStateRegistry.SavedStateConsumer</code>, so check the API docs for where it finally lives before depending on it.</p>
+      <p>Alpha03 (Sep 9) then allowed a null initial state in the <code>SavedStateRegistry</code> constructor, which matters for tests and for registries you create yourself.</p>
+
+      <h2>2. SavedStateContainer: one base for three types</h2>
+      <p>SavedState 1.6.0-alpha05 (Oct 21, 2026) introduced <code>SavedStateContainer</code> as the common implementation base for <code>SaveableStateRegistry</code>, <code>SavedStateHandle</code> and <code>SavedStateRegistry</code>. Compose's <code>rememberSaveable</code> backing store, ViewModel's <code>SavedStateHandle</code> and the activity-level registry were three parallel implementations; the container is meant to unify them.</p>
+      <ul>
+        <li><code>SavedStateRegistry</code> gets <code>asContainer()</code> and <code>getOrCreateContainer()</code> to create child containers.</li>
+        <li>Lifecycle 2.12.0-alpha05 (same day) does the same for <code>SavedStateHandle</code>: <code>asContainer()</code>, <code>getOrCreateContainer()</code>, and <code>getOrCreateSavedStateHandle()</code>, which creates a child <code>SavedStateHandle</code> inside the current one.</li>
+      </ul>
+      <p>Child handles are the interesting part. A feature module can own a scoped slice of a screen's saved state without inventing key prefixes to avoid collisions.</p>
+
+      <div class="callout"><p><strong>Breaking behavior in alpha05:</strong> using <code>getStateFlow</code> and <code>getLiveData</code> on the same <code>SavedStateHandle</code> is no longer valid and throws an <code>IllegalArgumentException</code>. If a legacy screen exposes both for the same key, pick one before trying 2.12.</p></div>
+
+      <h2>3. A sketch of the provider and restorer pair</h2>
+      <p>The notes only give signatures for <code>restoreState</code>, so the code below is my own illustration of the pattern, using the long-standing <code>SavedStateProvider.saveState()</code> shape. I did not compile it against 1.6.0-alpha06; check the final API before copying.</p>
+<pre><code class="language-kotlin">class DraftStore :
+    SavedStateRegistry.SavedStateProvider,
+    SavedStateRestorer {
+
+    var draft: String = ""
+
+    override fun saveState(): SavedState = savedState { putString("draft", draft) }
+
+    override fun restoreState(savedState: SavedState?) {
+        draft = savedState?.read { getStringOrNull("draft") } ?: ""
+    }
+}</code></pre>
+      <p>The practical gain of a separate restorer is that restoring is no longer tied to the provider being registered at exactly the right moment, which is where <code>runOnNextRecreation</code> users tended to get bitten.</p>
+
+      <h2>4. Lifecycle 2.12 smaller changes</h2>
+      <ul>
+        <li><strong>alpha01 (Aug 12):</strong> the <code>lifecycle-compiler</code> annotation processor artifact is deprecated; migrate to <code>DefaultLifecycleObserver</code> or <code>LifecycleEventObserver</code>. <code>SavedStateViewModelFactory</code> and <code>AbstractSavedStateViewModelFactory</code> now fail fast when the <code>SavedStateRegistryOwner</code> is not also a <code>ViewModelStoreOwner</code>, and system tracing was added to <code>LifecycleRegistry</code> event dispatches.</li>
+        <li><strong>alpha03 (Sep 9):</strong> <code>compileSdk</code> for Compose libraries moved to 37.1, so apps and libraries using Compose must update their <code>compileSdk</code> transitively.</li>
+        <li><strong>alpha06 (Nov 18):</strong> <code>LocalLifecycleOwner</code> now uses <code>compositionLocalWithHostDefaultOf</code> and <code>LifecycleOwnerHostDefaultKey</code>, and is no longer read directly from the view tree outside Android. SavedState 1.6.0-alpha06 makes the matching change for <code>LocalSavedStateRegistryOwner</code> with <code>SavedStateRegistryOwnerHostDefaultKey</code>. This is mostly a Compose Multiplatform plumbing change; Android code reading <code>LocalLifecycleOwner.current</code> is unaffected at the call site.</li>
+        <li><strong>2.11.1 (stable, Nov 18):</strong> <code>LifecycleRegistry.currentStateFlow</code> now returns the same instance on every call instead of creating a new one. If you collected it repeatedly in a loop or passed it around, this is a free fix.</li>
+      </ul>
+
+      <h2>5. What to do now</h2>
+      <ul>
+        <li>Upgrade to <strong>Lifecycle 2.11.1</strong> if you use <code>currentStateFlow</code>. It is a stable bug fix.</li>
+        <li>Search for <code>@OnLifecycleEvent</code> and the <code>lifecycle-compiler</code> dependency; move to the observer interfaces before the artifact goes away.</li>
+        <li>Search for <code>AutoRecreated</code> and <code>runOnNextRecreation</code> in custom libraries and plan the provider and restorer migration.</li>
+        <li>Do not ship 2.12 or 1.6 alphas in production. Try them in a branch to see whether child <code>SavedStateHandle</code> containers simplify your feature-scoped state.</li>
+      </ul>
+
+      <div class="callout-green"><p>Related: <a href="lifecycle-2-11-scoped-viewmodels-compose-pager.html">Lifecycle 2.11 scoped ViewModels for Compose Pager</a> and <a href="hilt-1-4-0-stable-viewmodel-factory.html">Hilt 1.4.0 stable ViewModel factory</a>.</p></div>
+
+      <p>Source: AndroidX release notes for SavedState and Lifecycle on developer.android.com, fetched Nov 26, 2026. The code sample is my own illustration and was not compiled.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('savedstate-1-6-lifecycle-2-12-savedstatecontainer-provider-restorer');
+  </script>
+</body>
+</html>
