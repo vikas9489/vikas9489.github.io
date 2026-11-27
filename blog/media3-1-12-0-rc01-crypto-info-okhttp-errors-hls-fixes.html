@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media3 1.12.0-rc01: Encrypted Sample Contract, OkHttp Error Codes and the Playback Fixes to Test Before Stable — bytevikas</title>
+  <meta name="description" content="Media3 1.12.0-rc01 (Nov 25, 2026): SampleStream.FLAG_OMIT_SAMPLE_DATA now guarantees cryptoInfo, OkHttpDataSource reports real error codes, ExoPlayer position-freeze fixes, a metadata renderer scheduling flag, HLS FRAME-RATE and WebVTT ruby fixes, and Compose PlayerSurface on Android 11." />
+  <link rel="canonical" href="https://bytevikas.com/blog/media3-1-12-0-rc01-crypto-info-okhttp-errors-hls-fixes.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Media3 1.12.0-rc01: Encrypted Sample Contract, OkHttp Error Codes and the Playback Fixes to Test Before Stable — bytevikas" />
+  <meta property="og:description" content="Media3 1.12.0-rc01 (Nov 25, 2026): SampleStream.FLAG_OMIT_SAMPLE_DATA now guarantees cryptoInfo, OkHttpDataSource reports real error codes, ExoPlayer position-freeze fixes, a metadata renderer scheduling flag, HLS FRAME-RATE and WebVTT ruby fixes, and Compose PlayerSurface on Android 11." />
+  <meta property="og:url" content="https://bytevikas.com/blog/media3-1-12-0-rc01-crypto-info-okhttp-errors-hls-fixes.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Media3 1.12.0-rc01: Encrypted Sample Contract, OkHttp Error Codes and the Playback Fixes to Test Before Stable — bytevikas" />
+  <meta name="twitter:description" content="Media3 1.12.0-rc01 (Nov 25, 2026): SampleStream.FLAG_OMIT_SAMPLE_DATA now guarantees cryptoInfo, OkHttpDataSource reports real error codes, ExoPlayer position-freeze fixes, a metadata renderer scheduling flag, HLS FRAME-RATE and WebVTT ruby fixes, and Compose PlayerSurface on Android 11." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#0ea5e9;--accent-dim:rgba(14,165,233,.1);--accent-border:rgba(14,165,233,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(14,165,233,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.media{color:#0ea5e9;}
+
+    .callout{
+      background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(14,165,233,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat media">Media</span>
+      <span class="post-date">Nov 27, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>Media3 1.12.0-rc01: Encrypted Sample Contract, OkHttp Error Codes and the Playback Fixes to Test Before Stable</h1>
+
+    <div class="post-body">
+      <p>Media3 <strong>1.12.0-rc01</strong> shipped on Nov 25, 2026, two weeks after 1.12.0-beta01 (Nov 11). Unlike the beta, this release candidate has no new APIs to adopt and no removed symbols: it is a fixes release, plus one contract change for anyone who writes custom <code>SampleStream</code> implementations. Everything below comes from the official AndroidX release notes for Media3, retrieved today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">rc01</div><div class="announce-lbl">Nov 25, 2026, after beta01 on Nov 11</div></div>
+        <div class="announce-card"><div class="announce-num">1 contract</div><div class="announce-lbl">change for custom SampleStream code</div></div>
+        <div class="announce-card"><div class="announce-num">3 flags</div><div class="announce-lbl">opt-in or canary behavior changes</div></div>
+      </div>
+
+      <h2>1. The one change that can bite: FLAG_OMIT_SAMPLE_DATA</h2>
+      <p><code>SampleStream.FLAG_OMIT_SAMPLE_DATA</code> now ensures that <code>DecoderInputBuffer.cryptoInfo</code> is populated for encrypted samples. The notes state that custom <code>SampleStream</code> implementations must be updated to adhere to this contract. If you only use the built-in extractors and <code>ExoPlayer</code>, nothing changes. If you wrote your own stream (for example, a DRM-aware proxy for a proprietary container), check the omit-data path.</p>
+<pre><code class="language-kotlin">// In a custom SampleStream.readData(...)
+if (readFlags and SampleStream.FLAG_OMIT_SAMPLE_DATA != 0) {
+    // rc01 contract: even with the payload omitted,
+    // encrypted samples must still carry their crypto metadata
+    if (sample.isEncrypted) {
+        buffer.cryptoInfo = sample.cryptoInfo
+    }
+    return C.RESULT_BUFFER_READ
+}</code></pre>
+      <p>Treat this as a shape, not a copy-paste: the exact fields depend on your stream's sample model.</p>
+      <p>A related fix: <code>CryptoInfo.numBytesOfEncryptedData</code> was over-reporting the encrypted payload size for full-sample encrypted samples with supplemental data, such as encrypted WebM/Matroska streams with block additions.</p>
+
+      <h2>2. Position and loading-state bugs</h2>
+      <ul>
+        <li><strong>Seek during an ad:</strong> calling <code>seekTo</code> while an ad is playing could freeze <code>getCurrentPosition()</code> if another player operation, such as <code>setPlayWhenReady</code>, was still pending on the playback thread (#3512).</li>
+        <li><strong>Audio offload:</strong> <code>Player.getCurrentPosition()</code> could freeze during audio offload playback (#3546).</li>
+        <li><strong>isLoading stuck true:</strong> <code>ExoPlayer.isLoading()</code> could remain <code>true</code> after the player moved to <code>STATE_ENDED</code> or <code>STATE_IDLE</code>, which caused an <code>IllegalArgumentException</code> in <code>ForwardingSimpleBasePlayer</code> (#3467).</li>
+        <li><strong>Codec errors:</strong> asynchronous <code>MediaCodec</code> errors now wake the playback loop immediately instead of waiting for the next scheduled rendering iteration.</li>
+      </ul>
+      <p>If your UI polls position for a seek bar, these are the bugs that show up as a scrubber that stops moving. They are worth a regression pass on any flow with ads or offloaded audio.</p>
+
+      <h2>3. Metadata renderer: dynamic scheduling behind a flag</h2>
+      <p><code>MetadataRenderer</code> gains dynamic scheduling, which aligns work and CPU wake-cycles with when metadata samples can actually be read or output. It is not on by default. You enable it explicitly:</p>
+<pre><code class="language-kotlin">Flags.enableFlag(Flags.FLAG_METADATA_RENDERER_DURATION_TO_PROGRESS)</code></pre>
+      <p>This is relevant if you play streams with timed metadata (ID3, EMSG) and care about background wake-ups. Measure battery before and after rather than assuming a gain.</p>
+
+      <h2>4. Network and format fixes</h2>
+      <ul>
+        <li><strong>OkHttp:</strong> failures in <code>OkHttpDataSource.open</code> before a response arrives always reported <code>ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</code>. A timeout now reports <code>ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</code>, and a cleartext request blocked by the network security policy now throws <code>CleartextNotPermittedException</code>. If your retry or analytics logic switches on error codes, expect different values.</li>
+        <li><strong>HLS:</strong> multivariant playlists that declare a non-positive <code>FRAME-RATE</code> (for example <code>FRAME-RATE=0.000</code>) no longer fail playback; the frame rate is parsed as unknown (#3540).</li>
+        <li><strong>Matroska:</strong> a <code>ParserException</code> on files with a non-standard <code>0x80</code> element outside <code>ChapterAtom</code>, such as the <code>MuxingApp</code> written by libmkv 0.6.4 / HandBrake 0.9.4, is fixed (#3562).</li>
+        <li><strong>MetadataRetriever:</strong> fixed a <code>ParserException</code> for MP4 and MOV files with MPEG (MP1, MP2, MP3) or DTS audio tracks.</li>
+        <li><strong>WebVTT:</strong> fixed an <code>IndexOutOfBoundsException</code> for a cue with multiple <code>&lt;ruby&gt;</code> tags nested inside another tag (#3549).</li>
+        <li><strong>Cast:</strong> <code>RemoteCastPlayer</code> no longer clears its timeline before handing playback state back to the local <code>CastPlayer</code> when the receiver app stops externally (#2182).</li>
+      </ul>
+<pre><code class="language-kotlin">when ((error.cause as? HttpDataSource.HttpDataSourceException)?.reason ?: error.errorCode) {
+    PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> retryWithBackoff()
+    PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED -> showOffline()
+    else -> reportError(error)
+}</code></pre>
+      <p>Again a shape rather than a drop-in: the point is that timeouts used to be indistinguishable from "network down" on this path, and now they are not.</p>
+
+      <h2>5. UI and Session fixes</h2>
+      <ul>
+        <li><strong>Compose PlayerSurface / ContentFrame:</strong> with <code>SURFACE_TYPE_SURFACE_VIEW</code>, surrounding Compose backgrounds turned black on Android 11 and earlier (#2638, #3285, #3466). Fixed.</li>
+        <li><strong>ProgressSlider:</strong> in <code>media3-ui-compose-material3</code>, used with <code>ExoPlayer</code>, it now configures a width-based fractional seek tolerance in <code>ExoPlayer.getScrubbingModeParameters()</code>.</li>
+        <li><strong>PlayerControlView:</strong> the settings popup is now aligned correctly when the control view or its parent has padding or window insets (#234).</li>
+        <li><strong>SubtitleView / PlayerView:</strong> applies the system caption style and text size even when the system "Show captions" setting is off, so subtitles turned on in the app match user preferences. It is guarded by <code>Flags.FLAG_APPLY_USER_CAPTION_STYLE_IF_CAPTIONS_DISABLED</code>, which is enabled in canary mode.</li>
+        <li><strong>Session:</strong> controllers from apps with notification listener access were wrongly marked untrusted when the controller package was not explicitly queried in the session app's manifest. The fix covers platform and legacy controllers on API 33+, and all controllers on API 30+ when the listener service is exported (#3507).</li>
+        <li><strong>MediaExtractorCompat:</strong> <code>getSampleCryptoInfo</code> now copies all array fields into the caller's <code>MediaCodec.CryptoInfo</code>, matching the platform <code>MediaExtractor</code>.</li>
+      </ul>
+
+      <h2>Release-candidate checklist</h2>
+      <ol>
+        <li>If you have custom <code>SampleStream</code> code, audit the <code>FLAG_OMIT_SAMPLE_DATA</code> path for encrypted samples.</li>
+        <li>Search your error handling for <code>ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</code> and confirm timeouts and cleartext blocks are handled as their own cases.</li>
+        <li>Run a seek-during-ad and an offload-audio session and watch the position and <code>isLoading()</code> values.</li>
+        <li>On Android 11 or older, check any <code>SURFACE_TYPE_SURFACE_VIEW</code> player embedded in a Compose layout with a background.</li>
+        <li>If you have not tried the beta yet, read the beta01 post first: the minSdk 24, JSpecify and removed-API changes are still the real migration work.</li>
+      </ol>
+
+      <div class="callout-green"><p>No breaking API surface in rc01 beyond the sample-stream contract. If your branch already builds on beta01, bumping to rc01 should be low risk and picks up a useful set of playback-position and error-code fixes.</p></div>
+
+      <p>Related: <a href="media3-1-12-0-beta01-jspecify-breaking-changes-codecdb.html">Media3 1.12.0-beta01: JSpecify, minSdk 24 and the removed APIs</a>.</p>
+      <p>Source: AndroidX Media3 release notes (1.12.0-rc01), developer.android.com, retrieved Nov 27, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('media3-1-12-0-rc01-crypto-info-okhttp-errors-hls-fixes');
+  </script>
+</body>
+</html>
