@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmark 1.6.0 Alphas: Fixed-Performance :lockClocks, Heap Profiling in Macrobenchmark and Cold-Start Tracing Fixes — bytevikas</title>
+  <meta name="description" content="Benchmark 1.6.0-alpha01 and alpha02 (Oct 7 and Nov 18, 2026): :lockClocks via fixed performance mode on non-rooted devices, MemoryProfilingConfig for Perfetto heap profiling, PerfettoTraceRule in-process tracing categories, thermal throttle and cold-start fixes, plus Tracing 2.1.0-alpha01." />
+  <link rel="canonical" href="https://bytevikas.com/blog/benchmark-1-6-0-alpha-lockclocks-memory-profiling-cold-start-tracing.html" />
+  <link rel="alternate" type="application/rss+xml" title="bytevikas Blog" href="../feed.xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="bytevikas" />
+  <meta property="og:title" content="Benchmark 1.6.0 Alphas: Fixed-Performance :lockClocks, Heap Profiling in Macrobenchmark and Cold-Start Tracing Fixes — bytevikas" />
+  <meta property="og:description" content="Benchmark 1.6.0-alpha01 and alpha02 (Oct 7 and Nov 18, 2026): :lockClocks via fixed performance mode on non-rooted devices, MemoryProfilingConfig for Perfetto heap profiling, PerfettoTraceRule in-process tracing categories, thermal throttle and cold-start fixes, plus Tracing 2.1.0-alpha01." />
+  <meta property="og:url" content="https://bytevikas.com/blog/benchmark-1-6-0-alpha-lockclocks-memory-profiling-cold-start-tracing.html" />
+  <meta property="og:image" content="https://bytevikas.com/photo-v2.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Benchmark 1.6.0 Alphas: Fixed-Performance :lockClocks, Heap Profiling in Macrobenchmark and Cold-Start Tracing Fixes — bytevikas" />
+  <meta name="twitter:description" content="Benchmark 1.6.0-alpha01 and alpha02 (Oct 7 and Nov 18, 2026): :lockClocks via fixed performance mode on non-rooted devices, MemoryProfilingConfig for Perfetto heap profiling, PerfettoTraceRule in-process tracing categories, thermal throttle and cold-start fixes, plus Tracing 2.1.0-alpha01." />
+  <meta name="twitter:image" content="https://bytevikas.com/photo-v2.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="blog.css">
+  <style>
+    :root {
+      --bg:#050505;--card-bg:rgba(255,255,255,.03);--card-border:rgba(255,255,255,.08);
+      --text:#fff;--muted:#64748b;--muted-light:#94a3b8;
+      --blue:#3b82f6;--blue-light:#60a5fa;--green-light:#34d399;
+      --accent:#5c7cfa;--accent-dim:rgba(92,124,250,.1);--accent-border:rgba(92,124,250,.2);
+    }
+    .glow-1{top:-20%;left:-10%;width:65%;height:65%;background:radial-gradient(circle,rgba(92,124,250,.06) 0%,transparent 70%);}
+    .post-body p{font-size:17px;line-height:1.82;color:#c0cdd8;margin-bottom:22px;}
+    .post-body li{font-size:17px;line-height:1.75;color:#c0cdd8;margin-bottom:8px;}
+    .post-body strong{color:white;}
+    .post-cat.testing{color:#5c7cfa;}
+
+    .callout{
+      background:rgba(92,124,250,.06);border:1px solid rgba(92,124,250,.2);
+      border-left:3px solid var(--accent);border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout p{font-size:15px;color:var(--muted-light);margin:0;}
+    .callout strong{color:var(--accent);}
+
+    .callout-green{
+      background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);
+      border-left:3px solid #22c55e;border-radius:12px;
+      padding:20px 24px;margin:28px 0;
+    }
+    .callout-green p{font-size:15px;color:var(--muted-light);margin:0;}
+
+    .announce-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+      margin:32px 0;
+    }
+    .announce-card{
+      background:var(--card-bg);border:1px solid var(--card-border);
+      border-radius:14px;padding:20px;text-align:center;
+    }
+    .announce-num{
+      font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;
+      color:var(--accent);line-height:1;margin-bottom:6px;
+    }
+    .announce-lbl{font-size:12px;color:var(--muted-light);line-height:1.4;}
+
+    .divider{border:none;border-top:1px solid var(--card-border);margin:60px 0;}
+
+    @media(max-width:600px){
+      .announce-grid{grid-template-columns:1fr;}
+    }
+    .count-badge{background:var(--card-bg);border:1px solid var(--card-border);color:var(--muted-light);font-size:13px;font-weight:600;padding:2px 10px;border-radius:50px;font-family:'Inter',sans-serif;}
+    .form-input:focus,.form-textarea:focus{border-color:rgba(92,124,250,.5);}
+    .submit-btn{background:white;color:black;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;align-self:flex-end;font-family:'Inter',sans-serif;}
+  </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="../site.js"></script>
+</head>
+<body>
+
+  <div class="glow glow-1" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="nav-logo">&lt;bytevikas/&gt;</a>
+      <a href="index.html" class="nav-back">← All posts</a>
+    </div>
+  </nav>
+
+  <div class="post-wrap">
+    <div class="post-meta">
+      <span class="post-cat testing">Testing</span>
+      <span class="post-date">Nov 28, 2026</span>
+      <span class="read-time">5 min read</span>
+    </div>
+
+    <h1>Benchmark 1.6.0 Alphas: Fixed-Performance :lockClocks, Heap Profiling in Macrobenchmark and Cold-Start Tracing Fixes</h1>
+
+    <div class="post-body">
+      <p>AndroidX Benchmark has two <strong>1.6.0</strong> alphas out: alpha01 on Oct 7, 2026 and alpha02 on Nov 18, 2026. They are small on new API surface but they change how reliable your numbers are: clock locking works on more devices, Macrobenchmark can capture heap profiles, and cold-start in-process tracing gets more consistent. Everything below comes from the official AndroidX release notes for Benchmark and Tracing, fetched today.</p>
+
+      <div class="announce-grid">
+        <div class="announce-card"><div class="announce-num">alpha01</div><div class="announce-lbl">Oct 7, 2026: lockClocks, MemoryProfilingConfig</div></div>
+        <div class="announce-card"><div class="announce-num">alpha02</div><div class="announce-lbl">Nov 18, 2026: bug fixes only</div></div>
+        <div class="announce-card"><div class="announce-num">2.1.0-alpha01</div><div class="announce-lbl">Tracing, same day as alpha02</div></div>
+      </div>
+
+      <h2>1. :lockClocks no longer needs root</h2>
+      <p>In alpha01, the <code>:lockClocks</code> task uses <strong>fixed performance mode</strong> when it is available, instead of the previous root-only implementation. The notes say this allows clock locking on more physical devices, and they ask for reports of thermal throttling with the new behavior. The practical effect: a physical, non-rooted device on your CI shelf may now be able to produce steadier microbenchmark numbers. I would not assume it, though. Re-run a known benchmark a few times and compare variance before and after the upgrade.</p>
+
+      <h2>2. MemoryProfilingConfig for Macrobenchmark</h2>
+      <p>alpha01 adds <code>MemoryProfilingConfig</code> to <code>ExperimentalConfig</code>, so macrobenchmark runs can opt in to Perfetto heap profiling. The release notes give no code sample and I have not verified the constructor shape, so the snippet below shows only where the config plugs in; check the generated API docs for the real parameters.</p>
+<pre><code class="language-kotlin">@OptIn(ExperimentalMacrobenchmarkApi::class)
+@RunWith(AndroidJUnit4::class)
+class StartupBenchmark {
+    @get:Rule val rule = MacrobenchmarkRule()
+
+    @Test
+    fun startupWithHeapProfile() = rule.measureRepeated(
+        packageName = "com.example.app",
+        metrics = listOf(StartupTimingMetric()),
+        iterations = 5,
+        startupMode = StartupMode.COLD,
+        // pass a MemoryProfilingConfig through ExperimentalConfig here
+    ) {
+        pressHome()
+        startActivityAndWait()
+    }
+}</code></pre>
+      <p>Heap profiling is the right tool when a startup regression is allocation-shaped rather than CPU-shaped, and it is the in-benchmark counterpart to the on-device profiling work covered in <a href="android-profilingmanager-production-profiling.html">ProfilingManager</a>.</p>
+
+      <h2>3. In-process tracing from benchmarks</h2>
+      <p>alpha02 (matched by Tracing 2.1.0-alpha01) lets <code>PerfettoTraceRule</code> enable <strong>optional categories</strong> for in-process tracing. Those categories are consumed by the <code>TraceDriver</code> instance in your target process. If you adopted Tracing 2.0 and emit events behind categories, you can now turn the expensive ones on only for benchmark runs.</p>
+<pre><code class="language-kotlin">// Test side: PerfettoTraceRule enables optional categories
+// App side: the TraceDriver in the target process reads them
+// (see the Tracing 2.0 post for the TraceDriver + Tracer setup)</code></pre>
+      <p>Two related alpha02 fixes: <code>PerfettoCapture</code> waits for the target process to exit using <code>am force-stop</code>, and target packages are now killed after in-process tracing is enabled if the process was not previously alive, so cold-start traces start from a consistent state. See <a href="jetpack-tracing-2-0-in-process-perfetto.html">Jetpack Tracing 2.0</a> and <a href="benchmark-1-5-0-beta-uiautomator-aot-perfetto-tracing.html">Benchmark 1.5.0-beta01</a> for the groundwork.</p>
+
+      <h2>4. Tracing 2.1.0-alpha01</h2>
+      <p>The tracing release is two bug-fix items: Perfetto changed the underlying protos from the <code>CallStack</code> type to <code>InlineCallStack</code> (the notes point to the Perfetto v58.2 changelog), and the category toggle support described above. Tracing 2.0.5 (Oct 21) remains the latest stable.</p>
+
+      <h2>5. Other alpha02 fixes worth knowing</h2>
+      <ul>
+        <li><strong>Thermal throttling:</strong> the logic now resets main-thread deadlines after the cooldown sleep finishes, avoiding premature time-limit errors.</li>
+        <li><strong>PerfettoOutput:</strong> uses buffered file streams to reduce write counts, which the notes say prevents file system exhaustion and timeouts.</li>
+        <li><strong>Build:</strong> the library build moved to JDK 25. This affects the library's own build, not your app.</li>
+      </ul>
+      <p>From alpha01:</p>
+      <ul>
+        <li>Method trace capture is no longer sometimes skipped unnecessarily to avoid ANRs in microbenchmarks.</li>
+        <li>Baseline profile capture is fixed for processes that do not use the <code>:&lt;suffix&gt;</code> naming pattern.</li>
+        <li>The <code>Unable to flush profiles for &lt;packagename&gt;</code> error is fixed.</li>
+        <li>Profiler trace links appear under a separate "Profiling Traces" section in IDE summaries.</li>
+        <li>Method traces embedded in the system trace had a synchronization fix.</li>
+        <li><code>CollectBaselineProfileTask</code> now finds <code>test-result.pb</code> files in subdirectories, for compatibility with the new built-in test platform.</li>
+      </ul>
+
+      <h2>Should you upgrade?</h2>
+      <ol>
+        <li>If you run macrobenchmarks on a physical device and fight variance, try alpha01 for the new <code>:lockClocks</code> and compare run-to-run spread.</li>
+        <li>If you use <code>PerfettoTraceRule</code> with Tracing 2.0 categories, take alpha02 and Tracing 2.1.0-alpha01 together.</li>
+        <li>If you use the Baseline Profile Gradle Plugin with a multi-process app or the new built-in test platform, the alpha01 fixes are relevant.</li>
+        <li>Keep these on a benchmark module only; they are alphas, and nothing here needs to reach your release build.</li>
+      </ol>
+
+      <div class="callout-green"><p>Benchmark tooling alphas carry low production risk because they live in test and benchmark modules. The cost of trying them is a CI run, and the payoff is trustworthy numbers before you chase a regression.</p></div>
+
+      <p>Source: AndroidX Benchmark and Tracing release notes (developer.android.com), retrieved Nov 28, 2026.</p>
+    </div>
+
+    <div class="interactions-wrap">
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn" aria-label="Like this post">
+          <span class="heart-icon">♥</span>
+          <span id="likeCount">—</span>
+        </button>
+        <span class="like-label">people found this helpful</span>
+      </div>
+      <h2 class="comments-title">Comments <span class="count-badge" id="commentCount">0</span></h2>
+      <div class="comments-list" id="commentsList">
+        <p class="no-comments">No comments yet. Be the first to leave one!</p>
+      </div>
+      <form class="comment-form" id="commentForm">
+        <h3>Leave a comment</h3>
+        <input class="form-input" type="text" id="commentName" placeholder="Your name" maxlength="50" required />
+        <textarea class="form-textarea" id="commentMessage" placeholder="Write a comment…" maxlength="1000" rows="4" required></textarea>
+        <button class="submit-btn" type="submit" id="submitBtn">Post Comment</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px;">
+      <p style="margin-bottom:12px">
+        Written by <a href="../index.html">bytevikas</a> &nbsp;·&nbsp;
+        <a href="index.html">More posts</a> &nbsp;·&nbsp;
+        <a href="../feed.xml">RSS</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initInteractions } from './blog-interactions.js';
+    initInteractions('benchmark-1-6-0-alpha-lockclocks-memory-profiling-cold-start-tracing');
+  </script>
+</body>
+</html>

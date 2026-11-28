@@ -6,7 +6,15 @@
     <atom:link href="https://bytevikas.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>Android engineering articles by Vikas Dhiman: performance, architecture, Jetpack Compose, Kotlin, Media3, and AI-assisted development.</description>
     <language>en</language>
-    <lastBuildDate>Fri, 27 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Sat, 28 Nov 2026 08:00:00 +0530</lastBuildDate>
+    <item>
+      <title>Benchmark 1.6.0 Alphas: Fixed-Performance :lockClocks, Heap Profiling in Macrobenchmark and Cold-Start Tracing Fixes</title>
+      <link>https://bytevikas.com/blog/benchmark-1-6-0-alpha-lockclocks-memory-profiling-cold-start-tracing.html</link>
+      <guid isPermaLink="true">https://bytevikas.com/blog/benchmark-1-6-0-alpha-lockclocks-memory-profiling-cold-start-tracing.html</guid>
+      <pubDate>Sat, 28 Nov 2026 08:00:00 +0530</pubDate>
+      <category>Testing</category>
+      <description>Benchmark 1.6.0-alpha01 and alpha02 (Oct 7 and Nov 18, 2026): :lockClocks via fixed performance mode on non-rooted devices, MemoryProfilingConfig for Perfetto heap profiling, PerfettoTraceRule in-process tracing categories, thermal throttle and cold-start fixes, plus Tracing 2.1.0-alpha01.</description>
+    </item>
     <item>
       <title>Media3 1.12.0-rc01: Encrypted Sample Contract, OkHttp Error Codes and the Playback Fixes to Test Before Stable</title>
       <link>https://bytevikas.com/blog/media3-1-12-0-rc01-crypto-info-okhttp-errors-hls-fixes.html</link>
@@ -238,14 +246,6 @@
       <pubDate>Fri, 30 Oct 2026 08:00:00 +0530</pubDate>
       <category>XR</category>
       <description>ARCore and SceneCore hit 1.0.0 stable on Oct 21. XR Compose is still beta02 with a SceneCore leak workaround, and 1.1.0-alpha01 adds SpatialAnnotation, dynamic meshes and simpler glTF animation.</description>
-    </item>
-    <item>
-      <title>Android Studio Rabbit 2: Bring Your Own Agent via ACP, Plus AI Change Review</title>
-      <link>https://bytevikas.com/blog/android-studio-rabbit-2-bring-your-own-agent-acp.html</link>
-      <guid isPermaLink="true">https://bytevikas.com/blog/android-studio-rabbit-2-bring-your-own-agent-acp.html</guid>
-      <pubDate>Thu, 29 Oct 2026 08:00:00 +0530</pubDate>
-      <category>ACP</category>
-      <description>Rabbit 2 makes Bring Your Own Agent stable: 40+ ACP agents including Claude Agent and Codex, a Skills Manager and a /review walkthrough for agent changes. Setup, what agents can access and the CLI plugins.</description>
     </item>
   </channel>
 </rss>
